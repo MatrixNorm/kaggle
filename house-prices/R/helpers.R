@@ -15,7 +15,7 @@ get_covariate_hist <- function(df, col_name){
   n = qs[['n']]
   bin_width = 2 * (q75 - q25) * (n ** (- 1/3))
   
-  g = ggplot(col_df %>% filter_(paste("LotArea <", q99)), aes_string(col_name))
+  g = ggplot(col_df %>% filter_(paste(col_name, "<", q99)), aes_string(col_name))
   g = g + geom_density(fill = "red", alpha = "0.7")
   
   return(g)
