@@ -15,7 +15,7 @@ load_header = function () {
 
 # XXX
 peek_tibble = function (tibble) {
-	head(as.data.frame(nonzero_df), 3)
+	head(as.data.frame(tibble), 3)
 }
 
 # XXX
@@ -29,9 +29,9 @@ get_slim_df = function (fat_df, factor_column) {
 }
 
 # XXX
-get_nonzero_factor_df = function (slim_fd) {
+get_nonzero_factor_df = function (slim_df) {
 
-    df = slim_fd %>%
+    df = slim_df %>%
             filter(Factor > 0) %>%
 	    select(-FactorIsNotZero) %>%	
             mutate(FactorSqrt=Factor^0.5, FactorLog=log10(Factor))
@@ -44,6 +44,33 @@ get_nonzero_factor_df = function (slim_fd) {
      mutate(predicted=predict(fit), resudials=residuals(fit)) %>%
      mutate(predictedSqrt=predict(fitSqrt), resudialsSqrt=residuals(fitSqrt)) %>%
      mutate(predictedLog=predict(fitLog), resudialsLog=residuals(fitLog))
+}
+
+# XXX
+get_nonzero_factor_df2 = function (slim_df) {
+
+    df = slim_df %>%
+            filter(Factor > 0) %>%
+	    select(-FactorIsNotZero) %>%	
+            mutate(FactorSqrt=Factor^0.5, FactorLog=log10(Factor)) %>%
+	    gather(transform, value, c(Factor, FactorSqrt, FactorLog))
+
+    fit = lm(LotFrontage ~ value, data = df %>% filter(transform == 'Factor'))
+    fitSqrt = lm(LotFrontage ~ value, data = df %>% filter(transform == 'FactorSqrt'))
+    fitLog = lm(LotFrontage ~ value, data = df %>% filter(transform == 'FactorLog'))
+
+    df$resudial = NA
+    df$predicted = NA
+
+    df[df$transform == 'Factor', ]$resudial = residuals(fit)
+    df[df$transform == 'FactorSqrt', ]$resudial = residuals(fitSqrt)
+    df[df$transform == 'FactorLog', ]$resudial = residuals(fitLog)
+
+    df[df$transform == 'Factor', ]$predicted = predict(fit)
+    df[df$transform == 'FactorSqrt', ]$predicted = predict(fitSqrt)
+    df[df$transform == 'FactorLog', ]$predicted = predict(fitLog)	
+
+    df
 }
 
 # XXX
