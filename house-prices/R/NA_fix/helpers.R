@@ -6,6 +6,7 @@ load_header = function () {
     library(grid)
     library(gridExtra)
     library(reshape2)
+    library(tidyr)
 
     df.train = tbl_df(read.csv("../../data/train.csv", stringsAsFactors = FALSE))
     df.test = tbl_df(read.csv("../../data/test.csv", stringsAsFactors = FALSE))
@@ -14,8 +15,8 @@ load_header = function () {
 }
 
 # XXX
-peek_tibble = function (tibble) {
-	head(as.data.frame(tibble), 3)
+peek_tibble = function (tibble, rows=3) {
+	head(as.data.frame(tibble), rows)
 }
 
 # XXX
