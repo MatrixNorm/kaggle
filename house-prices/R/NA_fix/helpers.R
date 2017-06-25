@@ -1,17 +1,20 @@
 
 # XXX
-load_header = function () {
+loadLibraries = function () {
     library(dplyr)
     library(ggplot2)
     library(grid)
     library(gridExtra)
     library(reshape2)
     library(tidyr)
+    library(magrittr)
+}
 
-    df.train = tbl_df(read.csv("../../data/train.csv", stringsAsFactors = FALSE))
-    df.test = tbl_df(read.csv("../../data/test.csv", stringsAsFactors = FALSE))
-    df.combined = rbind(within(df.train, rm('Id','SalePrice')), within(df.test, rm('Id')))
-    df.combined	
+loadData = function (data.dir) {
+  df.train = tbl_df(read.csv("../../data/train.csv", stringsAsFactors = FALSE)) %>% mutate(dataSource = "train")
+  df.test = tbl_df(read.csv("../../data/test.csv", stringsAsFactors = FALSE)) %>% mutate(dataSource = "test")
+  df.combined = rbind(within(df.train, rm('Id','SalePrice')), within(df.test, rm('Id')))
+  list("combined" = df.combined, "train" = df.train, "test" = df.test)
 }
 
 # XXX
