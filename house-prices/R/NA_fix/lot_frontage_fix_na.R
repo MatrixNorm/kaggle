@@ -1,18 +1,17 @@
 
-FixNaLotFrontageNeighborhoodIsBlmngtn = function (df.train) {
+FixNaLotFrontage.Blmngtn = function (df.train) {
   df.train %>%
     mutate(LotFrontageCalc = ifelse(Neighborhood == 'Blmngtn', 
                                       ifelse(LotAreaSqrt < 59, 43, 53), 
                                       LotFrontageCalc))
 }
 
-FixNaLotFrontageNeighborhoodIsBrkSide = function (df.train, df.data) {
+FixNaLotFrontage.BrkSide = function (df.train, df.data.BrkSide) {
   
   df.train.BrkSide = df.train %>% filter(Neighborhood == 'BrkSide')
   df.train.BrkSide.RL = df.train.BrkSide %>% filter(MSZoning == "RL")
   df.train.BrkSide.RM = df.train.BrkSide %>% filter(MSZoning == "RM")
   
-  df.data.BrkSide = df.data %>% filter(Neighborhood == 'BrkSide')
   df.data.BrkSide.RL = df.data.BrkSide %>% filter(MSZoning == "RL")
   df.data.BrkSide.RM = df.data.BrkSide %>% filter(MSZoning == "RM")
   
