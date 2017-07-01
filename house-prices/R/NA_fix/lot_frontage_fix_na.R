@@ -5,6 +5,7 @@ FixNaLotFrontage.Blmngtn = function (df.train) {
   df.train
 }
 
+
 FixNaLotFrontage.BrkSide = function (df.train, df.data.BrkSide) {
   
   df.train.BrkSide    = df.train %>% filter(Neighborhood == 'BrkSide') 
@@ -45,6 +46,7 @@ FixNaLotFrontage.ClearCr = function (df.train, df.data.ClearCr) {
   df.train
 }
 
+
 FixNaLotFrontage.CollgCr = function (df.train, df.data.CollgCr) {
   
   df.train.CollgCr      = df.train %>% filter(Neighborhood == 'CollgCr') 
@@ -65,3 +67,46 @@ FixNaLotFrontage.CollgCr = function (df.train, df.data.CollgCr) {
   df.train[df.train$Neighborhood == 'CollgCr' & df.train$LotShape2 == 'Ireg', "LotFrontageCalc"] = median.Ireg
   df.train
 }
+
+
+FixNaLotFrontage.Crawfor = function (df.train, df.data) {
+  
+  df.train.nei      = df.train %>% filter(Neighborhood == 'Crawfor') 
+  df.train.nei.Reg  = df.train.nei %>% filter(LotShape2 == "Reg")
+  df.train.nei.Ireg = df.train.nei %>% filter(LotShape2 == "Ireg")
+  
+  df.data.Reg  = df.data %>% filter(LotShape2 == "Reg")
+  df.data.Ireg = df.data %>% filter(LotShape2 == "Ireg")
+  
+  lm.Reg  = lm(LotFrontage ~ LotAreaSqrt, data = df.data.Reg)
+  lm.Ireg = lm(LotFrontage ~ LotAreaSqrt, data = df.data.Ireg)
+  
+  df.train[df.train$Neighborhood == 'Crawfor' & df.train$LotShape2 == 'Reg', "LotFrontageCalc"] = predict(lm.Reg, df.train.nei.Reg)
+  df.train[df.train$Neighborhood == 'Crawfor' & df.train$LotShape2 == 'Ireg', "LotFrontageCalc"] = predict(lm.Ireg, df.train.nei.Ireg)
+  df.train
+}
+
+
+FixNaLotFrontage.Edwards = function (df.train, df.data) {
+  
+  df.train.nei = df.train %>% filter(Neighborhood == 'Edwards') 
+
+  lm.model  = lm(LotFrontage ~ LotAreaSqrt, data = df.data)
+ 
+  df.train[df.train$Neighborhood == 'Edwards', "LotFrontageCalc"] = predict(lm.model, df.train.nei)
+  df.train
+}
+
+
+FixNaLotFrontage.Gilbert = function (df.train, df.data) {
+  
+  df.train.nei = df.train %>% filter(Neighborhood == 'Gilbert') 
+  
+  lm.model  = lm(LotFrontage ~ LotAreaSqrt, data = df.data)
+  
+  df.train[df.train$Neighborhood == 'Gilbert', "LotFrontageCalc"] = predict(lm.model, df.train.nei)
+  df.train
+}
+
+
+
