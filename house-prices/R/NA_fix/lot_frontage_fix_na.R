@@ -25,3 +25,43 @@ FixNaLotFrontage.BrkSide = function (df.train, df.data.BrkSide) {
   df.train[df.train$Neighborhood == 'BrkSide' & df.train$MSZoning == 'RM', "LotFrontageCalc"] = median.RM
   df.train
 }
+
+
+FixNaLotFrontage.ClearCr = function (df.train, df.data.ClearCr) {
+  
+  df.data.ClearCr.Reg = df.data.ClearCr %>% filter(LotShape == "Reg")
+  df.data.ClearCr.Ireg = df.data.ClearCr %>% filter(LotShape != "Reg")
+  
+  median.Reg = (df.data.ClearCr.Reg %>% 
+                 select(LotFrontage) %>% 
+                 summarise(median=median(LotFrontage)))$median
+  
+  median.Ireg = (df.data.ClearCr.Ireg %>% 
+                  select(LotFrontage) %>% 
+                  summarise(median=median(LotFrontage)))$median
+  
+  df.train[df.train$Neighborhood == 'ClearCr' & df.train$LotShape == 'Reg', "LotFrontageCalc"] = median.Reg
+  df.train[df.train$Neighborhood == 'ClearCr' & df.train$LotShape != 'Reg', "LotFrontageCalc"] = median.Ireg
+  df.train
+}
+
+FixNaLotFrontage.CollgCr = function (df.train, df.data.CollgCr) {
+  
+  df.train.CollgCr      = df.train %>% filter(Neighborhood == 'CollgCr') 
+  df.train.CollgCr.Reg  = df.train.CollgCr %>% filter(LotShape2 == "Reg")
+  df.train.CollgCr.Ireg = df.train.CollgCr %>% filter(LotShape2 == "Ireg")
+  
+  df.data.CollgCr.Reg  = df.data.CollgCr %>% filter(LotShape2 == "Reg")
+  df.data.CollgCr.Ireg = df.data.CollgCr %>% filter(LotShape2 == "Ireg")
+  
+  lm.CollgCr.Reg = lm(LotFrontage ~ LotAreaSqrt, data = df.data.CollgCr.Reg)
+  
+  median.Ireg = (df.data.CollgCr.Ireg %>% 
+                 select(LotFrontage) %>% 
+                 summarise(median=median(LotFrontage))
+  )$median
+  
+  df.train[df.train$Neighborhood == 'CollgCr' & df.train$LotShape2 == 'Reg', "LotFrontageCalc"] = predict(lm.CollgCr.Reg, df.train.CollgCr.Reg)
+  df.train[df.train$Neighborhood == 'CollgCr' & df.train$LotShape2 == 'Ireg', "LotFrontageCalc"] = median.Ireg
+  df.train
+}
