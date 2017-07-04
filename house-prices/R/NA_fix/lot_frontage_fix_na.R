@@ -1,29 +1,61 @@
 
+
+simpleLmFixerMaker = function (condition) {
+  
+  condition_call = substitute(condition)
+  
+  function (df.train, df.data) {
+    df.train.nei = df.train[ eval(condition_call, df.train), ]
+    df.data.nei  = df.data [ eval(condition_call, df.data), ]
+    
+    lm.model = lm(LotFrontage ~ LotAreaSqrt, data = df.data.nei)
+    
+    df.train[ eval(condition_call, df.train), "LotFrontageCalc"] = predict(lm.model, df.train.nei)
+    df.train
+  }
+}
+
+medianFixerMaker = function (condition) {
+  
+  condition_call = substitute(condition)
+  
+  function (df.train, df.data) {
+    df.train.nei = df.train[ eval(condition_call, df.train), ]
+    df.data.nei  = df.data [ eval(condition_call, df.data), ]
+    
+    med = (df.data.nei %>% 
+              select(LotFrontage) %>% 
+              summarise(median=median(LotFrontage))
+          )$median
+    
+    df.train[ eval(condition_call, df.train), "LotFrontageCalc"] = med
+    df.train
+  }
+}
+
+
 FixNaLotFrontage.Blmngtn = function (df.train) {
-  df.train[df.train$Neighborhood == 'Blmngtn' & df.train$LotAreaSqrt < 59, "LotFrontageCalc"] = 43
-  df.train[df.train$Neighborhood == 'Blmngtn' & df.train$LotAreaSqrt >= 59, "LotFrontageCalc"] = 53
+  df.train[ eval( substitute(Neighborhood == 'Blmngtn' & LotAreaSqrt < 59), df.train ), "LotFrontageCalc"] = 43
+  df.train[ eval( substitute(Neighborhood == 'Blmngtn' & LotAreaSqrt >= 59), df.train ), "LotFrontageCalc"] = 53
   df.train
 }
 
 
 FixNaLotFrontage.BrkSide = function (df.train, df.data.BrkSide) {
   
-  df.train.BrkSide    = df.train %>% filter(Neighborhood == 'BrkSide') 
-  df.train.BrkSide.RL = df.train.BrkSide %>% filter(MSZoning == "RL")
-  df.train.BrkSide.RM = df.train.BrkSide %>% filter(MSZoning == "RM")
-  
   df.data.BrkSide.RL = df.data.BrkSide %>% filter(MSZoning == "RL")
   df.data.BrkSide.RM = df.data.BrkSide %>% filter(MSZoning == "RM")
   
-  lm.BrkSide.RL = lm(LotFrontage ~ LotAreaSqrt, data = df.data.BrkSide.RL)
+  FixRL = simpleLmFixerMaker(Neighborhood == 'BrkSide' & MSZoning == "RL")
+  FixRM = medianFixerMaker(Neighborhood == 'BrkSide' & MSZoning == "RM")
   
   median.RM = (df.data.BrkSide.RM %>% 
                   select(LotFrontage) %>% 
                   summarise(median=median(LotFrontage))
               )$median
   
-  df.train[df.train$Neighborhood == 'BrkSide' & df.train$MSZoning == 'RL', "LotFrontageCalc"] = predict(lm.BrkSide.RL, df.train.BrkSide.RL)
-  df.train[df.train$Neighborhood == 'BrkSide' & df.train$MSZoning == 'RM', "LotFrontageCalc"] = median.RM
+  df.train = FixRL(df.train, df.data.BrkSide.RL)
+  df.train = FixRM(df.train, df.data.BrkSide.RM)
   df.train
 }
 
@@ -40,6 +72,9 @@ FixNaLotFrontage.ClearCr = function (df.train, df.data.ClearCr) {
   median.Ireg = (df.data.ClearCr.Ireg %>% 
                   select(LotFrontage) %>% 
                   summarise(median=median(LotFrontage)))$median
+  
+  FixReg = medianFixerMaker(Neighborhood == 'ClearCr' & LotShape == "Reg")
+  FixIreg = medianFixerMaker(Neighborhood == 'ClearCr' & LotShape != "Reg")
   
   df.train[df.train$Neighborhood == 'ClearCr' & df.train$LotShape == 'Reg', "LotFrontageCalc"] = median.Reg
   df.train[df.train$Neighborhood == 'ClearCr' & df.train$LotShape != 'Reg', "LotFrontageCalc"] = median.Ireg
@@ -87,26 +122,14 @@ FixNaLotFrontage.Crawfor = function (df.train, df.data) {
 }
 
 
-FixNaLotFrontage.Edwards = function (df.train, df.data) {
-  
-  df.train.nei = df.train %>% filter(Neighborhood == 'Edwards') 
+FixNaLotFrontage.Edwards = simpleLmFixerMaker(Neighborhood == 'Edwards')
+FixNaLotFrontage.Gilbert = simpleLmFixerMaker(Neighborhood == 'Gilbert')
+FixNaLotFrontage.IDOTRR  = simpleLmFixerMaker(Neighborhood == 'IDOTRR')
 
-  lm.model  = lm(LotFrontage ~ LotAreaSqrt, data = df.data)
- 
-  df.train[df.train$Neighborhood == 'Edwards', "LotFrontageCalc"] = predict(lm.model, df.train.nei)
+
+FixNaLotFrontage.MeadowV = function (df.train) {
+  df.train[df.train$Neighborhood == 'MeadowV' & df.train$LotAreaSqrt < 47, "LotFrontageCalc"] = 21
+  df.train[df.train$Neighborhood == 'MeadowV' & df.train$LotAreaSqrt >= 47 & df.train$LotAreaSqrt < 51, "LotFrontageCalc"] = 34
+  df.train[df.train$Neighborhood == 'MeadowV' & df.train$LotAreaSqrt >= 51, "LotFrontageCalc"] = 41
   df.train
 }
-
-
-FixNaLotFrontage.Gilbert = function (df.train, df.data) {
-  
-  df.train.nei = df.train %>% filter(Neighborhood == 'Gilbert') 
-  
-  lm.model  = lm(LotFrontage ~ LotAreaSqrt, data = df.data)
-  
-  df.train[df.train$Neighborhood == 'Gilbert', "LotFrontageCalc"] = predict(lm.model, df.train.nei)
-  df.train
-}
-
-
-
