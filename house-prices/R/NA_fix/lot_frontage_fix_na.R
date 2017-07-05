@@ -41,18 +41,41 @@ FixNaLotFrontage.Blmngtn = function (df.train) {
 }
 
 
-FixNaLotFrontage.BrkSide = function (df.train, df.data.BrkSide) {
+qwerty = function (...) {
   
-  df.data.BrkSide.RL = df.data.BrkSide %>% filter(MSZoning == "RL")
-  df.data.BrkSide.RM = df.data.BrkSide %>% filter(MSZoning == "RM")
+  args = as.list(match.call())[-1]
+  argsLength = length(args)
   
-  FixRL = simpleLmFixerMaker(Neighborhood == 'BrkSide' & MSZoning == "RL")
-  FixRM = medianFixerMaker(Neighborhood == 'BrkSide' & MSZoning == "RM")
-  
-  df.train = FixRL(df.train, df.data.BrkSide.RL)
-  df.train = FixRM(df.train, df.data.BrkSide.RM)
-  df.train
+  function (df.train, df.data) {
+    for ( i in 1:(argsLength/2) ) {
+      
+      condition = args[[2*i - 1]]
+      fixerMaker = args[[2*i]]
+      
+      df.data.slice = df.data %>% filter(condition)
+      fixer = fixerMaker(condition)
+      
+      df.train = fixer(df.train, df.data.slice)
+    }
+    df.train
+  }
 }
+
+FixNaLotFrontage.BrkSide = qwerty(MSZoning == "RL", simpleLmFixerMaker, 
+                                  MSZoning == "RM", medianFixerMaker)
+
+# FixNaLotFrontage.BrkSide = function (df.train, df.data.BrkSide) {
+#   
+#   df.data.BrkSide.RL = df.data.BrkSide %>% filter(MSZoning == "RL")
+#   df.data.BrkSide.RM = df.data.BrkSide %>% filter(MSZoning == "RM")
+#   
+#   FixRL = simpleLmFixerMaker(Neighborhood == 'BrkSide' & MSZoning == "RL")
+#   FixRM = medianFixerMaker(Neighborhood == 'BrkSide' & MSZoning == "RM")
+#   
+#   df.train = FixRL(df.train, df.data.BrkSide.RL)
+#   df.train = FixRM(df.train, df.data.BrkSide.RM)
+#   df.train
+# }
 
 
 FixNaLotFrontage.ClearCr = function (df.train, df.data) {
