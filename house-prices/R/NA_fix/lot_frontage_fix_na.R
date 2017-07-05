@@ -9,9 +9,11 @@ universalFixer = function (patchMaker) {
       
       df.data.subset  = df.data [ eval(condition_call, df.data), ]
       df.train.subset = df.train[ eval(condition_call, df.train), ]
-      
+
       patch = patchMaker(df.data.subset)
-      
+      if ( class(patch) == "lm" ) {
+        patch = predict(patch, df.train.subset)
+      }
       df.train[ eval(condition_call, df.train), "LotFrontageCalc"] = patch
       df.train
     }
@@ -27,41 +29,10 @@ medianFixerMaker = universalFixer(function (data) {
   median(data$LotFrontage)
 })
 
-simpleLmFixerMaker = function (condition) {
-  
-  condition_call = substitute(condition)
-  
-  function (df.train, df.data) {
-    
-    df.data.subset  = df.data [ eval(condition_call, df.data), ]
-    df.train.subset = df.train[ eval(condition_call, df.train), ]
-    
-    lm.model = lm(LotFrontage ~ LotAreaSqrt, data = df.data.subset)
-    
-    df.train[ eval(condition_call, df.train), "LotFrontageCalc"] = predict(lm.model, df.train.subset)
-    df.train
-  }
-}
 
-medianFixerMaker = function (condition) {
-  
-  condition_call = substitute(condition)
-  
-  function (df.train, df.data) {
-    
-    df.data.subset  = df.data [ eval(condition_call, df.data), ]
-    df.train.subset = df.train[ eval(condition_call, df.train), ]
-    
-    med = (df.data.subset %>% 
-              select(LotFrontage) %>% 
-              summarise(median=median(LotFrontage))
-          )$median
-    
-    df.train[ eval(condition_call, df.train), "LotFrontageCalc"] = med
-    df.train
-  }
-}
-
+meanFixerMaker = universalFixer(function (data) {
+  mean(data$LotFrontage)
+})
 
 FixNaLotFrontage.Blmngtn = function (df.train) {
   df.train[ eval( substitute(Neighborhood == 'Blmngtn' & LotAreaSqrt < 59), df.train), "LotFrontageCalc"] = 43
@@ -84,48 +55,44 @@ FixNaLotFrontage.BrkSide = function (df.train, df.data.BrkSide) {
 }
 
 
-FixNaLotFrontage.ClearCr = function (df.train, df.data.ClearCr) {
+FixNaLotFrontage.ClearCr = function (df.train, df.data) {
   
-  df.data.ClearCr.Reg = df.data.ClearCr %>% filter(LotShape == "Reg")
-  df.data.ClearCr.Ireg = df.data.ClearCr %>% filter(LotShape != "Reg")
+  df.data.Reg = df.data %>% filter(LotShape2 == "Reg")
+  df.data.Ireg = df.data %>% filter(LotShape2 != "Reg")
   
-  FixReg = medianFixerMaker(Neighborhood == 'ClearCr' & LotShape == "Reg")
-  FixIreg = medianFixerMaker(Neighborhood == 'ClearCr' & LotShape != "Reg")
+  FixReg = meanFixerMaker(Neighborhood == 'ClearCr' & LotShape2 == "Reg")
+  FixIreg = meanFixerMaker(Neighborhood == 'ClearCr' & LotShape2 != "Reg")
   
-  df.train = FixReg(df.train, df.data.ClearCr.Reg)
-  df.train = FixIreg(df.train, df.data.ClearCr.Ireg)
+  df.train = FixReg(df.train, df.data.Reg)
+  df.train = FixIreg(df.train, df.data.Ireg)
   df.train
 }
 
 
-FixNaLotFrontage.CollgCr = function (df.train, df.data.CollgCr) {
+FixNaLotFrontage.CollgCr = function (df.train, df.data) {
   
-  df.data.CollgCr.Reg  = df.data.CollgCr %>% filter(LotShape2 == "Reg")
-  df.data.CollgCr.Ireg = df.data.CollgCr %>% filter(LotShape2 == "Ireg")
+  df.data.Reg  = df.data %>% filter(LotShape2 == "Reg")
+  df.data.Ireg = df.data %>% filter(LotShape2 == "Ireg")
   
   FixReg = simpleLmFixerMaker(Neighborhood == 'CollgCr' & LotShape2 == "Reg")
   FixIreg = medianFixerMaker(Neighborhood == 'CollgCr' & LotShape2 == "Ireg")
   
-  df.train = FixReg(df.train, df.data.CollgCr.Reg)
-  df.train = FixReg(df.train, df.data.CollgCr.Ireg)
+  df.train = FixReg(df.train, df.data.Reg)
+  df.train = FixIreg(df.train, df.data.Ireg)
   df.train
 }
 
 
 FixNaLotFrontage.Crawfor = function (df.train, df.data) {
   
-  df.train.nei      = df.train %>% filter(Neighborhood == 'Crawfor') 
-  df.train.nei.Reg  = df.train.nei %>% filter(LotShape2 == "Reg")
-  df.train.nei.Ireg = df.train.nei %>% filter(LotShape2 == "Ireg")
-  
   df.data.Reg  = df.data %>% filter(LotShape2 == "Reg")
   df.data.Ireg = df.data %>% filter(LotShape2 == "Ireg")
   
-  lm.Reg  = lm(LotFrontage ~ LotAreaSqrt, data = df.data.Reg)
-  lm.Ireg = lm(LotFrontage ~ LotAreaSqrt, data = df.data.Ireg)
+  FixReg = simpleLmFixerMaker(Neighborhood == 'Crawfor' & LotShape2 == "Reg")
+  FixIreg = simpleLmFixerMaker(Neighborhood == 'Crawfor' & LotShape2 == "Ireg")
   
-  df.train[df.train$Neighborhood == 'Crawfor' & df.train$LotShape2 == 'Reg', "LotFrontageCalc"] = predict(lm.Reg, df.train.nei.Reg)
-  df.train[df.train$Neighborhood == 'Crawfor' & df.train$LotShape2 == 'Ireg', "LotFrontageCalc"] = predict(lm.Ireg, df.train.nei.Ireg)
+  df.train = FixReg(df.train, df.data.Reg)
+  df.train = FixIreg(df.train, df.data.Ireg)
   df.train
 }
 
