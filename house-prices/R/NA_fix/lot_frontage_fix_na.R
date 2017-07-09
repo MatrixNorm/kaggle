@@ -3,18 +3,18 @@
 universalFixer = function (patchMaker) {
   
   function (condition) {
-    condition_call = substitute(condition)
+    #condition_call = substitute(condition)
     
     function (df.train, df.data) {
-      
-      df.data.subset  = df.data [ eval(condition_call, df.data), ]
-      df.train.subset = df.train[ eval(condition_call, df.train), ]
+      #browser()
+      df.data.subset  = df.data [ eval(condition, df.data), ]
+      df.train.subset = df.train[ eval(condition, df.train), ]
 
       patch = patchMaker(df.data.subset)
       if ( class(patch) == "lm" ) {
         patch = predict(patch, df.train.subset)
       }
-      df.train[ eval(condition_call, df.train), "LotFrontageCalc"] = patch
+      df.train[ eval(condition, df.train), "LotFrontageCalc"] = patch
       df.train
     }
   }
@@ -42,6 +42,9 @@ FixNaLotFrontage.Blmngtn = function (df.train) {
 
 
 qwerty = function (...) {
+  # cond1, fixerMAker1, cond2, fixermaker2, ...
+  # e.g.
+  # MSZoning == "RL", simpleLmFixerMaker, MSZoning == "RM", medianFixerMaker
   
   args = as.list(match.call())[-1]
   argsLength = length(args)
@@ -51,9 +54,9 @@ qwerty = function (...) {
       
       condition = args[[2*i - 1]]
       fixerMaker = args[[2*i]]
-      
-      df.data.slice = df.data %>% filter(condition)
-      fixer = fixerMaker(condition)
+      #browser()
+      df.data.slice = df.data %>% filter(eval(condition))
+      fixer = eval(fixerMaker)(condition)
       
       df.train = fixer(df.train, df.data.slice)
     }
@@ -61,8 +64,8 @@ qwerty = function (...) {
   }
 }
 
-FixNaLotFrontage.BrkSide = qwerty(MSZoning == "RL", simpleLmFixerMaker, 
-                                  MSZoning == "RM", medianFixerMaker)
+FixNaLotFrontage.BrkSide = qwerty(Neighborhood == 'BrkSide' & MSZoning == "RL", simpleLmFixerMaker, 
+                                  Neighborhood == 'BrkSide' & MSZoning == "RM", medianFixerMaker)
 
 # FixNaLotFrontage.BrkSide = function (df.train, df.data.BrkSide) {
 #   
