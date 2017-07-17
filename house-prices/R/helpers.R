@@ -1,3 +1,5 @@
+
+
 get_covariate_hist <- function(df, col_name, type="hist") {
   
   col_df = df %>% select_(col_name) %>% na.omit()

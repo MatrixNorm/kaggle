@@ -1,6 +1,6 @@
 
 # XXX
-loadLibraries = function () {
+kaggle.house.loadLibraries = function () {
     library(dplyr)
     library(ggplot2)
     library(grid)
@@ -10,11 +10,39 @@ loadLibraries = function () {
     library(magrittr)
 }
 
-loadData = function (data.dir) {
+
+kaggle.house.loadData = function (data.dir) {
   df.train = tbl_df(read.csv("../../data/train.csv", stringsAsFactors = FALSE)) %>% mutate(dataSource = "train")
   df.test = tbl_df(read.csv("../../data/test.csv", stringsAsFactors = FALSE)) %>% mutate(dataSource = "test")
   df.combined = rbind(within(df.train, rm('Id','SalePrice')), within(df.test, rm('Id')))
-  list("combined" = df.combined, "train" = df.train, "test" = df.test)
+  df.combined
+}
+
+
+kaggle.house.PrepareCombinedDataSet = function () {
+  df.combined = kaggle.house.loadData() %>% 
+    mutate(
+      # Convert categorical numeric vars to char
+      MSSubClass = as.character(MSSubClass), 
+      OverallQual = as.character(OverallQual),
+      OverallCond = as.character(OverallCond),
+      # Add new vars
+      YearBuiltChar = as.character(YearBuilt),
+      LotAreaSqrt = sqrt(LotArea),
+      LotAreaLog = log(LotFrontage),
+      LotShape2=ifelse(LotShape == 'Reg', 'Reg', 'Ireg')
+    ) 
+  df.combined
+}
+
+
+getByNeighborhood = function (neigh) {
+  df.lot_frontage %>% filter(Neighborhood == neigh)    
+}
+
+
+getTrainData =  function () {
+  df.combined %>% filter(dataSource == "train") %>% mutate(LotFrontageCalc = NA)
 }
 
 # XXX
