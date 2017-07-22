@@ -27,7 +27,6 @@ kaggle.house.PrepareCombinedDataSet = function () {
       OverallQual = as.character(OverallQual),
       OverallCond = as.character(OverallCond),
       # Add new vars
-      YearBuiltChar = as.character(YearBuilt),
       LotAreaSqrt = sqrt(LotArea),
       LotAreaLog = log(LotFrontage),
       LotShape2=ifelse(LotShape == 'Reg', 'Reg', 'Ireg')
