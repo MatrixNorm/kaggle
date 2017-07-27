@@ -8,6 +8,7 @@ kaggle.house.loadLibraries = function () {
     library(reshape2)
     library(tidyr)
     library(magrittr)
+    library(broom)
 }
 
 
@@ -27,22 +28,41 @@ kaggle.house.PrepareCombinedDataSet = function () {
       OverallQual = as.character(OverallQual),
       OverallCond = as.character(OverallCond),
       # Add new vars
-      LotAreaSqrt = sqrt(LotArea),
-      LotAreaLog = log(LotFrontage),
-      LotShape2=ifelse(LotShape == 'Reg', 'Reg', 'Ireg')
+      LotArea.Log = log(LotArea),
+      LotFrontage.Log = log(LotFrontage),
+      X1stFlrSF.Log = log(X1stFlrSF),
+      GarageArea.Log = log(GarageArea),
+      TotRmsAbvGrd.Log = log(TotRmsAbvGrd),
+      GrLivArea.Log = log(GrLivArea),
+      LotShape2=ifelse(LotShape == 'Reg', 'Reg', 'Ireg'),
+      LotConfig2=ifelse(LotConfig %in% c('CulDSac', 'FR2', 'FR3'), 'CulDSac+FR2+FR3', LotConfig),
+      GarageCarsChar = as.character(GarageCars)
     ) 
   df.combined
 }
 
 
-getByNeighborhood = function (neigh) {
-  df.lot_frontage %>% filter(Neighborhood == neigh)    
-}
-
-
-getTrainData =  function () {
+kaggle.house.getTrainData =  function () {
   df.combined %>% filter(dataSource == "train") %>% mutate(LotFrontageCalc = NA)
 }
+
+
+kaggle.house.meanVariationSplitByCategoricalAttrs = function (df.data, targetColumn) {
+  targetColumn <- enquo(targetColumn)
+  colNames = names(which(sapply(df.data, is.character)))
+  colNames = c(colNames, paste(targetColumn)[2])
+  
+  df.data %>% 
+          select(colNames) %>% 
+          gather(attr, attr_val, -!!targetColumn) %>% 
+          group_by(attr, attr_val) %>% 
+          summarise(var=var(!!targetColumn), n=n()) %>%
+          mutate(freq = n / sum(n), freq.var = var * freq) %>%
+          summarise(var.expect = sum(freq.var, na.rm=TRUE)) %>%
+          arrange(var.expect)
+}
+
+
 
 # XXX
 peek_tibble = function (tibble, rows=3) {
