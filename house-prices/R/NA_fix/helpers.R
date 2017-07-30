@@ -34,6 +34,7 @@ kaggle.house.PrepareCombinedDataSet = function () {
       GarageArea.Log = log(GarageArea),
       TotRmsAbvGrd.Log = log(TotRmsAbvGrd),
       GrLivArea.Log = log(GrLivArea),
+      BldgType2=ifelse(BldgType %in% c('Twnhs', 'TwnhsE'), 'Townhouse', ifelse(BldgType %in% c('2fmCon', 'Duplex'), 'Duplex+2fmCon', BldgType)),
       LotShape2=ifelse(LotShape == 'Reg', 'Reg', 'Ireg'),
       LotConfig2=ifelse(LotConfig %in% c('CulDSac', 'FR2', 'FR3'), 'CulDSac+FR2+FR3', LotConfig),
       GarageCarsChar = as.character(GarageCars)
