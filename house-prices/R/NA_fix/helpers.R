@@ -37,6 +37,7 @@ kaggle.house.PrepareCombinedDataSet = function () {
       BldgType2=ifelse(BldgType %in% c('Twnhs', 'TwnhsE'), 'Townhouse', ifelse(BldgType %in% c('2fmCon', 'Duplex'), 'Duplex+2fmCon', BldgType)),
       LotShape2=ifelse(LotShape == 'Reg', 'Reg', 'Ireg'),
       LotConfig2=ifelse(LotConfig %in% c('CulDSac', 'FR2', 'FR3'), 'CulDSac+FR2+FR3', LotConfig),
+      GarageType2=ifelse(GarageType %in% c('Attchd', 'Detchd', NA), GarageType, 'Another'),
       GarageCarsChar = as.character(GarageCars)
     ) 
   df.combined
@@ -61,6 +62,22 @@ kaggle.house.meanVariationSplitByCategoricalAttrs = function (df.data, targetCol
           mutate(freq = n / sum(n), freq.var = var * freq) %>%
           summarise(var.expect = sum(freq.var, na.rm=TRUE)) %>%
           arrange(var.expect)
+}
+
+
+kaggle.house.lineaModelSplitByCategoricalAttrs = function (df.data, lm.formula) {
+  targetColumn <- enquo(targetColumn)
+  colNames = names(which(sapply(df.data, is.character)))
+  colNames = c(colNames, paste(targetColumn)[2])
+  
+  df.data %>% 
+    select(colNames) %>% 
+    gather(attr, attr_val, -!!targetColumn) %>% 
+    group_by(attr, attr_val) %>% 
+    summarise(var=var(!!targetColumn), n=n()) %>%
+    mutate(freq = n / sum(n), freq.var = var * freq) %>%
+    summarise(var.expect = sum(freq.var, na.rm=TRUE)) %>%
+    arrange(var.expect)
 }
 
 
