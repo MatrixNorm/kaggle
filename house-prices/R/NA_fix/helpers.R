@@ -38,6 +38,8 @@ kaggle.house.PrepareCombinedDataSet = function () {
       LotShape2=ifelse(LotShape == 'Reg', 'Reg', 'Ireg'),
       LotConfig2=ifelse(LotConfig %in% c('CulDSac', 'FR2', 'FR3'), 'CulDSac+FR2+FR3', LotConfig),
       GarageType2=ifelse(GarageType %in% c('Attchd', 'Detchd', NA), GarageType, 'Another'),
+      HouseStyle.2Story = ifelse(HouseStyle == '2Story', 'Y', 'N'),
+      HouseStyle.1Story = ifelse(HouseStyle == '1Story', 'Y', 'N'),
       GarageCarsChar = as.character(GarageCars)
     ) 
   df.combined
