@@ -9,6 +9,7 @@ kaggle.house.loadLibraries = function () {
     library(tidyr)
     library(magrittr)
     library(broom)
+    library(purrr)
 }
 
 
