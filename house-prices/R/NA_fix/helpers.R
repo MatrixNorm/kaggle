@@ -7,9 +7,10 @@ kaggle.house.loadLibraries = function () {
     library(gridExtra)
     library(reshape2)
     library(tidyr)
-    library(magrittr)
+    #library(magrittr)
     library(broom)
     library(purrr)
+    library(tibble)
 }
 
 
@@ -44,6 +45,46 @@ kaggle.house.PrepareCombinedDataSet = function () {
       GarageCarsChar = as.character(GarageCars)
     ) 
   df.combined
+}
+
+
+kaggle.house.groupDataFrame = function (df) {
+  df %>%
+    mutate(
+      Split.Condition = case_when(
+        Neighborhood == 'Somerst' ~ 
+          
+          case_when(
+            LotShape2 == 'Reg' ~ '1.1 Somerst Neighb. Reg Shape',
+            TRUE ~ '1.2 Somerst Neighb. non-Reg Shape'
+          ),
+        
+        TRUE ~
+          
+          case_when(
+            LotShape2 == 'Reg' ~
+              
+              case_when(
+                HouseStyle.2Story == 'N' ~
+                  case_when(
+                    GarageType2 == 'Detchd'  ~ '2.1.1.1 Reg Shape non-2Story Garage Detchd',
+                    GarageType2 == 'Attchd'  ~ '2.1.1.2 Reg Shape non-2Story Garage Attchd',
+                    TRUE ~ '2.1.1.3 Reg Shape non-2Story Garage Another'
+                  ),
+                TRUE ~ '2.1.2 Reg Shape 2Story'
+              ),
+            
+            TRUE ~
+              case_when(
+                LotConfig2 == 'Corner' ~ '2.2.1 non-Reg Shape Corner Config',
+                LotConfig2 == 'Inside' ~ '2.2.2 non-Reg Shape Inside Config',
+                TRUE ~ '2.2.3 non-Reg Shape Another Config'
+              )
+            
+          )
+      )
+    ) %>%
+    group_by(Split.Condition)
 }
 
 
