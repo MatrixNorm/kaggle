@@ -1,4 +1,28 @@
 
+kaggle.house.loadLibraries = function () {
+  library(dplyr)
+  library(ggplot2)
+  library(grid)
+  library(gridExtra)
+  library(reshape2)
+  library(tidyr)
+  library(broom)
+  library(purrr)
+  library(tibble)
+}
+
+
+kaggle.house.loadData = function () {
+  df.train <- tbl_df(read.csv("./data/train.csv", stringsAsFactors = FALSE)) %>% mutate(dataSource = "train")
+  df.test <- tbl_df(read.csv("./data/test.csv", stringsAsFactors = FALSE)) %>% mutate(dataSource = "test")
+  
+  df.train <- df.train %>% mutate(MSSubClass = as.character(MSSubClass))
+  df.test <- df.test %>% mutate(MSSubClass = as.character(MSSubClass))
+  
+  df.combined <- rbind(within(df.train, rm('Id','SalePrice')), within(df.test, rm('Id')))
+  list(combined=df.combined, test=df.test, train=df.train)
+}
+
 
 get_covariate_hist <- function(df, col_name, type="hist") {
   

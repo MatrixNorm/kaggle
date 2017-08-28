@@ -1,25 +1,5 @@
 
-# XXX
-kaggle.house.loadLibraries = function () {
-    library(dplyr)
-    library(ggplot2)
-    library(grid)
-    library(gridExtra)
-    library(reshape2)
-    library(tidyr)
-    #library(magrittr)
-    library(broom)
-    library(purrr)
-    library(tibble)
-}
-
-
-kaggle.house.loadData = function (data.dir) {
-  df.train = tbl_df(read.csv("../../data/train.csv", stringsAsFactors = FALSE)) %>% mutate(dataSource = "train")
-  df.test = tbl_df(read.csv("../../data/test.csv", stringsAsFactors = FALSE)) %>% mutate(dataSource = "test")
-  df.combined = rbind(within(df.train, rm('Id','SalePrice')), within(df.test, rm('Id')))
-  df.combined
-}
+source('../helpers.R')
 
 
 kaggle.house.PrepareCombinedDataSet = function () {
