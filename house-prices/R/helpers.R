@@ -1,5 +1,6 @@
 
 kaggle.house.loadLibraries = function () {
+  library(caret)
   library(dplyr)
   library(ggplot2)
   library(grid)
