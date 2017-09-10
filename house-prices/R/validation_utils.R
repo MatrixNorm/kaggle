@@ -33,3 +33,29 @@ kaggle.house.validation.get_scores <- function (model_index_pairs, data) {
   scores <- model_index_pairs %>% map(~kaggle.house.validation.get_train_test_score(data, .$model, .$train_index))
   do.call(rbind.data.frame, scores)
 }
+
+
+kaggle.house.validation.plot_scores <- function (scores) {
+  
+  scores %>%
+    ggplot() +
+    geom_point(aes(x=train_score, y=test_score), alpha=0.1, color="black", size=1) +
+    theme_bw() -> p1
+  
+  scores %>%
+    ggplot() +
+    geom_density(aes(train_score), fill = "red", alpha = "0.2") +
+    geom_density(aes(test_score), fill = "blue", alpha = "0.2") +
+    theme_bw() -> p2
+  
+  scores %>%
+    ggplot() +
+    geom_point(aes(seq_along(test_score), test_score), color="black", alpha=0.5) +
+    geom_point(aes(seq_along(train_score), train_score), color="blue", alpha=0.5) +
+    theme_bw() -> p3
+  
+  grid.arrange(p1, p2, p3,
+               layout_matrix=rbind(c(1, 2, 3))
+  )
+  
+}
