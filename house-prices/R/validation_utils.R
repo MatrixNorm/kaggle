@@ -5,7 +5,7 @@ kaggle.house.validation.do_many_partitions <- function (data, formula, p, numrep
   fn <- function (i) { 
     train_index <- caret::createDataPartition(
       data[, toString(terms(formula)[[2]])] %>% `[[`(1), 
-      p=0.8, times=1, list=FALSE)
+      p=p, times=1, list=FALSE)
     df.train <- data[train_index,]
     model.lm <- lm(LotFrontage.log ~ LotArea.log, data = df.train)
     list(model = model.lm, train_index = train_index)
