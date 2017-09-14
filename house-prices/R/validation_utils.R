@@ -1,13 +1,25 @@
 
 
-kaggle.house.validation.do_many_partitions <- function (data, formula, p, numrep) {
+kaggle.house.validation.do_many_partitions <- function (data, p, numrep, target_var, model_maker) {
   
   fn <- function (i) { 
-    train_index <- caret::createDataPartition(
-      data[, toString(terms(formula)[[2]])] %>% `[[`(1), 
-      p=p, times=1, list=FALSE)
+    train_index <- caret::createDataPartition(data[, target_var] %>% `[[`(1), p=p, times=1, list=FALSE)
     df.train <- data[train_index,]
-    model.lm <- lm(LotFrontage.log ~ LotArea.log, data = df.train)
+    model.lm <- model_maker(df.train)
+    list(model = model.lm, train_index = train_index)
+  }
+  
+  1:200 %>% map(fn)
+}
+
+
+kaggle.house.validation.do_many_partitions.old <- function (data, formula, p, numrep) {
+  
+  fn <- function (i) { 
+    train_index <- caret::createDataPartition(data[, toString(terms(formula)[[2]])] %>% `[[`(1), 
+                                              p=p, times=1, list=FALSE)
+    df.train <- data[train_index,]
+    model.lm <- lm(formula, data = df.train)
     list(model = model.lm, train_index = train_index)
   }
   
