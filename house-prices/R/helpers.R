@@ -17,6 +17,19 @@ kaggle.house.loadData = function () {
   df.train <- tbl_df(read.csv("./data/train.csv", stringsAsFactors = FALSE)) %>% mutate(dataSource = "train")
   df.test <- tbl_df(read.csv("./data/test.csv", stringsAsFactors = FALSE)) %>% mutate(dataSource = "test")
   
+  df.combined <- rbind(within(df.train, rm('Id','SalePrice')), within(df.test, rm('Id')))
+  
+  df.train$dataSource <- NULL
+  df.test$dataSource <- NULL
+  
+  list(combined=df.combined, test=df.test, train=df.train)
+}
+
+
+kaggle.house.loadData.old = function () {
+  df.train <- tbl_df(read.csv("./data/train.csv", stringsAsFactors = FALSE)) %>% mutate(dataSource = "train")
+  df.test <- tbl_df(read.csv("./data/test.csv", stringsAsFactors = FALSE)) %>% mutate(dataSource = "test")
+  
   df.train <- df.train %>% mutate(MSSubClass = as.character(MSSubClass))
   df.test <- df.test %>% mutate(MSSubClass = as.character(MSSubClass))
   
