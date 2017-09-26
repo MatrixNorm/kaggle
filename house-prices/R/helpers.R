@@ -1,5 +1,8 @@
 
-kaggle.house.loadLibraries = function () {
+kaggle.house <- list()
+
+
+kaggle.house$loadLibraries <- function () {
   library(caret)
   library(dplyr)
   library(ggplot2)
@@ -13,7 +16,7 @@ kaggle.house.loadLibraries = function () {
 }
 
 
-kaggle.house.loadData = function () {
+kaggle.house$loadData <- function () {
   df.train <- tbl_df(read.csv("./data/train.csv", stringsAsFactors = FALSE))
   df.test <- tbl_df(read.csv("./data/test.csv", stringsAsFactors = FALSE))
 
@@ -21,6 +24,13 @@ kaggle.house.loadData = function () {
   df.test$Id <- NULL
   
   list(test=df.test, train=df.train)
+}
+
+kaggle.house$getCombinedDataset <- function (df.train, df.test) {
+  rbind(
+    df.train %>% mutate(dataSource = "train"), 
+    df.test %>% mutate(dataSource = "test", SalePrice = NA)
+  )
 }
 
 
