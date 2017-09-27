@@ -13,6 +13,7 @@ kaggle.house$loadLibraries <- function () {
   library(broom)
   library(purrr)
   library(tibble)
+  library(testthat)
 }
 
 
