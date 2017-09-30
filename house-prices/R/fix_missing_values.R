@@ -13,15 +13,14 @@ kaggle.house <- within(kaggle.house, {
         }
     
         replace_na_with_zero <- purrr::partial(replace_na_with_value, value = 0)
-    
+        
+
+        registerFixer <- function (col_name, fixer, ...) {
+            assign(col_name, fixer(col_name, ...), parent.frame())
+         }
+        
         FixerContainer <- within(list(), 
         {
-            registerFixer <- function (col_name, fixer, ...) {
-                container <- parent.env(environment())
-                container[[col_name]] <- fixer(col_name, ...)
-                container
-            }
-            
             registerFixer("BsmtFinSF1",  replace_na_with_zero)
             registerFixer("BsmtFinSF2",   replace_na_with_zero)
             registerFixer("BsmtFullBath", replace_na_with_zero)
