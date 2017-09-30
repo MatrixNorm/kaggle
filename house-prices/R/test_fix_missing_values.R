@@ -5,7 +5,7 @@ kaggle.house$na$test_na_fixers <- function(data) {
     
     print("run tests ...")
     
-    with(kaggle.house$na$FixerContainer, {
+    with(kaggle.house$na$fixerContainer, {
         test_that("BsmtFinSF1", {
             df <- BsmtFinSF1(data)
             
