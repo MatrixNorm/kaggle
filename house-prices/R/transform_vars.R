@@ -18,9 +18,20 @@ kaggle.house <- within(kaggle.house,
         groupAveragingTranFactory <- function (attr_name, new_attr_name) {
             attr_name <- enquo(attr_name)
             function (df) {
-                df %>%
-                    group_by(!!attr_name) %>%
-                    mutate(!!new_attr_name := median(sale_price_log))
+                df.new <- df %>%
+                group_by(!!attr_name) %>%
+                mutate(!!new_attr_name := median(sale_price_log))
+                
+                train_group_avg <- df %>% group_by(!!attr_name) %>% summarise(!!new_attr_name := median(sale_price_log))
+                train_global_avg <- df %>% summarise(avg = median(sale_price_log)) %>% `$`('avg')
+                
+                testset_tran <- function (testset) {
+                    testset.new <- testset %>% left_join(train_group_avg, by=attr_name)
+                    with(testset.new, {
+                        testset.new[is.na(new_attr_name), attr_name] <- train_global_avg
+                    })
+                }
+                list(df.new = df.new, testset_tran = testset_tran)
             }
         }
         
