@@ -15,15 +15,16 @@ kaggle.house <- within(kaggle.house,
             }
         }
         
-        groupAveragingTranFactory <- function (attr_name, new_attr_name) {
+        groupAveragingTranFactory <- function (y_attr_name, attr_name, new_attr_name) {
             attr_name <- enquo(attr_name)
+            y_attr_name <- enquo(y_attr_name)
             function (df) {
                 df.new <- df %>%
                 group_by(!!attr_name) %>%
-                mutate(!!new_attr_name := median(sale_price_log))
-                
-                train_group_avg <- df %>% group_by(!!attr_name) %>% summarise(!!new_attr_name := median(sale_price_log))
-                train_global_avg <- df %>% summarise(avg = median(sale_price_log)) %>% `$`('avg')
+                mutate(!!new_attr_name := median(!!y_attr_name))
+
+                train_group_avg <- df %>% group_by(!!attr_name) %>% summarise(!!new_attr_name := median(!!y_attr_name))
+                train_global_avg <- df %>% summarise(avg = median(!!y_attr_name)) %>% `$`('avg')
                 
                 testset.transformator <- function (testset) {
                     attr_name_as_char <- as.character(attr_name)[2]
