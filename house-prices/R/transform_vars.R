@@ -26,10 +26,10 @@ kaggle.house <- within(kaggle.house,
                 train_global_avg <- df %>% summarise(avg = median(sale_price_log)) %>% `$`('avg')
                 
                 testset.transformator <- function (testset) {
-                    testset.new <- testset %>% left_join(train_group_avg, by=attr_name)
-                    with(testset.new, {
-                        testset.new[is.na(new_attr_name), attr_name] <- train_global_avg
-                    })
+                    attr_name_as_char <- as.character(attr_name)[2]
+                    testset.new <- testset %>% left_join(train_group_avg, by=attr_name_as_char)
+                    testset.new[is.na(testset.new[[new_attr_name]]), new_attr_name] <- train_global_avg
+                    testset.new
                 }
                 list(df.new = df.new, testset.transformator = testset.transformator)
             }
@@ -94,16 +94,16 @@ kaggle.house <- within(kaggle.house,
                 df %>% mutate(is_street_paved = ifelse(Street == 'Pave', 1, 0))
             })
             
-            BldgType     <- groupAveragingTranFactory(BldgType, "building_type")
-            BsmtExposure <- groupAveragingTranFactory(BsmtExposure, "basement_exposure")
-            BsmtFinType1 <- groupAveragingTranFactory(BsmtFinType1, "basement_finish1")
-            BsmtFinType2 <- groupAveragingTranFactory(BsmtFinType2, "basement_finish2")
-            BsmtQual     <- groupAveragingTranFactory(BsmtQual, "basement_height_quality")
-            Fence        <- groupAveragingTranFactory(Fence, "fence")
-            FireplaceQu  <- groupAveragingTranFactory(FireplaceQu, "fireplace_qual")
-            Foundation   <- groupAveragingTranFactory(Foundation, "foundation")
-            GarageFinish <- groupAveragingTranFactory(GarageFinish, "garage_finish")
-            GarageType <- groupAveragingTranFactory(GarageType, "garage_type")
+            # BldgType     <- groupAveragingTranFactory(BldgType, "building_type")
+            # BsmtExposure <- groupAveragingTranFactory(BsmtExposure, "basement_exposure")
+            # BsmtFinType1 <- groupAveragingTranFactory(BsmtFinType1, "basement_finish1")
+            # BsmtFinType2 <- groupAveragingTranFactory(BsmtFinType2, "basement_finish2")
+            # BsmtQual     <- groupAveragingTranFactory(BsmtQual, "basement_height_quality")
+            # Fence        <- groupAveragingTranFactory(Fence, "fence")
+            # FireplaceQu  <- groupAveragingTranFactory(FireplaceQu, "fireplace_qual")
+            # Foundation   <- groupAveragingTranFactory(Foundation, "foundation")
+            # GarageFinish <- groupAveragingTranFactory(GarageFinish, "garage_finish")
+            # GarageType <- groupAveragingTranFactory(GarageType, "garage_type")
             
         
         })
