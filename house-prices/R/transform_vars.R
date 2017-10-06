@@ -52,7 +52,7 @@ kaggle.house <- within(kaggle.house,
             })
 
             registerTranformation("Electrical", function (df) {
-                df %>% mutate(standard_electrical = ifelse(Electrical == 'SBrkr' | is.na(Electrical), 1, 0))
+                df %>% mutate(standard_electrical = ifelse(Electrical == 'SBrkr', 1, 0))
             })
             
             registerTranformation("Functional", function (df) {

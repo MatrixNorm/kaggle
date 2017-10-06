@@ -1,5 +1,8 @@
 
-kaggle.house <- list()
+
+if ( is.null(environment()$kaggle.house) ) {
+    kaggle.house <- list()
+}
 
 
 kaggle.house$loadLibraries <- function () {
