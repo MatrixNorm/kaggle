@@ -96,6 +96,7 @@ kaggle.house <- within(kaggle.house,
             })
             
             BldgType     <- groupAveragingTranFactory(sale_price_log, BldgType, "building_type")
+            BsmtCond     <- groupAveragingTranFactory(sale_price_log, BsmtCond, "basement_condition")
             BsmtExposure <- groupAveragingTranFactory(sale_price_log, BsmtExposure, "basement_exposure")
             BsmtFinType1 <- groupAveragingTranFactory(sale_price_log, BsmtFinType1, "basement_finish1")
             BsmtFinType2 <- groupAveragingTranFactory(sale_price_log, BsmtFinType2, "basement_finish2")
