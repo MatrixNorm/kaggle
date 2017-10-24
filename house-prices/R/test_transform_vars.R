@@ -1,7 +1,6 @@
-source('transform_vars.R')
 
 
-kaggle.house$na$test_na_fixers <- function(df.training, df.testing) {
+test_trans <- function(df.training, df.testing) {
     
     print("run tests ...")
     

@@ -1,7 +1,6 @@
-source('fix_missing_values.R')
 
 
-kaggle.house$na$test_na_fixers <- function(data) {
+test_na_fixers <- function(data) {
     
     print("run tests ...")
     
