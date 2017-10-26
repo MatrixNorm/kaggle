@@ -41,24 +41,14 @@ na <- within(list(),
         }
         
         # numeric
-        for (attr in c('BedroomAbvGr', 'BsmtFinSF1', 'BsmtFinSF2', 'BsmtFullBath', 
-                       'BsmtHalfBath', 'BsmtUnfSF', 'EnclosedPorch', 'Fireplaces',
-                       'FullBath', 'GarageArea', 'GarageCars', 'GarageYrBlt',
-                       'GrLivArea', 'HalfBath', 'KitchenAbvGr', 'LotArea', 'LotFrontage',
-                       'LowQualFinSF', 'MasVnrArea', 'MiscVal', 'MoSold', 'OpenPorchSF',
-                       'OverallCond', 'OverallQual', 'PoolArea', 'SalePrice', 'ScreenPorch',
-                       'TotalBsmtSF', 'TotRmsAbvGrd', 'WoodDeckSF', 'X1stFlrSF', 'X2ndFlrSF', 
-                       'X3SsnPorch', 'YearBuilt', 'YearRemodAdd', 'YrSold')) 
-        {
-            
-        }
         registerFixer("BsmtFinSF1",   replace_na_with_zero)
         registerFixer("BsmtFinSF2",   replace_na_with_zero)
         registerFixer("BsmtFullBath", replace_na_with_zero)
         registerFixer("BsmtHalfBath", replace_na_with_zero)
         registerFixer("BsmtUnfSF",    replace_na_with_zero)
+        registerFixer("GarageArea",  replace_na_with_zero)
+        registerFixer("GarageCars",  replace_na_with_zero)
         registerFixer("GarageYrBlt",  replace_na_with_zero)
-        registerFixer("BsmtUnfSF",    replace_na_with_zero)
         registerFixer("LotFrontage",  replace_na_with_zero)
 
         MasVnrArea <- function (df) {
