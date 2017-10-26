@@ -2,7 +2,7 @@
 
 trans <- within(list(), 
 {
-    source('./test_transform_vars.R', local = TRUE)
+    #source('./test_transform_vars.R', local = TRUE)
     
     removify <- function(trans, attr_name) {
         function(df, remove=T) {

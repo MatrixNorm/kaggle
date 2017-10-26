@@ -18,18 +18,22 @@ na <- within(list(),
     
     fixerContainer <- within(list(), 
     {
+        # character
+        registerFixer("Electrical",   replace_na_with_value, 'SBrkr')
+        registerFixer("Exterior1st",  replace_na_with_value, 'VinylSd')
+        registerFixer("Exterior2nd",  replace_na_with_value, 'VinylSd')
+        registerFixer("Functional",   replace_na_with_value, 'Typ')
+        registerFixer("KitchenQual",  replace_na_with_value, 'TA')
+        registerFixer("SaleType",  replace_na_with_value, 'WD')
+        
+        # numeric
         registerFixer("BsmtFinSF1",   replace_na_with_zero)
         registerFixer("BsmtFinSF2",   replace_na_with_zero)
         registerFixer("BsmtFullBath", replace_na_with_zero)
         registerFixer("BsmtHalfBath", replace_na_with_zero)
         registerFixer("BsmtUnfSF",    replace_na_with_zero)
-        registerFixer("Electrical",   replace_na_with_value, 'SBrkr')
-        registerFixer("Exterior1st",  replace_na_with_value, 'VinylSd')
-        registerFixer("Exterior2nd",  replace_na_with_value, 'VinylSd')
-        registerFixer("Functional",   replace_na_with_value, 'Typ')
         registerFixer("GarageYrBlt",  replace_na_with_zero)
         registerFixer("BsmtUnfSF",    replace_na_with_zero)
-        registerFixer("KitchenQual",  replace_na_with_value, 'TA')
         registerFixer("LotFrontage",  replace_na_with_zero)
 
         MasVnrArea <- function (df) {
@@ -63,9 +67,4 @@ na <- within(list(),
     })
     
     fixAll <-  do.call(purrr::compose, fixerContainer)
-})
-
-
-na <- within(na, { 
-    
 })

@@ -16,12 +16,15 @@ loadLibraries <- function () {
 
 
 loadData <- function () {
-  df.train <- tbl_df(read.csv("./data/train.csv", stringsAsFactors = FALSE))
-  df.test <- tbl_df(read.csv("./data/test.csv", stringsAsFactors = FALSE))
+  df.train <- tbl_df(read.csv(paste0(Sys.getenv('ROOT'), "/data/train.csv"), stringsAsFactors = FALSE))
+  df.test <- tbl_df(read.csv(paste0(Sys.getenv('ROOT'), "/data/test.csv"), stringsAsFactors = FALSE))
 
   df.train$Id <- NULL
   df.test$Id <- NULL
   
+  df.train <- df.train %>% mutate(MSSubClass = as.character(MSSubClass))
+  df.test <- df.test %>% mutate(MSSubClass = as.character(MSSubClass))
+
   list(test=df.test, train=df.train)
 }
 
