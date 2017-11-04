@@ -1,0 +1,6 @@
+
+sanity <- within(list(), 
+ {
+     
+   
+ })

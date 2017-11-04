@@ -41,14 +41,19 @@ na <- within(list(),
         }
         
         # numeric
+        
+        # basement
         registerFixer("BsmtFinSF1",   replace_na_with_zero)
         registerFixer("BsmtFinSF2",   replace_na_with_zero)
         registerFixer("BsmtFullBath", replace_na_with_zero)
         registerFixer("BsmtHalfBath", replace_na_with_zero)
         registerFixer("BsmtUnfSF",    replace_na_with_zero)
+        registerFixer("TotalBsmtSF",  replace_na_with_zero)
+        # garage
         registerFixer("GarageArea",  replace_na_with_zero)
         registerFixer("GarageCars",  replace_na_with_zero)
         registerFixer("GarageYrBlt",  replace_na_with_zero)
+        
         registerFixer("LotFrontage",  replace_na_with_zero)
 
         MasVnrArea <- function (df) {
@@ -57,11 +62,6 @@ na <- within(list(),
 
             df[is.na(df$MasVnrArea), "MasVnrArea"] <- 0
 
-            df
-        }
-
-        TotalBsmtSF <- function (df) {
-            df[is.na(df$TotalBsmtSF) & is.na(df$BsmtCond), "TotalBsmtSF"] <- 0
             df
         }
     })
