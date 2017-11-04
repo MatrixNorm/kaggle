@@ -3,6 +3,25 @@ na <- within(list(),
 {
     source('./test_fix_missing_values.R', local = TRUE)
     
+    colums.with.good.na <- c('Alley', 
+                             'BsmtCond', 
+                             'BsmtExposure', 
+                             'BsmtFinType1', 
+                             'BsmtFinType2', 
+                             'BsmtQual',
+                             'Fence',
+                             'FireplaceQu',
+                             'GarageCond',
+                             'GarageFinish',
+                             'GarageQual',
+                             'GarageType',
+                             'MasVnrType',
+                             'MiscFeature',
+                             'PoolQC',
+                             'Utilities',
+                             'SalePrice',
+                             'dataSource')
+    
     replace_na_with_value <- function (col_name, value) {
         function (df) {
             df[df[, col_name] %>% `[[`(1) %>% is.na, col_name] <- value
