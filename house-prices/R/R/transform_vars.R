@@ -15,23 +15,25 @@ trans <- within(list(),
     }
     
     groupAveragingTranFactory <- function (y_attr_name, attr_name, new_attr_name) {
+        
         attr_name <- enquo(attr_name)
         y_attr_name <- enquo(y_attr_name)
+        
         function (df) {
             df.new <- df %>%
-            group_by(!!attr_name) %>%
-            mutate(!!new_attr_name := median(!!y_attr_name))
+                group_by(!!attr_name) %>%
+                mutate(!!new_attr_name := median(!!y_attr_name))
 
-            train_group_avg <- df %>% group_by(!!attr_name) %>% summarise(!!new_attr_name := median(!!y_attr_name))
+            train_group_avg <- df.new %>% summarise(!!new_attr_name := min(!!y_attr_name))
             train_global_avg <- df %>% summarise(avg = median(!!y_attr_name)) %>% `$`('avg')
             
-            testset.transformator <- function (testset) {
+            testsetTransformator <- function (testset) {
                 attr_name_as_char <- as.character(attr_name)[2]
                 testset.new <- testset %>% left_join(train_group_avg, by=attr_name_as_char)
                 testset.new[is.na(testset.new[[new_attr_name]]), new_attr_name] <- train_global_avg
                 testset.new
             }
-            list(df.new = df.new, testset.transformator = testset.transformator)
+            list(df.new = df.new, testsetTransformator = testsetTransformator)
         }
     }
     
@@ -106,7 +108,10 @@ trans <- within(list(),
         Fence        <- groupAveragingTranFactory(sale_price_log, Fence, "fence")
         FireplaceQu  <- groupAveragingTranFactory(sale_price_log, FireplaceQu, "fireplace_qual")
         Foundation   <- groupAveragingTranFactory(sale_price_log, Foundation, "foundation")
+        GarageCond   <- groupAveragingTranFactory(sale_price_log, GarageCond, "garage_cond")
         GarageFinish <- groupAveragingTranFactory(sale_price_log, GarageFinish, "garage_finish")
-        GarageType <- groupAveragingTranFactory(sale_price_log, GarageType, "garage_type")
+        GarageType   <- groupAveragingTranFactory(sale_price_log, GarageType, "garage_type")
+        HeatingQC    <- groupAveragingTranFactory(sale_price_log, HeatingQC, "heating_qual")
+        HouseStyle   <- groupAveragingTranFactory(sale_price_log, HouseStyle, "house_style")
     })
 })
