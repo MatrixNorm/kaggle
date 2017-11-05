@@ -40,7 +40,7 @@ trans <- within(list(),
     }
     
     
-    transformatorContainer <- within(list(), 
+    type1TransContainer <- within(list(), 
     {
         registerTranformation("Alley", function (df) {
             df %>% mutate(has_alley_access = ifelse(!is.na(Alley), 1, 0))
@@ -93,7 +93,10 @@ trans <- within(list(),
         registerTranformation("Street", function (df) {
             df %>% mutate(is_street_paved = ifelse(Street == 'Pave', 1, 0))
         })
-        
+    })
+    
+    type2TransContainer <- within(list(), 
+    {
         BldgType     <- groupAveragingTranFactory(sale_price_log, BldgType, "building_type")
         BsmtCond     <- groupAveragingTranFactory(sale_price_log, BsmtCond, "basement_condition")
         BsmtExposure <- groupAveragingTranFactory(sale_price_log, BsmtExposure, "basement_exposure")
@@ -105,7 +108,5 @@ trans <- within(list(),
         Foundation   <- groupAveragingTranFactory(sale_price_log, Foundation, "foundation")
         GarageFinish <- groupAveragingTranFactory(sale_price_log, GarageFinish, "garage_finish")
         GarageType <- groupAveragingTranFactory(sale_price_log, GarageType, "garage_type")
-        
-    
     })
 })
