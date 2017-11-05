@@ -95,6 +95,10 @@ trans <- within(list(),
         registerTranformation("Street", function (df) {
             df %>% mutate(is_street_paved = ifelse(Street == 'Pave', 1, 0))
         })
+        
+        registerTranformation("Utilities", function (df) {
+            df %>% mutate(all_utilities = ifelse(Utilities == 'AllPub', 1, 0))
+        })
     })
     
     type2TransContainer <- within(list(), 
@@ -113,5 +117,14 @@ trans <- within(list(),
         GarageType   <- groupAveragingTranFactory(sale_price_log, GarageType, "garage_type")
         HeatingQC    <- groupAveragingTranFactory(sale_price_log, HeatingQC, "heating_qual")
         HouseStyle   <- groupAveragingTranFactory(sale_price_log, HouseStyle, "house_style")
+        KitchenQual  <- groupAveragingTranFactory(sale_price_log, KitchenQual, "kitchen_qual")
+        LotConfig    <- groupAveragingTranFactory(sale_price_log, LotConfig, "lot_config")
+        MasVnrType   <- groupAveragingTranFactory(sale_price_log, MasVnrType, "masonry_veneer_type")
+        MSSubClass   <- groupAveragingTranFactory(sale_price_log, MSSubClass, "ms_sub_class")
+        MSZoning     <- groupAveragingTranFactory(sale_price_log, MSZoning, "ms_zoning")
+        Neighborhood <- groupAveragingTranFactory(sale_price_log, Neighborhood, "nbhood")
+        RoofStyle    <- groupAveragingTranFactory(sale_price_log, RoofStyle, "roof_style")
+        SaleCondition <- groupAveragingTranFactory(sale_price_log, SaleCondition, "sale_cond")
+        SaleType     <- groupAveragingTranFactory(sale_price_log, SaleType, "sale_type")
     })
 })
