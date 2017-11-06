@@ -23,15 +23,18 @@ trans <- within(list(),
                 mutate(!!new_attr_name := median(!!y_attr_name))
 
             train_group_avg <- df.new %>% summarise(!!new_attr_name := median(!!y_attr_name))
-            train_global_avg <- df %>% summarise(avg = median(!!y_attr_name)) %>% `$`('avg')
+            train_global_avg <- df %>% ungroup %>% summarise(avg = median(!!y_attr_name)) %>% `$`('avg')
+            #print(train_group_avg)
+            #print(train_global_avg)
 
             testsetTransformator <- function (testset) {
                 attr_name_as_char <- as.character(attr_name)[2]
                 testset.new <- testset %>% left_join(train_group_avg, by=attr_name_as_char)
+                #print(train_global_avg)
                 testset.new[is.na(testset.new[[new_attr_name]]), new_attr_name] <- train_global_avg
                 testset.new
             }
-            list(df.new = df.new, testsetTransformator = testsetTransformator)
+            list(df.new = df.new %>% ungroup, testsetTransformator = testsetTransformator)
         }
     }
     
