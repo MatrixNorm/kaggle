@@ -15,18 +15,16 @@ trans <- within(list(),
     # }
     
     groupAveragingTranFactory <- function (y_attr_name, attr_name, new_attr_name) {
-        
-        attr_name <- enquo(attr_name)
-        y_attr_name <- enquo(y_attr_name)
-        
+        # attr_name <- enquo(attr_name)
+        # y_attr_name <- enquo(y_attr_name)
         function (df) {
             df.new <- df %>%
                 group_by(!!attr_name) %>%
                 mutate(!!new_attr_name := median(!!y_attr_name))
 
-            train_group_avg <- df.new %>% summarise(!!new_attr_name := min(!!y_attr_name))
+            train_group_avg <- df.new %>% summarise(!!new_attr_name := median(!!y_attr_name))
             train_global_avg <- df %>% summarise(avg = median(!!y_attr_name)) %>% `$`('avg')
-            
+
             testsetTransformator <- function (testset) {
                 attr_name_as_char <- as.character(attr_name)[2]
                 testset.new <- testset %>% left_join(train_group_avg, by=attr_name_as_char)
@@ -35,6 +33,11 @@ trans <- within(list(),
             }
             list(df.new = df.new, testsetTransformator = testsetTransformator)
         }
+    }
+    
+    groupAveragingTranFactory2 <- function (y_attr_name, attr_name) {
+        new_attr_name <- paste0(as.character(enquo(attr_name))[2], '.new')
+        groupAveragingTranFactory(enquo(y_attr_name), enquo(attr_name), new_attr_name)
     }
     
     registerTranformation <- function (col_name, tranformator) {
@@ -102,35 +105,35 @@ trans <- within(list(),
     
     type2TransContainer <- within(list(), 
     {
-        BldgType     <- groupAveragingTranFactory(sale_price_log, BldgType, "building_type")
-        # BsmtCond     <- groupAveragingTranFactory(sale_price_log, BsmtCond, "basement_condition")
-        # BsmtExposure <- groupAveragingTranFactory(sale_price_log, BsmtExposure, "basement_exposure")
-        # BsmtFinType1 <- groupAveragingTranFactory(sale_price_log, BsmtFinType1, "basement_finish1")
-        # BsmtFinType2 <- groupAveragingTranFactory(sale_price_log, BsmtFinType2, "basement_finish2")
-        # BsmtQual     <- groupAveragingTranFactory(sale_price_log, BsmtQual, "basement_height_quality")
-        # Condition1   <- groupAveragingTranFactory(sale_price_log, Condition1, "cond1")
-        # Condition2   <- groupAveragingTranFactory(sale_price_log, Condition2, "cond2")
-        # ExterCond    <- groupAveragingTranFactory(sale_price_log, ExterCond, "exter_cond")
-        # ExterQual    <- groupAveragingTranFactory(sale_price_log, ExterQual, "exter_qual")
-        # Exterior1st  <- groupAveragingTranFactory(sale_price_log, Exterior1st, "exter_1")
-        # Exterior2nd  <- groupAveragingTranFactory(sale_price_log, Exterior2nd, "exter_2")
-        # Fence        <- groupAveragingTranFactory(sale_price_log, Fence, "fence")
-        # FireplaceQu  <- groupAveragingTranFactory(sale_price_log, FireplaceQu, "fireplace_qual")
-        # Foundation   <- groupAveragingTranFactory(sale_price_log, Foundation, "foundation")
-        # GarageCond   <- groupAveragingTranFactory(sale_price_log, GarageCond, "garage_cond")
-        # GarageFinish <- groupAveragingTranFactory(sale_price_log, GarageFinish, "garage_finish")
-        # GarageQual   <- groupAveragingTranFactory(sale_price_log, GarageQual, "garage_qual")
-        # GarageType   <- groupAveragingTranFactory(sale_price_log, GarageType, "garage_type")
-        # HeatingQC    <- groupAveragingTranFactory(sale_price_log, HeatingQC, "heating_qual")
-        # HouseStyle   <- groupAveragingTranFactory(sale_price_log, HouseStyle, "house_style")
-        # KitchenQual  <- groupAveragingTranFactory(sale_price_log, KitchenQual, "kitchen_qual")
-        # LotConfig    <- groupAveragingTranFactory(sale_price_log, LotConfig, "lot_config")
-        # MasVnrType   <- groupAveragingTranFactory(sale_price_log, MasVnrType, "masonry_veneer_type")
-        # MSSubClass   <- groupAveragingTranFactory(sale_price_log, MSSubClass, "ms_sub_class")
-        # MSZoning     <- groupAveragingTranFactory(sale_price_log, MSZoning, "ms_zoning")
-        # Neighborhood <- groupAveragingTranFactory(sale_price_log, Neighborhood, "nbhood")
-        # RoofStyle    <- groupAveragingTranFactory(sale_price_log, RoofStyle, "roof_style")
-        # SaleCondition <- groupAveragingTranFactory(sale_price_log, SaleCondition, "sale_cond")
-        # SaleType     <- groupAveragingTranFactory(sale_price_log, SaleType, "sale_type")
+        BldgType     <- groupAveragingTranFactory2(sale_price_log, BldgType)
+        BsmtCond     <- groupAveragingTranFactory2(sale_price_log, BsmtCond)
+        BsmtExposure <- groupAveragingTranFactory2(sale_price_log, BsmtExposure)
+        BsmtFinType1 <- groupAveragingTranFactory2(sale_price_log, BsmtFinType1)
+        BsmtFinType2 <- groupAveragingTranFactory2(sale_price_log, BsmtFinType2)
+        BsmtQual     <- groupAveragingTranFactory2(sale_price_log, BsmtQual)
+        Condition1   <- groupAveragingTranFactory2(sale_price_log, Condition1)
+        Condition2   <- groupAveragingTranFactory2(sale_price_log, Condition2)
+        ExterCond    <- groupAveragingTranFactory2(sale_price_log, ExterCond)
+        ExterQual    <- groupAveragingTranFactory2(sale_price_log, ExterQual)
+        Exterior1st  <- groupAveragingTranFactory2(sale_price_log, Exterior1st)
+        Exterior2nd  <- groupAveragingTranFactory2(sale_price_log, Exterior2nd)
+        Fence        <- groupAveragingTranFactory2(sale_price_log, Fence)
+        FireplaceQu  <- groupAveragingTranFactory2(sale_price_log, FireplaceQu)
+        Foundation   <- groupAveragingTranFactory2(sale_price_log, Foundation)
+        GarageCond   <- groupAveragingTranFactory2(sale_price_log, GarageCond)
+        GarageFinish <- groupAveragingTranFactory2(sale_price_log, GarageFinish)
+        GarageQual   <- groupAveragingTranFactory2(sale_price_log, GarageQual)
+        GarageType   <- groupAveragingTranFactory2(sale_price_log, GarageType)
+        HeatingQC    <- groupAveragingTranFactory2(sale_price_log, HeatingQC)
+        HouseStyle   <- groupAveragingTranFactory2(sale_price_log, HouseStyle)
+        KitchenQual  <- groupAveragingTranFactory2(sale_price_log, KitchenQual)
+        LotConfig    <- groupAveragingTranFactory2(sale_price_log, LotConfig)
+        MasVnrType   <- groupAveragingTranFactory2(sale_price_log, MasVnrType)
+        MSSubClass   <- groupAveragingTranFactory2(sale_price_log, MSSubClass)
+        MSZoning     <- groupAveragingTranFactory2(sale_price_log, MSZoning)
+        Neighborhood <- groupAveragingTranFactory2(sale_price_log, Neighborhood)
+        RoofStyle    <- groupAveragingTranFactory2(sale_price_log, RoofStyle)
+        SaleCondition <- groupAveragingTranFactory2(sale_price_log, SaleCondition)
+        SaleType     <- groupAveragingTranFactory2(sale_price_log, SaleType)
     })
 })
