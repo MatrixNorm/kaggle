@@ -86,5 +86,18 @@ na <- within(list(),
         # }
     })
     
-    fixAll <-  do.call(purrr::compose, fixerContainer)
+    fixGoodNa <- function(df) {
+        for (attr in kaggle.house$na$colums.with.good.na) {
+            df[is.na(df[[attr]]), attr] <- "_none_"
+        }
+        df
+    }
+    
+    fixBadNa <-  do.call(purrr::compose, fixerContainer)
+    
+    fixAll <- function(df) {
+        df <- fixGoodNa(df)
+        df <- fixBadNa(df)
+        df
+    }
 })
