@@ -140,5 +140,5 @@ trans <- within(list(),
         SaleType     <- groupAveragingTranFactory2(SaleType)
     })
     
-    #transformAll <- function()do.call(purrr::compose, fixerContainer)
+    allType1Transform <- do.call(purrr::compose, type1TransContainer)
 })
