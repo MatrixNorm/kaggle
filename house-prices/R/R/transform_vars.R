@@ -50,7 +50,7 @@ trans <- within(list(),
     type1TransContainer <- within(list(), 
     {
         registerTranformation("Alley", function (df) {
-            df %>% mutate(has_alley_access = ifelse(!is.na(Alley), 1, 0))
+            df %>% mutate(has_alley_access = ifelse(Alley != '_none_', 1, 0))
         })
         
         registerTranformation("CentralAir", function (df) {
@@ -82,7 +82,7 @@ trans <- within(list(),
         })
         
         registerTranformation("MiscFeature", function (df) {
-            df %>% mutate(has_misc_feature = ifelse(!is.na(MiscFeature), 1, 0))
+            df %>% mutate(has_misc_feature = ifelse(MiscFeature != '_none_', 1, 0))
         })
         
         registerTranformation("PavedDrive", function (df) {
@@ -90,7 +90,7 @@ trans <- within(list(),
         })
         
         registerTranformation("PoolQC", function (df) {
-            df %>% mutate(has_pool = ifelse(!is.na(PoolQC), 1, 0))
+            df %>% mutate(has_pool = ifelse(PoolQC != '_none_', 1, 0))
         })
         
         registerTranformation("RoofMatl", function (df) {
