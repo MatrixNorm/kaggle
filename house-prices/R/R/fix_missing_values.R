@@ -3,6 +3,8 @@ na <- within(list(),
 {
     source('./test_fix_missing_values.R', local = TRUE)
     
+    columns.with.technical.na <- c('SalePrice', 'dataSource')
+    
     colums.with.good.na <- c('Alley', 
                              'BsmtCond', 
                              'BsmtExposure', 
@@ -18,9 +20,7 @@ na <- within(list(),
                              'MasVnrType',
                              'MiscFeature',
                              'PoolQC',
-                             'Utilities',
-                             'SalePrice',
-                             'dataSource')
+                             'Utilities')
     
     replace_na_with_value <- function (col_name, value) {
         function (df) {
@@ -88,7 +88,12 @@ na <- within(list(),
     
     fixGoodNa <- function(df) {
         for (attr in kaggle.house$na$colums.with.good.na) {
-            df[is.na(df[[attr]]), attr] <- "_none_"
+            column <- df[[attr]]
+            if ( is.character(column) ) {
+                df[is.na(column), attr] <- "_none_"
+            } else {
+                df[is.na(column), attr] <- 0
+            }
         }
         df
     }
