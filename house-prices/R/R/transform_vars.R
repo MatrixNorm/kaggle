@@ -24,8 +24,6 @@ trans <- within(list(),
 
             train_group_avg <- df.new %>% summarise(!!new_attr_name := median(!!y_attr_name))
             train_global_avg <- df %>% ungroup %>% summarise(avg = median(!!y_attr_name)) %>% `$`('avg')
-            #print(train_group_avg)
-            #print(train_global_avg)
 
             testsetTransformator <- function (testset) {
                 attr_name_as_char <- as.character(attr_name)[2]
@@ -43,65 +41,75 @@ trans <- within(list(),
         groupAveragingTranFactory(quo(sale_price_log), enquo(attr_name), new_attr_name)
     }
     
-    registerTranformation <- function (col_name, tranformator) {
-        assign(col_name, tranformator, parent.frame())
+    registerTranformation <- function (col_name, new_col_name, tranformator) {
+        wrappedTran <- function (df) {
+            if ( new_col_name %in% colnames(df) ) {
+                stop(paste0("Column <", new_col_name, "> already presents in data frame"))
+            }
+            new.df <- tranformator(df)
+            if ( !(new_col_name %in% colnames(new.df)) ) {
+                stop(paste0("Column <", new_col_name, "> should have been added in data frame but it hasn't"))
+            }
+            new.df
+        }
+        assign(col_name, wrappedTran, parent.frame())
     }
     
     type1TransContainer <- within(list(), 
     {
-        registerTranformation("Alley", function (df) {
+        registerTranformation("Alley", "has_alley_access", function (df) {
             df %>% mutate(has_alley_access = ifelse(Alley != '_none_', 1, 0))
         })
         
-        registerTranformation("CentralAir", function (df) {
+        registerTranformation("CentralAir", "has_central_air", function (df) {
             df %>% mutate(has_central_air = ifelse(CentralAir == 'Y', 1, 0))
         })
 
-        registerTranformation("Electrical", function (df) {
+        registerTranformation("Electrical", "standard_electrical", function (df) {
             df %>% mutate(standard_electrical = ifelse(Electrical == 'SBrkr', 1, 0))
         })
         
-        registerTranformation("Functional", function (df) {
+        registerTranformation("Functional", "is_full_functional", function (df) {
             df %>% mutate(is_full_functional = ifelse(Functional == 'Typ', 1, 0))
         })
         
-        registerTranformation("Heating", function (df) {
+        registerTranformation("Heating", "heating_air_furnace", function (df) {
             df %>% mutate(heating_air_furnace = ifelse(Heating == 'GasA', 1, 0))
         })
         
-        registerTranformation("LandContour", function (df) {
+        registerTranformation("LandContour", "is_land_level", function (df) {
             df %>% mutate(is_land_level = ifelse(LandContour == 'Lvl', 1, 0))
         })
         
-        registerTranformation("LandSlope", function (df) {
+        registerTranformation("LandSlope", "is_slope", function (df) {
             df %>% mutate(is_slope = ifelse(LandSlope != 'Gtl', 1, 0))
         })
         
-        registerTranformation("LotShape", function (df) {
+        registerTranformation("LotShape", "is_lotshape_regular", function (df) {
             df %>% mutate(is_lotshape_regular = ifelse(LotShape == 'Reg', 1, 0))
         })
         
-        registerTranformation("MiscFeature", function (df) {
+        registerTranformation("MiscFeature", "has_misc_feature", function (df) {
             df %>% mutate(has_misc_feature = ifelse(MiscFeature != '_none_', 1, 0))
         })
         
-        registerTranformation("PavedDrive", function (df) {
+        registerTranformation("PavedDrive", "has_paved_drive", function (df) {
             df %>% mutate(has_paved_drive = ifelse(PavedDrive == 'Y', 1, 0))
         })
         
-        registerTranformation("PoolQC", function (df) {
+        registerTranformation("PoolQC", "has_pool", function (df) {
             df %>% mutate(has_pool = ifelse(PoolQC != '_none_', 1, 0))
         })
         
-        registerTranformation("RoofMatl", function (df) {
+        registerTranformation("RoofMatl", "standard_roof_material", function (df) {
             df %>% mutate(standard_roof_material = ifelse(RoofMatl == 'CompShg', 1, 0))
         })
         
-        registerTranformation("Street", function (df) {
+        registerTranformation("Street", "is_street_paved", function (df) {
             df %>% mutate(is_street_paved = ifelse(Street == 'Pave', 1, 0))
         })
         
-        registerTranformation("Utilities", function (df) {
+        registerTranformation("Utilities", "all_utilities", function (df) {
             df %>% mutate(all_utilities = ifelse(Utilities == 'AllPub', 1, 0))
         })
     })
