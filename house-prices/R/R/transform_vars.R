@@ -13,35 +13,10 @@ trans <- within(list(),
     #         df
     #     }
     # }
-    
-    groupAveragingTranFactory <- function (y_attr_name, attr_name, new_attr_name) {
-        # attr_name <- enquo(attr_name)
-        # y_attr_name <- enquo(y_attr_name)
-        function (df) {
-            df.new <- df %>%
-                group_by(!!attr_name) %>%
-                mutate(!!new_attr_name := median(!!y_attr_name))
-
-            train_group_avg <- df.new %>% summarise(!!new_attr_name := median(!!y_attr_name))
-            train_global_avg <- df %>% ungroup %>% summarise(avg = median(!!y_attr_name)) %>% `$`('avg')
-
-            testsetTransformator <- function (testset) {
-                attr_name_as_char <- as.character(attr_name)[2]
-                testset.new <- testset %>% left_join(train_group_avg, by=attr_name_as_char)
-                #print(train_global_avg)
-                testset.new[is.na(testset.new[[new_attr_name]]), new_attr_name] <- train_global_avg
-                testset.new
-            }
-            list(df.new = df.new %>% ungroup, testsetTransformator = testsetTransformator)
-        }
-    }
-    
-    groupAveragingTranFactory2 <- function (attr_name) {
-        new_attr_name <- paste0(as.character(enquo(attr_name))[2], '.new')
-        groupAveragingTranFactory(quo(sale_price_log), enquo(attr_name), new_attr_name)
-    }
+    tran.column.map <- list()
     
     registerTranformation <- function (col_name, new_col_name, tranformator) {
+        
         wrappedTran <- function (df) {
             if ( new_col_name %in% colnames(df) ) {
                 stop(paste0("Column <", new_col_name, "> already presents in data frame"))
@@ -52,6 +27,13 @@ trans <- within(list(),
             }
             new.df
         }
+
+        parentEnv <- parent.env(environment())
+        if ( col_name %in% names(parentEnv$tran.column.map) ) {
+            stop(paste0("Transformation <", col_name, "> is already registered"))
+        }
+        parentEnv$tran.column.map[[col_name]] <- new_col_name
+
         assign(col_name, wrappedTran, parent.frame())
     }
     
@@ -68,51 +50,78 @@ trans <- within(list(),
         registerTranformation("Electrical", "standard_electrical", function (df) {
             df %>% mutate(standard_electrical = ifelse(Electrical == 'SBrkr', 1, 0))
         })
-        
+
         registerTranformation("Functional", "is_full_functional", function (df) {
             df %>% mutate(is_full_functional = ifelse(Functional == 'Typ', 1, 0))
         })
-        
+
         registerTranformation("Heating", "heating_air_furnace", function (df) {
             df %>% mutate(heating_air_furnace = ifelse(Heating == 'GasA', 1, 0))
         })
-        
+
         registerTranformation("LandContour", "is_land_level", function (df) {
             df %>% mutate(is_land_level = ifelse(LandContour == 'Lvl', 1, 0))
         })
-        
+
         registerTranformation("LandSlope", "is_slope", function (df) {
             df %>% mutate(is_slope = ifelse(LandSlope != 'Gtl', 1, 0))
         })
-        
+
         registerTranformation("LotShape", "is_lotshape_regular", function (df) {
             df %>% mutate(is_lotshape_regular = ifelse(LotShape == 'Reg', 1, 0))
         })
-        
+
         registerTranformation("MiscFeature", "has_misc_feature", function (df) {
             df %>% mutate(has_misc_feature = ifelse(MiscFeature != '_none_', 1, 0))
         })
-        
+
         registerTranformation("PavedDrive", "has_paved_drive", function (df) {
             df %>% mutate(has_paved_drive = ifelse(PavedDrive == 'Y', 1, 0))
         })
-        
+
         registerTranformation("PoolQC", "has_pool", function (df) {
             df %>% mutate(has_pool = ifelse(PoolQC != '_none_', 1, 0))
         })
-        
+
         registerTranformation("RoofMatl", "standard_roof_material", function (df) {
             df %>% mutate(standard_roof_material = ifelse(RoofMatl == 'CompShg', 1, 0))
         })
-        
+
         registerTranformation("Street", "is_street_paved", function (df) {
             df %>% mutate(is_street_paved = ifelse(Street == 'Pave', 1, 0))
         })
-        
+
         registerTranformation("Utilities", "all_utilities", function (df) {
             df %>% mutate(all_utilities = ifelse(Utilities == 'AllPub', 1, 0))
         })
     })
+    
+    groupAveragingTranFactory <- function (y_attr_name, attr_name, new_attr_name) {
+        # attr_name <- enquo(attr_name)
+        # y_attr_name <- enquo(y_attr_name)
+        function (df) {
+            df.new <- df %>%
+                group_by(!!attr_name) %>%
+                mutate(!!new_attr_name := median(!!y_attr_name))
+            
+            train_group_avg <- df.new %>% summarise(!!new_attr_name := median(!!y_attr_name))
+            train_global_avg <- df %>% ungroup %>% summarise(avg = median(!!y_attr_name)) %>% `$`('avg')
+            
+            testsetTransformator <- function (testset) {
+                attr_name_as_char <- as.character(attr_name)[2]
+                testset.new <- testset %>% left_join(train_group_avg, by=attr_name_as_char)
+                #print(train_global_avg)
+                testset.new[is.na(testset.new[[new_attr_name]]), new_attr_name] <- train_global_avg
+                testset.new
+            }
+            list(df.new = df.new %>% ungroup, testsetTransformator = testsetTransformator)
+        }
+    }
+    
+    groupAveragingTranFactory2 <- function (attr_name) {
+        new_attr_name <- paste0(as.character(enquo(attr_name))[2], '.new')
+        groupAveragingTranFactory(quo(sale_price_log), enquo(attr_name), new_attr_name)
+    }
     
     type2TransContainer <- within(list(), 
     {
