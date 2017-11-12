@@ -166,4 +166,25 @@ trans <- within(list(),
     
     allType1Transform <- do.call(purrr::compose, type1TransContainer)
     allType2Transform <- do.call(purrr::compose, purrr::map(type2TransContainer, type2TranWrapper))
+    
+    doItAll <- function(df.training, df.testing) {
+        df.training <- allType1Transform(df.training)
+        df.testing <- allType1Transform(df.testing)
+        
+        result <- kaggle.house$trans$allType2Transform(list(df = df.training, tran = function(df) { df }))
+        df.training <- result$df
+        df.testing <- result$tran(df.testing)
+        
+        df.training <- 
+            df.training %>% 
+            select(-dplyr::one_of(kaggle.house$trans$type1TransContainer %>% names)) %>%
+            select(-dplyr::one_of(kaggle.house$trans$type2TransContainer %>% names))
+        
+        df.testing <- 
+            df.testing %>% 
+            select(-dplyr::one_of(kaggle.house$trans$type1TransContainer %>% names)) %>%
+            select(-dplyr::one_of(kaggle.house$trans$type2TransContainer %>% names))
+        
+        list(df.training = df.training, df.testing = df.testing)
+    }
 })
