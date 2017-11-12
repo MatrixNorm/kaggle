@@ -148,5 +148,13 @@ trans <- within(list(),
         SaleType     <- groupAveragingTranFactory2(SaleType)
     })
     
+    type2TranWrapper <- function (tran) {
+        function (prevRes) {
+            res <- tran(prevRes$df)
+            list(df = res$df.new, tran = function (df) { res$testsetTransformator(prevRes$tran(df)) })
+        }
+    }
+    
     allType1Transform <- do.call(purrr::compose, type1TransContainer)
+    allType2Transform <- do.call(purrr::compose, purrr::map(type2TransContainer, type2TranWrapper))
 })
