@@ -1,17 +1,18 @@
 
 
 loadLibraries <- function () {
-  library(caret)
-  library(dplyr)
-  library(ggplot2)
-  library(grid)
-  library(gridExtra)
-  library(reshape2)
-  library(tidyr)
-  library(broom)
-  library(purrr)
-  library(tibble)
-  library(testthat)
+    library(broom)
+    library(caret)
+    library(dplyr)
+    library(ggplot2)
+    library(grid)
+    library(gridExtra)
+    library(Metrics)
+    library(purrr)
+    library(reshape2)
+    library(tidyr)
+    library(tibble)
+    library(testthat)
 }
 
 
