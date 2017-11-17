@@ -196,7 +196,7 @@ trans <- within(list(),
         if (has_df_testing) {
             return_value <- list(df.training = df.training, df.testing = df.testing)
         } else {
-            return_value <- df.training
+            return_value <- list(df.training = df.training, testTransform = result$tran)
         }
         return_value
     }
