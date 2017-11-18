@@ -4,7 +4,10 @@ validate <- within(list(),
     trainMany <- function (dataset, N=5, sample.share=0.75, trainset.share=0.5, modelFactory) {
         c(1:N) %>% map(function (i) {
             
-            sample <- dataset %>% sample_n(round(sample.share * nrow(dataset)))
+            sample = dataset
+            if ( sample.share != 1 ) {
+                sample <- dataset %>% sample_n(round(sample.share * nrow(dataset)))
+            }
             sample.partition.index <- caret::createDataPartition(y=sample$sale_price_log, 
                                                                  p=trainset.share, list=F, times=1)
             
