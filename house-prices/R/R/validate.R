@@ -68,14 +68,30 @@ validate <- within(list(),
     }
     
     trainAndTestMany <- function(dataset, y.var, N, sample.share=0.75, trainset.share=0.5, modelFactory, transformFactory) {
-        fits <- c(1:10) %>% map(function (i) {
-            fit <- kaggle.house$validate$trainAndTest(
-                dataset=df.training, 
-                y.var="SalePrice", 
-                sample.share=0.9, 
-                trainset.share=0.5, 
-                modelFactory=function (trainset) { lm(SalePrice ~ GrLivArea, data=trainset) }
-            )
+        
+        is.transformFactory.missing <- missing(transformFactory)
+        
+        fits <- c(1:N) %>% map(function (i) {
+            # XXX add better handling of missing transformFactory
+            if ( !is.transformFactory.missing ) {
+                fit <- kaggle.house$validate$trainAndTest(
+                    dataset=dataset, 
+                    y.var=y.var, 
+                    sample.share=sample.share, 
+                    trainset.share=trainset.share, 
+                    modelFactory=modelFactory,
+                    transformFactory=transformFactory
+                )
+            } else {
+                fit <- kaggle.house$validate$trainAndTest(
+                    dataset=dataset, 
+                    y.var=y.var, 
+                    sample.share=sample.share, 
+                    trainset.share=trainset.share, 
+                    modelFactory=modelFactory
+                )
+            }
+            
             fit$test.results <- fit$test.results %>% mutate(run.no = i)
             fit
         })
