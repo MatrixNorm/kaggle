@@ -1,7 +1,7 @@
 
 validate <- within(list(), 
 {
-    trainMany <- function (dataset, N=5, sample.share=0.75, trainset.share=0.5, modelFactory) {
+    trainMany.old <- function (dataset, N=5, sample.share=0.75, trainset.share=0.5, modelFactory) {
         c(1:N) %>% map(function (i) {
             
             sample = dataset
@@ -32,7 +32,7 @@ validate <- within(list(),
         })
     }
     
-    trainSingle <- function(dataset, y.var, N=5, sample.share=0.75, trainset.share=0.5, modelFactory, transformFactory) {
+    trainAndTest <- function(dataset, y.var, sample.share=0.75, trainset.share=0.5, modelFactory, transformFactory) {
         
         stopifnot(sample.share <= 1 | sample.share >= 0.1)
         stopifnot(trainset.share <= 1 | trainset.share >= 0.1)
@@ -41,12 +41,11 @@ validate <- within(list(),
         if ( sample.share < 1 ) {
             sample <- dataset %>% sample_n(round(sample.share * nrow(dataset)))
         }
-        sample.partition.index <- caret::createDataPartition(y=sample %>% `$`(y.var), 
+        sample.partition.index <- caret::createDataPartition(y=sample[,y.var] %>% `[[`(1), 
                                                              p=trainset.share, list=F, times=1)
         
         trainset <- sample[sample.partition.index,]
         testset  <- sample[-sample.partition.index,] %>% select(-one_of(y.var))
-        y_test_actual <- sample[-sample.partition.index, y.var]
         
         stopifnot(setdiff(trainset %>% colnames, testset %>% colnames) == y.var)
         stopifnot(setdiff(testset %>% colnames, trainset %>% colnames) == '')
@@ -60,8 +59,29 @@ validate <- within(list(),
         }
         
         model <- modelFactory(trainset.ready)
-        y_test_predicted <- predict(model, testset.ready) %>% as.vector
+        test.results = tibble(
+            actual = sample[-sample.partition.index, y.var] %>% `[[`(y.var),
+            predicted = predict(model, testset.ready) %>% as.vector
+        )
 
-        list(model=model, y_test_predicted=y_test_predicted, y_test_actual=y_test_actual)
+        list(model=model, test.results=test.results)
+    }
+    
+    trainAndTestMany <- function(dataset, y.var, N, sample.share=0.75, trainset.share=0.5, modelFactory, transformFactory) {
+        fits <- c(1:10) %>% map(function (i) {
+            fit <- kaggle.house$validate$trainAndTest(
+                dataset=df.training, 
+                y.var="SalePrice", 
+                sample.share=0.9, 
+                trainset.share=0.5, 
+                modelFactory=function (trainset) { lm(SalePrice ~ GrLivArea, data=trainset) }
+            )
+            fit$test.results <- fit$test.results %>% mutate(run.no = i)
+            fit
+        })
+        list(
+            models = fits %>% map(function (fit) { fit$model }),
+            tests = fits %>% map(function(item) { item$test.results }) %>% bind_rows
+        )
     }
 })
