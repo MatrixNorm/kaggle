@@ -97,8 +97,6 @@ trans <- within(list(),
     })
     
     groupAveragingTranFactory <- function (y_attr_name, attr_name, new_attr_name) {
-        # attr_name <- enquo(attr_name)
-        # y_attr_name <- enquo(y_attr_name)
         function (df) {
             df.new <- df %>%
                 group_by(!!attr_name) %>%
