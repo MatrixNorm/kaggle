@@ -42,6 +42,10 @@ getCategoricalColumnNames <- function (df) {
     df %>% purrr::map(~is.character(.)) %>% purrr::keep(~.) %>% names %>% sort
 }
 
+getNumericColumnNames <- function (df) {
+    df %>% purrr::map(~is.numeric(.)) %>% purrr::keep(~.) %>% names %>% sort
+}
+
 # kaggle.house.loadData.old = function () {
 #   df.train <- tbl_df(read.csv("./data/train.csv", stringsAsFactors = FALSE)) %>% mutate(dataSource = "train")
 #   df.test <- tbl_df(read.csv("./data/test.csv", stringsAsFactors = FALSE)) %>% mutate(dataSource = "test")

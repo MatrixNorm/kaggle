@@ -47,18 +47,6 @@ na <- within(list(),
         registerFixer("SaleType",  replace_na_with_value, 'Oth')
         registerFixer("SaleType",  replace_na_with_value, 'WD')
         
-        # MasVnrType <- function (df) {
-        #     df[  is.na(df$MasVnrType) &
-        #              !is.na(df$MasVnrArea) & df$MasVnrArea > 0, "MasVnrType"] <- 'BrkFace'
-        #     
-        #     df[ ( !is.na(df$MasVnrArea) & df$MasVnrArea == 0 ) &
-        #             ( is.na(df$MasVnrType) | df$MasVnrType != 'None' ), "MasVnrType"] <- 'None'
-        #     
-        #     df[is.na(df$MasVnrType), "MasVnrType"] <- 'None'
-        #     
-        #     df
-        # }
-        
         # numeric
         
         # basement
@@ -76,14 +64,6 @@ na <- within(list(),
         registerFixer("LotFrontage",  replace_na_with_zero)
         registerFixer("MasVnrArea",  replace_na_with_zero)
 
-        # MasVnrArea <- function (df) {
-        #     df[ ( !is.na(df$MasVnrType) & df$MasVnrType == 'None' ) &
-        #         ( !is.na(df$MasVnrArea) & df$MasVnrArea > 0 ), "MasVnrArea"] <- 0
-        # 
-        #     df[is.na(df$MasVnrArea), "MasVnrArea"] <- 0
-        # 
-        #     df
-        # }
     })
     
     fixGoodNa <- function(df) {
