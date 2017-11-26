@@ -37,15 +37,15 @@ trans <- within(list(),
     }
       
     averagingTransform <- function (trainset, testset, y.var, id.var, stat.fun=mean) {
-        
+
         y.var <- enquo(y.var)
         id.var <- enquo(id.var)
-        
+
         train.long <- 
             trainset %>%
             gather(var.name, var.value, -!!y.var, -!!id.var) %>%
             mutate(src = 'train')
-        
+        print(111111111)
         test.long <-
             testset %>%
             gather(var.name, var.value, -!!id.var) %>%
