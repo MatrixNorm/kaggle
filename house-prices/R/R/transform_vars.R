@@ -98,16 +98,17 @@ trans <- within(list(),
     
     groupAveragingTranFactory <- function (y_attr_name, attr_name, new_attr_name, stat.avg=mean) {
         function (df) {
+            df.new <- 
+                df %>%
+                group_by(!!attr_name) %>%
+                mutate(!!new_attr_name := stat.avg(!!y_attr_name))
+            
             train_group_avg <- df.new %>% summarise(!!new_attr_name := stat.avg(!!y_attr_name))
             train_global_avg <- df %>% ungroup %>% summarise(avg = stat.avg(!!y_attr_name)) %>% `$`('avg')
             
-            df.new <- df %>%
-                group_by(!!attr_name) %>%
-                mutate(!!new_attr_name := stat.avg(!!y_attr_name) - train_global_avg)
-            
             testsetTransformator <- function (testset) {
                 attr_name_as_char <- as.character(attr_name)[2]
-                testset.new <- testset %>% left_join(train_group_avg - train_global_avg, by=attr_name_as_char)
+                testset.new <- testset %>% left_join(train_group_avg, by=attr_name_as_char)
                 #print(train_global_avg)
                 testset.new[is.na(testset.new[[new_attr_name]]), new_attr_name] <- train_global_avg
                 testset.new
