@@ -35,8 +35,8 @@ trans <- within(list(),
             Utilities = ifelse(Utilities == 'AllPub', 1, 0)
         )
     }
-      
-    averagingTransform <- function (trainset, testset, y.var, id.var, stat.fun=mean) {
+    
+    averagingTransform <- function (trainset, testset, y.var, id.var, stat.fun=mean, diff=F) {
 
         y.var <- enquo(y.var)
         id.var <- enquo(id.var)
@@ -45,21 +45,28 @@ trans <- within(list(),
             trainset %>%
             gather(var.name, var.value, -!!y.var, -!!id.var) %>%
             mutate(src = 'train')
-        print(111111111)
+        
         test.long <-
             testset %>%
             gather(var.name, var.value, -!!id.var) %>%
             mutate(src = 'test')
         
-        long <- train.long %>% bind_rows(test.long)
-        long %>%
+        long <- 
+            train.long %>% 
+            bind_rows(test.long) %>%
             group_by(var.name, var.value) %>%
             arrange(var.name, var.value) %>%
             mutate(avg_ = stat.fun(!!y.var, na.rm=T)) %>%
             group_by(var.name) %>%
-            mutate(avg_ = ifelse(is.na(avg_), stat.fun(!!y.var, na.rm=T), avg_)) %>% 
-            select(-var.value) %>% 
-            spread(var.name, avg_)
+            mutate(avg_ = ifelse(is.na(avg_), stat.fun(!!y.var, na.rm=T), avg_))
+        
+        if ( diff ) {
+            long <- long %>% mutate(avg_ = avg_ - stat.fun(!!y.var, na.rm=T))
+        }
+        
+        long %>% 
+        select(-var.value) %>% 
+        spread(var.name, avg_)
     }
  
 })
