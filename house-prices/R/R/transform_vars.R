@@ -36,26 +36,16 @@ trans <- within(list(),
         )
     }
     
-    averagingTransform <- function (trainset, testset, y.var, id.var, stat.fun=mean, diff=F) {
-
+    averagingTransform <- function (dataset, y.var, id.var, src.var, stat.fun=mean, diff=F) {
+        
         y.var <- enquo(y.var)
         id.var <- enquo(id.var)
-
-        train.long <- 
-            trainset %>%
-            gather(var.name, var.value, -!!y.var, -!!id.var) %>%
-            mutate(src = 'train')
-        
-        test.long <-
-            testset %>%
-            gather(var.name, var.value, -!!id.var) %>%
-            mutate(src = 'test')
+        src.var <- enquo(src.var)
         
         long <- 
-            train.long %>% 
-            bind_rows(test.long) %>%
+            dataset %>% 
+            gather(var.name, var.value, -!!y.var, -!!id.var, -!!src.var) %>%
             group_by(var.name, var.value) %>%
-            arrange(var.name, var.value) %>%
             mutate(avg_ = stat.fun(!!y.var, na.rm=T)) %>%
             group_by(var.name) %>%
             mutate(avg_ = ifelse(is.na(avg_), stat.fun(!!y.var, na.rm=T), avg_))
@@ -63,16 +53,49 @@ trans <- within(list(),
         if ( diff ) {
             long <- long %>% mutate(avg_ = avg_ - stat.fun(!!y.var, na.rm=T))
         }
-        
-        wide <-
-            long %>% 
-            select(-var.value) %>% 
-            spread(var.name, avg_)
-        
-        list(
-            trainset = wide %>% filter(src == "train") %>% select(-src),
-            testset = wide %>% filter(src == "test") %>% select(-src, -!!y.var)
-        )
+
+        long %>% 
+        select(-var.value) %>% 
+        spread(var.name, avg_)
     }
+    
+    # averagingTransform2 <- function (trainset, testset, y.var, id.var, stat.fun=mean, diff=F) {
+    # 
+    #     y.var <- enquo(y.var)
+    #     id.var <- enquo(id.var)
+    # 
+    #     train.long <- 
+    #         trainset %>%
+    #         gather(var.name, var.value, -!!y.var, -!!id.var) %>%
+    #         mutate(src = 'train')
+    #     
+    #     test.long <-
+    #         testset %>%
+    #         gather(var.name, var.value, -!!id.var) %>%
+    #         mutate(src = 'test')
+    #     
+    #     long <- 
+    #         train.long %>% 
+    #         bind_rows(test.long) %>%
+    #         group_by(var.name, var.value) %>%
+    #         arrange(var.name, var.value) %>%
+    #         mutate(avg_ = stat.fun(!!y.var, na.rm=T)) %>%
+    #         group_by(var.name) %>%
+    #         mutate(avg_ = ifelse(is.na(avg_), stat.fun(!!y.var, na.rm=T), avg_))
+    #     
+    #     if ( diff ) {
+    #         long <- long %>% mutate(avg_ = avg_ - stat.fun(!!y.var, na.rm=T))
+    #     }
+    #     
+    #     wide <-
+    #         long %>% 
+    #         select(-var.value) %>% 
+    #         spread(var.name, avg_)
+    #     
+    #     list(
+    #         trainset = wide %>% filter(src == "train") %>% select(-src),
+    #         testset = wide %>% filter(src == "test") %>% select(-src, -!!y.var)
+    #     )
+    # }
  
 })
