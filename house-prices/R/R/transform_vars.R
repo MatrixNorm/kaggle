@@ -64,9 +64,15 @@ trans <- within(list(),
             long <- long %>% mutate(avg_ = avg_ - stat.fun(!!y.var, na.rm=T))
         }
         
-        long %>% 
-        select(-var.value) %>% 
-        spread(var.name, avg_)
+        wide <-
+            long %>% 
+            select(-var.value) %>% 
+            spread(var.name, avg_)
+        
+        list(
+            trainset = wide %>% filter(src == "train") %>% select(-src),
+            testset = wide %>% filter(src == "test") %>% select(-src, -!!y.var)
+        )
     }
  
 })
