@@ -59,4 +59,33 @@ trans <- within(list(),
         spread(var.name, avg_)
     }
     
+    transformCombindedDataset <- function (dataset) {
+        
+        dataset.after.binary <- dataset %>% binaryTransform
+        
+        binary.vars <- setdiff(
+            dataset %>% (kaggle.house$getCategoricalColumnNames), 
+            dataset.after.binary %>% (kaggle.house$getCategoricalColumnNames)
+        )
+        averaging.vars <- 
+            dataset.after.binary %>% 
+            select(-dataSource) %>% 
+            (kaggle.house$getCategoricalColumnNames)
+        
+        dataset.after.averaging <- 
+            averagingTransform(
+                dataset = dataset.after.binary %>% select(one_of(averaging.vars), price.log, dataSource, Id), 
+                y.var = price.log, 
+                id.var = Id,
+                src.var=dataSource,
+                stat.fun = mean, 
+                diff = TRUE
+            ) %>% select(-price.log)
+        
+        inner_join(
+            dataset.after.binary %>% select(-one_of(averaging.vars)),
+            dataset.after.averaging,
+            by=c("dataSource", "Id")
+        )
+    }
 })
