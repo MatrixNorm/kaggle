@@ -32,10 +32,7 @@ validate <- within(list(),
         })
     }
     
-    trainAndTest <- function(dataset, y.var, sample.share=0.75, trainset.share=0.5, modelFactory, transformFactory) {
-        
-        stopifnot(sample.share <= 1 | sample.share >= 0.1)
-        stopifnot(trainset.share <= 1 | trainset.share >= 0.1)
+    trainAndTest <- function(dataset, y.var, sample.share=1, trainset.share=0.5, modelFactory, transformFactory) {
         
         sample = dataset
         if ( sample.share < 1 ) {

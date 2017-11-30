@@ -59,7 +59,7 @@ trans <- within(list(),
         spread(var.name, avg_)
     }
     
-    transformCombindedDataset <- function (dataset) {
+    transformCombindDataset <- function (dataset) {
         
         dataset.after.binary <- dataset %>% binaryTransform
         
