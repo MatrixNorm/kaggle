@@ -88,4 +88,18 @@ trans <- within(list(),
             by=c("dataSource", "Id")
         )
     }
+    
+    combine.levels <- within(list(), 
+    {
+        OverallQual <- function (df) {
+            df %>%
+                mutate(
+                    quality = case_when(
+                        OverallQual %in% c(1, 2, 3, 4) ~ 1,
+                        OverallQual %in% c(9, 10) ~ 6,
+                        TRUE ~ OverallQual - 3
+                    )
+                )
+        }
+    })
 })

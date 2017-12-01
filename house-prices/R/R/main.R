@@ -8,4 +8,5 @@ kaggle.house <- within(kaggle.house, {
     source('./remove_outliers.R', local = TRUE)
     source('./transform_vars.R', local = TRUE)
     source('./validate.R', local = TRUE)
+    source('./plot.R', local = TRUE)
 })
