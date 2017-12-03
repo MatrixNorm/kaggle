@@ -14,8 +14,10 @@ plot <- within(list(),
         
         var.name <- enquo(var.name)
         var.name.char <- as.character(var.name)[2]
-        var.vector <- df[,var.name.char][[1]]
-        
+        var.vector <- df[,var.name.char]
+        if ( !is.numeric(var.vector) ) {
+            var.vector <- var.vector[[1]]
+        }
         df %>% 
         select(!!var.name) %>%
         mutate(
