@@ -8,6 +8,23 @@ plot <- within(list(),
             stat_summary(fun.y = mean, geom="line", colour = "red") +
             theme_bw() +
             theme(legend.position="bottom")
-    }  
+    } 
+    
+    qq <- function (df, var.name) {
+        
+        var.name <- enquo(var.name)
+        var.name.char <- as.character(var.name)[2]
+        var.vector <- df[,var.name.char][[1]]
+        
+        df %>% 
+        select(!!var.name) %>%
+        mutate(
+            normed := (var.vector - mean(!!var.name)) / sd(!!var.name)
+        ) %>%
+        ggplot() +
+        geom_qq(aes(sample=normed), alpha=0.2) +
+        geom_abline(slope=1) +
+        theme_bw()
+    }
    
 })
