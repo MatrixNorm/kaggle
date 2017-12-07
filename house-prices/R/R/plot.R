@@ -29,7 +29,7 @@ plot <- within(list(),
         theme_bw()
     }
    
-    compareFormulas <- function (formulas, targer.var) {
+    compareFormulas <- function (df, formulas, targer.var) {
         
         targer.var <- enquo(targer.var)
         targer.var.char <- as.character(targer.var)[[2]]
