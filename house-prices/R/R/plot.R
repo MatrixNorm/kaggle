@@ -29,11 +29,11 @@ plot <- within(list(),
         theme_bw()
     }
    
-    compareFormulas <- function (df, formulas, targer.var) {
+    compareFormulas <- function (df, formulas, target.var) {
         
-        targer.var <- enquo(targer.var)
-        targer.var.char <- as.character(targer.var)[[2]]
-        
+        target.var <- enquo(target.var)
+        target.var.char <- as.character(target.var)[[2]]
+
         X <- 
             tibble(
                 formula = formulas
@@ -49,7 +49,7 @@ plot <- within(list(),
             X %>% 
             select(formula, augment) %>% 
             unnest %>% 
-            select(formula, !!targer.var, fitted=.fitted, resid=.resid) %>%
+            select(formula, !!target.var, fitted=.fitted, resid=.resid) %>%
             group_by(formula) %>%
             mutate(
                 resid.normed = (resid - mean(resid)) / sd(resid)
@@ -61,7 +61,7 @@ plot <- within(list(),
             unnest %>% 
             select(-.se.fit, -.hat, -.sigma, -.cooksd, -.std.resid) %>%
             rename(fitted=.fitted, resid=.resid) %>%
-            gather(name, value, -formula, -!!targer.var, -fitted, -resid) %>%
+            gather(name, value, -formula, -!!target.var, -fitted, -resid) %>%
             filter(!is.na(value)) %>%
             group_by(formula, name)
         
@@ -75,7 +75,7 @@ plot <- within(list(),
 
         resid_vs_target <-
             X.wide %>%
-            ggplot(aes_string(x=targer.var.char, y="resid", color="formula")) +
+            ggplot(aes_string(x=target.var.char, y="resid", color="formula")) +
             geom_point(alpha=0.7, shape='o', size=2) +
             geom_hline(yintercept=0) +
             theme_bw() +
@@ -83,15 +83,87 @@ plot <- within(list(),
 
         actual_vs_predicted <-
             X.wide %>%
-            ggplot(aes_string(x=targer.var.char, y="fitted", color="formula")) +
+            ggplot(aes_string(x=target.var.char, y="fitted", color="formula")) +
             geom_point(alpha=0.7, shape='o', size=2) +
             geom_abline(slope=1, color="red") +
             theme_bw() +
             theme(legend.position="bottom", legend.direction="vertical")
+        
+        resid_vs_predictors <-
+            X.long %>%
+            ggplot() +
+            geom_point(aes(x=value, y=resid), alpha=0.3) +
+            theme_bw()
+        
+        target_vs_predictors <-
+            X.long %>%
+            ggplot() +
+            geom_point(aes_string(x="value", y=target.var.char), alpha=0.3) +
+            geom_point(aes(x=value, y=fitted), alpha=0.3, color="red") +
+            theme_bw()
 
         grob1 <- arrangeGrob(resid_qq, resid_vs_target, actual_vs_predicted,
                              layout_matrix=rbind(c(1, 2, 3)))
         
-        list(X=X, X.long=X.long, X.wide=X.wide, grob1=grob1)    
+        list(X=X, X.long=X.long, X.wide=X.wide, grob1=grob1, 
+             resid_vs_predictors=resid_vs_predictors, 
+             target_vs_predictors=target_vs_predictors)    
+    }
+    
+    regressionDiagnostic <- function (mod, target.var) {
+        
+        target.var <- enquo(target.var)
+        target.var.char <- as.character(target.var)[[2]]
+        
+        X.wide <-
+            mod %>% augment %>%
+            select(!!target.var, fitted=.fitted, resid=.resid) %>%
+            mutate(
+                resid.normed = (resid - mean(resid)) / sd(resid)
+            )
+
+        X.long <-
+            mod %>% augment %>%
+            select(-.se.fit, -.hat, -.sigma, -.cooksd, -.std.resid) %>%
+            rename(resid=.resid, fitted=.fitted) %>%
+            gather(predictor.name, predictor.value, -!!target.var, -fitted, -resid) %>%
+            group_by(predictor.name)
+
+        resid_vs_predictors <-
+            X.long %>%
+            ggplot(aes(x=predictor.value, y=resid)) +
+            geom_point(alpha=0.4) +
+            geom_hline(yintercept=0) +
+            theme_bw()
+
+        target_vs_predictors <-
+            X.long %>%
+            ggplot() +
+            geom_point(aes_string(x="predictor.value", y=target.var.char), alpha=0.2) +
+            geom_point(aes(x=predictor.value, y=fitted), color="red", alpha=0.2) +
+            theme_bw()
+
+        resid_qq <-
+            X.wide %>%
+            ggplot() +
+            geom_qq(aes(sample=resid.normed), alpha=0.3) +
+            geom_abline(slope=1) +
+            theme_bw()
+
+        resid_vs_target <-
+            X.wide %>%
+            ggplot(aes_string(x=target.var.char, y="resid")) +
+            geom_point(alpha=0.3) +
+            geom_abline(slope=1, color="red") +
+            theme_bw()
+
+        target_vs_fitted <-
+            X.wide %>%
+            ggplot(aes_string(x=target.var.char, y="fitted")) +
+            geom_point(alpha=0.3) +
+            geom_abline(slope=1, color="red") +
+            theme_bw()
+        
+        environment() %>% as.list
     }
 })
