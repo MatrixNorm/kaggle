@@ -68,7 +68,7 @@ plot <- within(list(),
         resid_qq <-
             X.wide %>%
             ggplot(aes(sample=resid.normed, color=formula)) +
-            geom_qq(alpha=0.4) +
+            geom_qq(alpha=0.5) +
             geom_abline(slope=1) +
             theme_bw() +
             theme(legend.position="bottom", legend.direction="vertical")
@@ -140,7 +140,7 @@ plot <- within(list(),
             X.long %>%
             ggplot() +
             geom_point(aes_string(x="predictor.value", y=target.var.char), alpha=0.2) +
-            geom_point(aes(x=predictor.value, y=fitted), color="red", alpha=0.2) +
+            geom_point(aes(x=predictor.value, y=fitted), color="red", alpha=0.5, shape='o', size=2) +
             theme_bw()
 
         resid_qq <-
@@ -154,7 +154,6 @@ plot <- within(list(),
             X.wide %>%
             ggplot(aes_string(x=target.var.char, y="resid")) +
             geom_point(alpha=0.3) +
-            geom_abline(slope=1, color="red") +
             theme_bw()
 
         target_vs_fitted <-
