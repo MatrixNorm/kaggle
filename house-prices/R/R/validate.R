@@ -75,4 +75,52 @@ validate <- within(list(),
         })
         bind_rows(fits)
     }
+    
+    exploreTrainAndTestResults <- function (results) {
+        r2 <-
+            results %>% 
+            select(model) %>%
+            mutate(
+                glance = map(model, broom::glance)
+            ) %>%
+            select(-model) %>%
+            unnest
+        
+        coeffs <-
+            results %>% 
+            select(model) %>%
+            mutate(
+                tidy = map(model, broom::tidy)
+            ) %>%
+            select(-model) %>%
+            unnest %>%
+            arrange(term)
+        
+
+        list(r2=r2, coeffs=coeffs)
+    }
+    
+    plotCoeffs <- function (coeffs, bins=15, facet.cols=3) {
+        
+        hist <-
+            coeffs %>%
+            ggplot() +
+            geom_histogram(aes(estimate, y=..density..), bins=bins, alpha=0.5) +
+            geom_density(aes(estimate), color="blue") +
+            facet_wrap(~term, ncol=facet.cols, scales="free") +
+            theme_bw()
+        
+        
+        qq <-
+            coeffs %>%
+            group_by(term) %>%
+            mutate(estimate.normed = (estimate - mean(estimate)) / sd(estimate)) %>%
+            ggplot() +
+            geom_qq(aes(sample=estimate.normed), alpha=0.4) +
+            geom_abline(slope=1, color="blue") +
+            facet_wrap(~term, ncol=facet.cols, scales="free") +
+            theme_bw()
+        
+        list(hist=hist, qq=qq)
+    }
 })
