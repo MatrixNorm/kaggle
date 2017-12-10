@@ -96,8 +96,25 @@ validate <- within(list(),
             unnest %>%
             arrange(term)
         
+        scores <-
+            results %>%
+            mutate(
+                L2.test.score = map_dbl(test.results, function (df) {
+                    sqrt(sum((df$actual - df$predicted)^2) / nrow(df))
+                }),
+                L2.train.score = map_dbl(model, function (mod) {
+                    target.var.name <- as.list(mod$call)$formula %>% as.list %>% `[[`(2) %>% as.character
+                    augment = broom::augment(mod)
+                    sqrt(sum((augment[,target.var.name] - augment$.fitted)^2) / nrow(augment))
+                }),
+                R2 = map_dbl(model, function (mod) {
+                    summary(mod)$r.squared
+                })
+            ) %>% 
+            select(-model, -test.results)
+        
 
-        list(r2=r2, coeffs=coeffs)
+        list(r2=r2, coeffs=coeffs, scores=scores)
     }
     
     plotCoeffs <- function (coeffs, bins=15, facet.cols=3) {
