@@ -71,6 +71,9 @@ validate <- within(list(),
         })
         bind_rows(fits) %>%
         mutate(
+            
+            formula = map_chr(model, function (mod) { as.list(mod$call)$formula %>% as.character %>% `[[`(3) }),
+            
             glance = map(model, broom::glance),
             
             tidy = map(model, broom::tidy),
