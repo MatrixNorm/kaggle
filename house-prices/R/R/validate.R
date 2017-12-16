@@ -1,97 +1,45 @@
 
 validate <- within(list(), 
 {
-    trainMany.old <- function (dataset, target.var, N=5, trainset.share=0.5, modelFactory, transformFactory) {
+    L2score = function (X, Y) {
+        sqrt(sum((X - Y)^2) / length(X))
+    }
+    
+    trainAndTest <- function(dataset, target.var, formulas, trainset.share=0.5, N=5) {
         
-        c(1:N) %>% map(function (i) {
-            
-            partition.index <- caret::createDataPartition(y=dataset %>% `$`(target.var), 
-                                                            p=trainset.share, list=F, times=1)
-            
-            trainset <- sample[partition.index,]
-            testset <- sample[-partition.index,]
-            
-            target_test_actual <- testset %>% select(one_of(target.var))
+        caret::createDataPartition(y=dataset[,target.var] %>% `[[`(1), p=trainset.share, list=F, times=N) %>% 
+        as.data.frame %>%
+        gather(sample, index) %>%
+        group_by(sample) %>%
+        nest %>%
+        rename(sample.index=data) %>%
+        mutate(fit = map(sample.index, function (index) {
+            trainset <- dataset[index$index,]
+            testset <- dataset[-index$index,]
+            target_test_actual <- testset %>% select(one_of(target.var)) %>% `[[`(1)
             testset <- testset %>% select(-one_of(target.var))
             
-            res <- transformFactory(trainset, testset)
-            trainset.after.tran <- res$trainset
-            testset.after.tran <- res$testset
-            
-            model <- modelFactory(trainset.after.tran)
-            
-            target_test_predicted <- predict(model, testset.after.tran) %>% as.vector
- 
-            list(model=model, target_test_predicted=target_test_predicted, target_test_actual=target_test_actual)
-        })
-    }
-    
-    trainAndTest <- function(dataset, target.var, trainset.share=0.5, modelFactory, transformFactory=NULL) {
-        
-        partition.index <- caret::createDataPartition(y=dataset[,target.var] %>% `[[`(1), 
-                                                      p=trainset.share, list=F, times=1)
-        
-        trainset <- dataset[partition.index,]
-        testset <- dataset[-partition.index,]
-        
-        target_test_actual <- testset %>% select(one_of(target.var)) %>% `[[`(1)
-        testset <- testset %>% select(-one_of(target.var))
-        
-        stopifnot(setdiff(trainset %>% colnames, testset %>% colnames) == target.var)
-        stopifnot(setdiff(testset %>% colnames, trainset %>% colnames) == '')
-        
-        trainset.ready <- trainset
-        testset.ready  <- testset
-        if ( !is.null(transformFactory) ) {
-            res <- transformFactory(trainset, testset)
-            trainset.ready <- res %>% filter(dataSource == "train") %>% select(-dataSource)
-            testset.ready <- res %>% filter(dataSource == "test") %>% select(-dataSource)
-        }
-        
-        model <- modelFactory(trainset.ready)
-        
-        test.results = tibble(
-            actual = target_test_actual,
-            predicted = predict(model, testset.ready) %>% as.vector
-        )
-
-        tibble(model=list(model), test.results=list(test.results))
-    }
-    
-    trainAndTestMany <- function(dataset, target.var, N, trainset.share=0.5, modelFactory, transformFactory=NULL) {
-        
-        fits <- c(1:N) %>% map(function (i) {
-            trainAndTest(
-                dataset=dataset, 
-                target.var=target.var, 
-                trainset.share=trainset.share, 
-                modelFactory=modelFactory,
-                transformFactory=transformFactory
-            )
-        })
-        bind_rows(fits) %>%
-        mutate(
-            
-            formula = map_chr(model, function (mod) { as.list(mod$call)$formula %>% as.character %>% `[[`(3) }),
-            
-            glance = map(model, broom::glance),
-            
-            tidy = map(model, broom::tidy),
-            
-            L2.test.score = map_dbl(test.results, function (df) {
-                sqrt(sum((df$actual - df$predicted)^2) / nrow(df))
-            }),
-            
-            L2.train.score = map_dbl(model, function (mod) {
-                target.var.name <- as.list(mod$call)$formula %>% as.list %>% `[[`(2) %>% as.character
-                augment = broom::augment(mod)
-                sqrt(sum((augment[,target.var.name] - augment$.fitted)^2) / nrow(augment))
-            }),
-            
-            R2 = map_dbl(model, function (mod) {
-                summary(mod)$r.squared
-            })
-        )
+            tibble(formula = formulas) %>%
+                mutate(
+                    model = map(formula, ~lm(as.formula(.), trainset)),
+                    glance = map(model, broom::glance),
+                    tidy = map(model, broom::tidy),
+                    L2.test.score = map_dbl(model, function (mod) {
+                        target.test.predicted = predict(mod, testset)
+                        L2score(target_test_actual, target.test.predicted)
+                    }),
+                    L2.train.score = map_dbl(model, function (mod) {
+                        augment = broom::augment(mod)
+                        L2score(augment[,target.var], augment$.fitted)
+                    }),
+                    R2 = map_dbl(model, function (mod) {
+                        summary(mod)$r.squared
+                    })
+                ) %>% 
+                select(-model)
+        })) %>%
+        select(-sample.index) %>%
+        unnest
     }
     
     plot.terms <- function (simulation.results, bins=15, facet.cols=3) {
