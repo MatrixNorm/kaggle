@@ -42,79 +42,86 @@ validate <- within(list(),
         unnest
     }
     
-    plot.terms <- function (simulation.results, bins=15, facet.cols=3) {
+    plot.terms <- function (data, bins=15, facet.cols=3) {
         
-        terms <- simulation.results %>% select(tidy) %>% unnest %>% group_by(term)
+        terms <- data %>% 
+                select(formula, tidy) %>% 
+                unnest %>% 
+                group_by(formula, term) %>%
+                mutate(estimate.normed = (estimate - mean(estimate)) / sd(estimate)) 
         
         hist <-
             terms %>%
             ggplot() +
             geom_histogram(aes(estimate, y=..density..), bins=bins, alpha=0.5) +
             geom_density(aes(estimate), color="blue") +
-            facet_wrap(~term, ncol=facet.cols, scales="free") +
+            facet_wrap(formula~term, ncol=facet.cols, scales="free") +
             theme_bw()
         
         qq <-
             terms %>%
-            group_by(term) %>%
-            mutate(estimate.normed = (estimate - mean(estimate)) / sd(estimate)) %>%
             ggplot() +
             geom_qq(aes(sample=estimate.normed), alpha=0.4) +
             geom_abline(slope=1, color="blue") +
-            facet_wrap(~term, ncol=facet.cols, scales="free") +
+            facet_wrap(formula~term, ncol=facet.cols, scales="free") +
             theme_bw()
         
         list(hist=hist, qq=qq)
     }
     
-    plot.scores <- function (simulation.results, bins=15, facet.cols=3) {
-        
-        hist <-
-            scores %>%
-            gather(name, val) %>%
-            group_by(name) %>%
-            ggplot() +
-            geom_histogram(aes(val, y=..density..), bins=bins, alpha=0.5) +
-            geom_density(aes(val), color="blue") +
-            facet_wrap(~name, ncol=facet.cols, scales="free") +
-            theme_bw()
-        
-        qq <-
-            scores %>%
-            gather(name, val) %>%
-            group_by(name) %>%
-            mutate(val.normed = (val - mean(val)) / sd(val)) %>%
-            ggplot() +
-            geom_qq(aes(sample=val.normed), alpha=0.4) +
-            geom_abline(slope=1, color="blue") +
-            facet_wrap(~name, ncol=facet.cols, scales="free") +
-            theme_bw()
-        
+    plot.scores.scatter <- function(data) {
         arrangeGrob(
-            scores %>%
+            data %>%
                 ggplot() +
-                geom_point(aes(L2.train.score, L2.test.score), alpha=0.5) +
-                theme_bw(),
+                geom_point(aes(L2.train.score, L2.test.score, color=formula), alpha=0.5) +
+                theme_bw() +
+                theme(legend.position="bottom", legend.direction="vertical"),
             
-            scores %>%
+            data %>%
                 ggplot() +
-                geom_point(aes(R2, L2.train.score), alpha=0.5) +
-                theme_bw(),
+                geom_point(aes(R2, L2.train.score, color=formula), alpha=0.5) +
+                theme_bw() +
+                theme(legend.position="bottom", legend.direction="vertical"),
             
-            scores %>%
+            data %>%
                 ggplot() +
-                geom_point(aes(R2, L2.test.score), alpha=0.5) +
-                theme_bw(),
+                geom_point(aes(R2, L2.test.score, color=formula), alpha=0.5) +
+                theme_bw() +
+                theme(legend.position="bottom", legend.direction="vertical"),
             
-            hist,
-            
-            qq,
-            
-            layout_matrix=rbind(c(1, 2, 3),
-                                c(4, 4, 4),
-                                c(5, 5, 5)), 
+            layout_matrix=rbind(c(1, 2, 3)), 
             
             widths=c(100, 100, 100)
         )
+    }
+    
+    plot.scores.in.depth <- function (data, bins=15, facet.cols=3) {
+        
+        data.long <-
+            data %>% 
+            select(formula, L2.test.score, L2.train.score, R2) %>%
+            gather(name, val, -formula) %>%
+            group_by(formula, name) %>%
+            mutate(val.normed = (val - mean(val)) / sd(val))
+        
+        hist <-
+            data.long %>%
+            ggplot() +
+            geom_histogram(aes(val, y=..density.., fill=formula), bins=bins, alpha=0.2, position="identity") +
+            geom_density(aes(val, color=formula)) +
+            facet_wrap(~name, ncol=facet.cols, scales="free") +
+            theme_bw() +
+            theme(legend.position="bottom", legend.direction="vertical")
+        
+        qq <-
+            data.long %>%
+            ggplot() +
+            geom_qq(aes(sample=val.normed, color=formula), alpha=0.4) +
+            geom_abline(slope=1, color="black") +
+            facet_wrap(~name, ncol=facet.cols, scales="free") +
+            theme_bw() +
+            theme(legend.position="bottom", legend.direction="vertical")
+
+        list(hist=hist, qq=qq)
     }
 })
