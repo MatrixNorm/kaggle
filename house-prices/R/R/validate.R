@@ -75,13 +75,13 @@ validate <- within(list(),
                 ggplot() +
                 geom_point(aes(L2.train.score, L2.test.score, color=formula), alpha=0.5) +
                 theme_bw() +
-                theme(legend.position="bottom", legend.direction="vertical"),
+                theme(legend.position="none", legend.direction="vertical"),
             
             data %>%
                 ggplot() +
                 geom_point(aes(R2, L2.train.score, color=formula), alpha=0.5) +
                 theme_bw() +
-                theme(legend.position="bottom", legend.direction="vertical"),
+                theme(legend.position="none", legend.direction="vertical"),
             
             data %>%
                 ggplot() +
