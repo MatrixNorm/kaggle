@@ -15,15 +15,18 @@ loadLibraries <- function () {
 }
 
 loadData <- function () {
-  df.train <- tbl_df(read.csv(paste0(Sys.getenv('ROOT'), "/data/train.csv"), stringsAsFactors = FALSE))
-  df.test <- tbl_df(read.csv(paste0(Sys.getenv('ROOT'), "/data/test.csv"), stringsAsFactors = FALSE))
 
-  df.train <- df.train %>% mutate(dataSource = "train")
-  df.test <- df.test %>% mutate(dataSource = "test", SalePrice = NA)
-  
-  df.combined <- bind_rows(df.train, df.test) %>%
-                 mutate(MSSubClass = as.character(MSSubClass))
-  df.combined
+    df.train <- tbl_df(read.csv(paste0(Sys.getenv('DATA_DIR'), "/house_prices/train.csv"), stringsAsFactors = FALSE))
+    df.test <- tbl_df(read.csv(paste0(Sys.getenv('DATA_DIR'), "/house_prices/test.csv"), stringsAsFactors = FALSE))
+
+    df.train <- df.train %>% mutate(dataSource = "train")
+    df.test <- df.test %>% mutate(dataSource = "test", SalePrice = NA)
+
+    df.combined <- 
+        bind_rows(df.train, df.test) %>%
+        mutate(MSSubClass = as.character(MSSubClass))
+    
+    df.combined
 }
 
 getCategoricalColumnNames <- function (df) {
