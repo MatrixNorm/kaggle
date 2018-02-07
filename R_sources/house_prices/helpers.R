@@ -18,8 +18,15 @@ helpers <- within(list(),
     
     load_data <- function () {
         
-        training_dataset <- tbl_df(read.csv(paste0(Sys.getenv('DATA_DIR'), "/house_prices/train.csv"), stringsAsFactors = FALSE))
-        testing_dataset <- tbl_df(read.csv(paste0(Sys.getenv('DATA_DIR'), "/house_prices/test.csv"), stringsAsFactors = FALSE))
+        data_path <- paste0(Sys.getenv('DATA_DIR'), "/house_prices/")
+        
+        training_dataset <- tbl_df(read.csv(
+            file = paste0(data_path, "train.csv"),
+            stringsAsFactors = FALSE))
+        
+        testing_dataset <- tbl_df(read.csv(
+            file = paste0(data_path, "test.csv"),
+            stringsAsFactors = FALSE))
         
         training_dataset <- 
             training_dataset %>%

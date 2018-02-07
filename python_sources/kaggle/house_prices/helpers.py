@@ -1,0 +1,22 @@
+
+import os
+import pandas as pd
+
+from numpy import NaN
+
+
+def load_data():
+    data_path = os.path.join(os.environ['DATA_DIR'], 'house_prices')
+
+    training_dataset = pd.read_csv(os.path.join(data_path, 'train.csv'))
+    training_dataset = training_dataset[training_dataset['SalePrice'].notna()]
+    training_dataset['dataSource'] = 'train'
+
+    testing_dataset = pd.read_csv(os.path.join(data_path, 'test.csv'))
+    testing_dataset['dataSource'] = 'test'
+    testing_dataset['SalePrice'] = NaN
+
+    combined_dataset = training_dataset.append(testing_dataset)
+    combined_dataset['MSSubClass'] = combined_dataset['MSSubClass'].astype(str)
+
+    return combined_dataset
