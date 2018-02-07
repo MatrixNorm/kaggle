@@ -1,38 +1,48 @@
 
-loadLibraries <- function () {
-    library(broom)
-    library(caret)
-    library(dplyr)
-    library(ggplot2)
-    library(grid)
-    library(gridExtra)
-    library(Metrics)
-    library(purrr)
-    library(reshape2)
-    library(tidyr)
-    library(tibble)
-    library(testthat)
-}
-
-loadData <- function () {
-
-    df.train <- tbl_df(read.csv(paste0(Sys.getenv('DATA_DIR'), "/house_prices/train.csv"), stringsAsFactors = FALSE))
-    df.test <- tbl_df(read.csv(paste0(Sys.getenv('DATA_DIR'), "/house_prices/test.csv"), stringsAsFactors = FALSE))
-
-    df.train <- df.train %>% mutate(dataSource = "train")
-    df.test <- df.test %>% mutate(dataSource = "test", SalePrice = NA)
-
-    df.combined <- 
-        bind_rows(df.train, df.test) %>%
-        mutate(MSSubClass = as.character(MSSubClass))
+helpers <- within(list(), 
+{
+    import_libs <- function () {
+        library(broom)
+        library(caret)
+        library(dplyr)
+        library(ggplot2)
+        library(grid)
+        library(gridExtra)
+        library(Metrics)
+        library(purrr)
+        library(reshape2)
+        library(tidyr)
+        library(tibble)
+        library(testthat)
+    }
     
-    df.combined
-}
+    load_data <- function () {
+        
+        training_dataset <- tbl_df(read.csv(paste0(Sys.getenv('DATA_DIR'), "/house_prices/train.csv"), stringsAsFactors = FALSE))
+        testing_dataset <- tbl_df(read.csv(paste0(Sys.getenv('DATA_DIR'), "/house_prices/test.csv"), stringsAsFactors = FALSE))
+        
+        training_dataset <- 
+            training_dataset %>%
+            filter(!is.na(SalePrice)) %>%
+            mutate(dataSource = "train")
+        
+        testing_dataset <- 
+            testing_dataset %>% 
+            mutate(dataSource = "test", SalePrice = NA)
+        
+        combined_dataset <- 
+            bind_rows(training_dataset, testing_dataset) %>%
+            mutate(MSSubClass = as.character(MSSubClass))
+        
+        combined_dataset
+    }
+    
+    get_character_colnames <- function (df) {
+        df %>% purrr::map(~is.character(.)) %>% purrr::keep(~.) %>% names %>% sort
+    }
+    
+    get_numeric_colnames <- function (df) {
+        df %>% purrr::map(~is.numeric(.)) %>% purrr::keep(~.) %>% names %>% sort
+    }
 
-getCategoricalColumnNames <- function (df) {
-    df %>% purrr::map(~is.character(.)) %>% purrr::keep(~.) %>% names %>% sort
-}
-
-getNumericColumnNames <- function (df) {
-    df %>% purrr::map(~is.numeric(.)) %>% purrr::keep(~.) %>% names %>% sort
-}
+})

@@ -1,26 +1,24 @@
 
-na <- within(list(), 
+missing <- within(list(), 
 {
-    source('./test_fix_missing_values.R', local = TRUE)
-    
-    columns.with.technical.na <- c('SalePrice', 'dataSource')
-    
-    colums.with.good.na <- c('Alley', 
-                             'BsmtCond', 
-                             'BsmtExposure', 
-                             'BsmtFinType1', 
-                             'BsmtFinType2', 
-                             'BsmtQual',
-                             'Fence',
-                             'FireplaceQu',
-                             'GarageCond',
-                             'GarageFinish',
-                             'GarageQual',
-                             'GarageType',
-                             'MasVnrType',
-                             'MiscFeature',
-                             'PoolQC',
-                             'Utilities')
+    colums_with_valid_na <- c('Alley', 
+                              'BsmtCond', 
+                              'BsmtExposure', 
+                              'BsmtFinType1', 
+                              'BsmtFinType2', 
+                              'BsmtQual',
+                              'Fence',
+                              'FireplaceQu',
+                              'GarageCond',
+                              'GarageFinish',
+                              'GarageQual',
+                              'GarageType',
+                              'MasVnrType',
+                              'MiscFeature',
+                              'PoolQC',
+                              'Utilities',
+                              'SalePrice',
+                              'dataSource')
     
     replace_na_with_value <- function (col_name, value) {
         function (df) {
