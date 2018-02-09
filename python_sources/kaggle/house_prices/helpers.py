@@ -20,3 +20,15 @@ def load_data():
     combined_dataset['MSSubClass'] = combined_dataset['MSSubClass'].astype(str)
 
     return combined_dataset
+
+
+def get_character_colnames(df):
+    return [
+        col[1].name for col in df.items() if col[1].dtype.kind == 'O'
+    ]
+
+
+def get_numeric_colnames(df):
+    return [
+        col[1].name for col in df.items() if col[1].dtype.kind in ('i', 'f')
+    ]
