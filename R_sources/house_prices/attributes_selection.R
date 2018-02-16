@@ -60,6 +60,30 @@ attributes_selection <- within(list(),
         }
     })
     
+    Rsquared <- within(list(), {
+        
+        arrange_vars <- function(df, target_var) {
+            
+            target_var <- enquo(target_var)
+            target_var_char <- as.character(target_var)[2]
+            
+            formula <- reformulate(termlabels = c('value'), response = target_var_char)
+            
+            df %>%
+            filter(!is.na(!!target_var)) %>%
+            gather(var, value, -!!target_var) %>%
+            group_by(var) %>%
+            nest %>%
+            mutate(
+                mod = map(data, ~lm(formula, .)),
+                glance = map(mod, broom::glance),
+                r2 = map_dbl(glance, 'r.squared')
+            ) %>%
+            select(var, r2) %>%
+            arrange(r2)
+        }
+    })
+    
     
     order_factor_by_target <- function(df, factor_var, target_var) {
         factor_var <- enquo(factor_var)
