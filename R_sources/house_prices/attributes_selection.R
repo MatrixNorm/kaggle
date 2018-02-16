@@ -19,6 +19,7 @@ attributes_selection <- within(list(),
         }
     })
     
+    
     groups_separation <- within(list(), {
         
         arrange_vars <- function (precalculated) {
@@ -60,5 +61,29 @@ attributes_selection <- within(list(),
     })
     
     
+    order_factor_by_target <- function(df, factor_var, target_var) {
+        factor_var <- enquo(factor_var)
+        factor_var_char <- as.character(factor_var)[2]
+        target_var <- enquo(target_var)
+        
+        factor_ordering <- 
+            df %>%
+            group_by(!!factor_var) %>%
+            summarise(
+                n = n(),
+                mean = mean(!!target_var)
+            ) %>%
+            arrange(mean) %>%
+            select(!!factor_var) %>%
+            `[[`(1)
+        
+        df %>%
+        mutate(
+            !!factor_var_char := factor(
+                !!factor_var,
+                levels=factor_ordering
+            )
+        )
+    }
     
 })
