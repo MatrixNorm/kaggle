@@ -22,8 +22,11 @@ attributes_selection <- within(list(),
     
     groups_separation <- within(list(), {
         
-        arrange_vars <- function (precalculated) {
-            precalculated %>%
+        arrange_vars <- function (df, target_var) {
+            
+            target_var <- enquo(target_var)
+            
+            precalculated(df, !!target_var) %>%
             mutate(
                 additive = (lead_mean - mean)^2 / (std^2/freq + lead_std^2/lead_freq)
             ) %>%
@@ -37,10 +40,11 @@ attributes_selection <- within(list(),
             
             target_var <- enquo(target_var)
             target_var_char <- as.character(target_var)[2]
-            
+
             global_std <- sd(categ_data[,target_var_char][[1]], na.rm=TRUE)
             
             df %>%
+            filter(!is.na(!!target_var)) %>%
             gather(var, value, -!!target_var) %>%
             group_by(var, value) %>%
             summarise(
@@ -117,8 +121,10 @@ attributes_selection <- within(list(),
             )
         }
         
-        arrange_vars <- function(Q_table) {
-            Q_table %>%
+        arrange_vars <- function(df, target_var) {
+            target_var <- enquo(target_var)
+            
+            Q_table(df, !!target_var) %>%
             mutate(
                 F = (Q_groups / num_levels - 1) / (Q_within_groups / num_observ - num_levels)
             ) %>%
