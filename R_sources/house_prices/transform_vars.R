@@ -2,6 +2,49 @@
 
 trans <- within(list(), 
 {
+    
+    get_numeric_vars_tranformations <- function(numeric_data) {
+        numeric_data %>%
+        select(-MoSold) %>%
+        gather(var, x) %>%
+        filter(!is.na(x)) %>%
+        mutate(
+            log = log(x + 1),
+            sqrt = sqrt(x)
+        ) %>%
+        gather(predictor, value, -var) %>%
+        group_by(var, predictor) %>%
+        mutate(
+            value_normed = (value - mean(value)) / sd(value)
+        ) %>%
+        group_by(var, predictor, value_normed) %>%
+        arrange(var, predictor, value_normed) %>%
+        summarise(
+            k = n()
+        ) %>%
+        mutate(
+            empirical = cumsum(k) / sum(k),
+            theoretical = pnorm(value_normed),
+            diff_L2 = k*(empirical - theoretical)**2
+        ) %>%
+        group_by(var, predictor) %>%
+        summarise(
+            L2_distance = sum(diff_L2)
+        ) %>%
+        group_by(var) %>%
+        nest %>%
+        mutate(
+            best_predictor = map(data, function(df) {
+                best <- df %>% arrange(L2_distance) %>% head(1)
+                x <- df %>% filter(predictor == 'x')
+                score <- 100 * (x$L2_distance - best$L2_distance) / x$L2_distance
+                data_frame(predictor = best$predictor, score = score)
+            })
+        ) %>%
+        select(var, best_predictor) %>%
+        unnest(best_predictor) %>%
+        filter(predictor != 'x' & score > 30)
+    }
  
     binaryTransform <- function (dataset) {
         dataset %>% 
