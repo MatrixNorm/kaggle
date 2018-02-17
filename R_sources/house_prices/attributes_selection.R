@@ -2,6 +2,29 @@
 attributes_selection <- within(list(), 
 {
     
+    discared_vars <- c(
+        'BsmtFinType2',
+        'Condition1',
+        'Condition2',
+        'ExterCond',
+        'Functional',
+        'Heating',
+        'LandSlope',
+        'RoofMatl',
+        'Street',
+        'Utilities',
+        
+        'BsmtFinSF2',
+        'BsmtHalfBath',
+        'EnclosedPorch',
+        'KitchenAbvGr',
+        'LowQualFinSF',
+        'MiscVal',
+        'PoolArea',
+        'ScreenPorch',
+        'X3SsnPorch'
+    )
+    
     entropy <- within(list(), {
         
         entropy <- function(col) {
