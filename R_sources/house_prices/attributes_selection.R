@@ -2,7 +2,7 @@
 attributes_selection <- within(list(), 
 {
     
-    discared_vars <- c(
+    discared_cat_vars <- c(
         'BsmtFinType2',
         'Condition1',
         'Condition2',
@@ -12,8 +12,10 @@ attributes_selection <- within(list(),
         'LandSlope',
         'RoofMatl',
         'Street',
-        'Utilities',
-        
+        'Utilities'
+    )
+     
+    discared_num_vars <- c(   
         'BsmtFinSF2',
         'BsmtHalfBath',
         'EnclosedPorch',
@@ -24,6 +26,7 @@ attributes_selection <- within(list(),
         'ScreenPorch',
         'X3SsnPorch'
     )
+    
     
     entropy <- within(list(), {
         
