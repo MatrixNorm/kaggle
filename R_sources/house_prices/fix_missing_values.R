@@ -20,6 +20,28 @@ missing <- within(list(),
                               'SalePrice',
                               'dataSource')
     
+    categ <- within(list(), {
+        
+        replace_with_most_common <- function (df, columns) {
+            
+            tmp <-
+                combined_dataset %>%
+                select(one_of(columns)) %>%
+                gather(var, value) %>%
+                group_by(var, value) %>%
+                count %>%
+                group_by(var) %>%
+                filter(n == max(n)) %>%
+                select(var, value)
+            
+            replacement_list <- 
+                structure(as.list(tmp$value), names = as.list(tmp$var))
+            
+            combined_dataset %>%
+            replace_na(replacement_list)
+        }
+    })
+    
     replace_na_with_value <- function (col_name, value) {
         function (df) {
             df[df[, col_name] %>% `[[`(1) %>% is.na, col_name] <- value
