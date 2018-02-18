@@ -45,10 +45,7 @@ helpers <- within(list(),
     }
     
     get_character_colnames <- function (df) {
-        setdiff(
-            df %>% purrr::map(~is.character(.)) %>% purrr::keep(~.) %>% names,
-            "dataSource"
-        ) %>% sort
+        df %>% purrr::map(~is.character(.)) %>% purrr::keep(~.) %>% names %>% sort
     }
     
     get_numeric_colnames <- function (df) {

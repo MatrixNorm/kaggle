@@ -1,6 +1,8 @@
 
 missing <- within(list(), 
 {
+    source('./helpers.R', local = TRUE)
+    
     colums_with_valid_na <- c('Alley', 
                               'BsmtCond', 
                               'BsmtExposure', 
@@ -22,10 +24,15 @@ missing <- within(list(),
     
     categ <- within(list(), {
         
-        replace_with_most_common <- function (df, columns) {
+        replace_with_most_common <- function(df) {
+            
+            columns <- setdiff(
+                helpers$get_character_colnames(df),
+                colums_with_valid_na
+            )
             
             tmp <-
-                combined_dataset %>%
+                df %>%
                 select(one_of(columns)) %>%
                 gather(var, value) %>%
                 group_by(var, value) %>%
@@ -37,7 +44,40 @@ missing <- within(list(),
             replacement_list <- 
                 structure(as.list(tmp$value), names = as.list(tmp$var))
             
-            combined_dataset %>%
+            df %>%
+            replace_na(replacement_list)
+        }
+        
+        fix_valid <- function(df) {
+            
+            cat_colums_with_valid_na <- intersect(colums_with_valid_na, helpers$get_character_colnames(df))
+
+            replacement_list <- structure(
+                as.list(rep('_none_', length(cat_colums_with_valid_na))),
+                names = cat_colums_with_valid_na
+            )
+            
+            df %>%
+            replace_na(replacement_list)
+        }
+    })
+    
+    
+    numeric <- within(list(), {
+        
+        replace_with_zero <- function(df) {
+            
+            columns <- setdiff(
+                helpers$get_numeric_colnames(df),
+                'SalePrice'
+            )
+            
+            replacement_list <- structure(
+                as.list(rep(0, length(columns))), 
+                names = columns
+            )
+            
+            df %>%
             replace_na(replacement_list)
         }
     })
