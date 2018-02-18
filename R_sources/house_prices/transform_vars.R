@@ -87,7 +87,6 @@ trans <- within(list(),
         }
     })
     
-    
  
     binaryTransform <- function (dataset) {
         dataset %>% 
