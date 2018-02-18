@@ -69,6 +69,22 @@ trans <- within(list(),
                 normed_value = (value - mean(value)) / sd(value)
             )
         }
+        
+        transform <- function(df, transformation_config) {
+            colnames(df) %>% 
+            map_dfc(function (col) {
+                
+                tran <- transformation_config[transformation_config$var == col, 'predictor'][[1]]
+                
+                if ( !identical(tran, character(0)) ) {
+                    switch(tran,
+                           log = log(df[, col] + 1),
+                           sqrt = sqrt(df[, col]))
+                } else {
+                    df[, col]
+                }   
+            })
+        }
     })
     
     
