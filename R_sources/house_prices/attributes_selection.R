@@ -160,19 +160,19 @@ attributes_selection <- within(list(),
     })
     
     
-    order_factor_by_target <- function(df, factor_var, target_var) {
+    order_factor_by_target <- function(df, factor_var, target_var, fn = mean) {
         factor_var <- enquo(factor_var)
         factor_var_char <- as.character(factor_var)[2]
         target_var <- enquo(target_var)
-        
+
         factor_ordering <- 
             df %>%
             group_by(!!factor_var) %>%
             summarise(
                 n = n(),
-                mean = mean(!!target_var)
+                avg = fn(!!target_var)
             ) %>%
-            arrange(mean) %>%
+            arrange(avg) %>%
             select(!!factor_var) %>%
             `[[`(1)
         
