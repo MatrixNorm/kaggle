@@ -122,19 +122,19 @@ trans <- within(list(),
             select(-distrib, -data)
         }
         
-       rating_transform <- function(data, columns, rating_data) {
+       rating_transform <- function(data, columns, ratings) {
            columns %>% 
            map_dfc(function (col) {
                
                tmp <-
-                   rating_data %>%
+                   ratings %>%
                    filter(var == col) %>%
                    select(value, rating)
                
                mapping <- structure(as.list(tmp$rating), names = as.list(tmp$value))
                
                new_col_df <- data_frame(
-                   map(data[, col] [[1]], ~mapping[[.]])
+                   map_dbl(data[, col] [[1]], ~mapping[[.]])
                )
                names(new_col_df) <- col
                new_col_df
