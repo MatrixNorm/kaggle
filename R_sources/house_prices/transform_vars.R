@@ -6,8 +6,9 @@ trans <- within(list(),
     
     numeric <- within(list(), {
         
-        get_transformation_config <- function(numeric_data) {
-            numeric_data %>%
+        get_transformation_config <- function(dataset) {
+            dataset %>%
+            select_if(is.numeric) %>%
             select(-MoSold) %>%
             gather(var, x) %>%
             filter(!is.na(x)) %>%
@@ -49,8 +50,8 @@ trans <- within(list(),
             filter(predictor != 'x' & score > 30)
         }
         
-        for_qq_plot <- function(numeric_data, transformation_config) {
-            numeric_data %>%
+        for_qq_plot <- function(dataset, transformation_config) {
+            dataset %>%
             select(one_of(transformation_config$var)) %>%
             gather(var, value) %>%
             filter(!is.na(value)) %>%
@@ -72,7 +73,7 @@ trans <- within(list(),
             )
         }
         
-        transform <- function(df, transformation_config) {
+        apply_transform <- function(df, transformation_config) {
             colnames(df) %>% 
             map_dfc(function (col) {
                 
