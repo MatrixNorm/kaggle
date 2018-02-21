@@ -1,8 +1,16 @@
 
 outliers <- within(list(), 
 {
-    removeOutliers <- function (trainset) {
-        trainset %>% filter( !(GrLivArea > 4000 & SalePrice < 2e5) )
-    }    
+    condition <- quote(GrLivArea > 4000 & !is.na(SalePrice) & SalePrice < 2e5)
+    
+    remove_outliers <- function(dataset) {
+        dataset %>% 
+        filter( !(!!condition) )
+    }
+    
+    get_strange_cases <- function(dataset) {
+        dataset %>%
+        filter(!!condition)
+    }
      
 })

@@ -2,6 +2,8 @@
 
 trans <- within(list(), 
 {
+    source('./helpers.R', local = TRUE)
+    
     numeric <- within(list(), {
         
         get_transformation_config <- function(numeric_data) {
@@ -90,10 +92,26 @@ trans <- within(list(),
  
     categ <- within(list(), {
         
-        calc_rating <- function(df, target_var) {
+        calc_rating_for_all <- function(df, target_var) {
+            
+            target_var <- enquo(target_var)
+            
+            calc_rating_for_selected(
+                df, 
+                helpers$get_character_colnames(df),
+                !!target_var
+            )
+        }
+        
+        calc_rating_for_selected <- function(df, categ_vars_for_fix, target_var) {
             
             target_var <- enquo(target_var)
             target_var_char <- as.character(target_var)[2]
+            
+            df <- 
+                df %>%
+                select(categ_vars_for_fix, !!target_var) %>%
+                filter(!is.na(!!target_var))
             
             global_quantiles <- 
                 df %>%
@@ -119,10 +137,22 @@ trans <- within(list(),
                     rating
                 })
             ) %>%
-            select(-distrib, -data)
+            select(-distrib, -data) %>% 
+            rbind(list('_global_', '_global_', 0.25*(1+2+3+4)))
         }
         
-       rating_transform <- function(data, columns, ratings) {
+        combined_dataset_transformed_for_all <- function(data, ratings) {
+            rating_transform_for_selected(
+                data, 
+                helpers$get_character_colnames(data),
+                ratings
+            )
+        }
+        
+        rating_transform_for_selected <- function(data, columns, ratings) {
+           
+           global_rating <- ratings[ratings$var == '_global_',]$rating
+           
            columns %>% 
            map_dfc(function (col) {
                
@@ -134,7 +164,10 @@ trans <- within(list(),
                mapping <- structure(as.list(tmp$rating), names = as.list(tmp$value))
                
                new_col_df <- data_frame(
-                   map_dbl(data[, col] [[1]], ~mapping[[.]])
+                    map_dbl(
+                        data[, col] [[1]], 
+                        ~ifelse(is.null(mapping[[.]]), global_rating, mapping[[.]])
+                    )
                )
                names(new_col_df) <- col
                new_col_df
