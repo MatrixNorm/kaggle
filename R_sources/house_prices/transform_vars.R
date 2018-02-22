@@ -73,7 +73,14 @@ trans <- within(list(),
             )
         }
         
-        apply_transform <- function(df, transformation_config) {
+        apply_transform <- function(df, debug=FALSE) {
+            
+            transformation_config <- get_transformation_config(df)
+            
+            if (debug) {
+                print(transformation_config)
+            }
+            
             colnames(df) %>% 
             map_dfc(function (col) {
                 
@@ -142,10 +149,15 @@ trans <- within(list(),
             rbind(list('_global_', '_global_', 0.25*(1+2+3+4)))
         }
         
-        combined_dataset_transformed_for_all <- function(data, ratings) {
+        rating_transform <- function(data, target_var) {
+            
+            target_var <- enquo(target_var)
+            
+            ratings <- calc_rating_for_all(data, !!target_var)
+            
             rating_transform_for_selected(
                 data, 
-                helpers$get_character_colnames(data),
+                setdiff(helpers$get_character_colnames(data), 'dataSource'),
                 ratings
             )
         }
@@ -172,7 +184,8 @@ trans <- within(list(),
                )
                names(new_col_df) <- col
                new_col_df
-           })
+           }) %>%
+           cbind(data %>% select(-one_of(columns)))
        }
     })
 })
