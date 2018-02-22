@@ -73,13 +73,7 @@ trans <- within(list(),
             )
         }
         
-        apply_transform <- function(df, debug=FALSE) {
-            
-            transformation_config <- get_transformation_config(df)
-            
-            if (debug) {
-                print(transformation_config)
-            }
+        apply_transform <- function(df, transformation_config) {
             
             colnames(df) %>% 
             map_dfc(function (col) {
