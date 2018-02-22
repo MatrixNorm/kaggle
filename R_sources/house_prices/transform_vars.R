@@ -157,7 +157,7 @@ trans <- within(list(),
             
             rating_transform_for_selected(
                 data, 
-                setdiff(helpers$get_character_colnames(data), 'dataSource'),
+                helpers$get_character_colnames(data),
                 ratings
             )
         }
@@ -176,16 +176,20 @@ trans <- within(list(),
                
                mapping <- structure(as.list(tmp$rating), names = as.list(tmp$value))
                
-               new_col_df <- data_frame(
-                    map_dbl(
-                        data[, col] [[1]], 
-                        ~ifelse(is.null(mapping[[.]]), global_rating, mapping[[.]])
-                    )
+               transformed_col <- map_dbl(
+                   data[, col] [[1]], 
+                   ~ifelse(is.null(mapping[[.]]), global_rating, mapping[[.]])
                )
-               names(new_col_df) <- col
-               new_col_df
+               
+               as_df <- as_data_frame(transformed_col)
+               names(as_df) <- col
+               as_df
            }) %>%
            cbind(data %>% select(-one_of(columns)))
-       }
+        }
+        
+        rating_transform_for_selected2 <- function(data, columns, ratings) {
+            
+        }
     })
 })
