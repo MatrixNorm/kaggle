@@ -162,7 +162,27 @@ trans <- within(list(),
             )
         }
         
-        rating_transform_for_selected1 <- function(data, columns, ratings) {
+        rating_transform_for_selected <- function(data, columns, ratings) {
+            
+            global_rating <- ratings[ratings$var == '_global_',]$rating
+            
+            working <- 
+                data %>% 
+                select(columns) %>%
+                gather(var, value) %>%
+                left_join(ratings, by=c('var', 'value')) %>%
+                select(var, rating) %>%
+                group_by(var) %>%
+                mutate(id = row_number()) %>%
+                spread(var, rating) %>%
+                select(-id)
+            
+            working[is.na(working)] <- global_rating
+            
+            cbind(working, data %>% select(-one_of(columns)))
+        }
+        
+        rating_transform_for_selected2 <- function(data, columns, ratings) {
            
            global_rating <- ratings[ratings$var == '_global_',]$rating
            
@@ -188,7 +208,7 @@ trans <- within(list(),
            cbind(data %>% select(-one_of(columns)))
         }
         
-        rating_transform_for_selected2 <- function(data, columns, ratings) {
+        rating_transform_for_selected3 <- function(data, columns, ratings) {
             
             global_rating <- ratings[ratings$var == '_global_',]$rating
             
@@ -207,18 +227,6 @@ trans <- within(list(),
                     new
                 }) %>%
                 cbind(data %>% select(-one_of(columns)))
-        }
-        
-        rating_transform_for_selected3 <- function(data, columns, ratings) {
-    
-            working <- 
-                data %>% 
-                select(columns) %>%
-                gather(var, value) %>%
-                left_join(ratings, by=c('var', 'value')) %>%
-                select(var, rating)
-            print(working)
-            working
         }
     })
 })
