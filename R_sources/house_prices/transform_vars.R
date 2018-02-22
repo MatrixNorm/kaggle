@@ -131,22 +131,22 @@ trans <- within(list(),
                 ) 
             
             df %>%
-            gather(var, value, -!!target_var) %>%
-            group_by(var, value) %>%
-            nest %>%
-            mutate(
-                distrib = map(data, ~ecdf(.[[target_var_char]])),
-                rating = map_dbl(distrib, function (cdf) {
-                    prob_rating_1 <- cdf(global_quantiles$q25)
-                    prob_rating_2 <- cdf(global_quantiles$q50) - cdf(global_quantiles$q25)
-                    prob_rating_3 <- cdf(global_quantiles$q75) - cdf(global_quantiles$q50)
-                    prob_rating_4 <- 1 - cdf(global_quantiles$q75)
-                    rating <- prob_rating_1 * 1 + prob_rating_2 * 2 + prob_rating_3 * 3 + prob_rating_4 * 4
-                    rating
-                })
-            ) %>%
-            select(-distrib, -data) %>% 
-            rbind(list('_global_', '_global_', 0.25*(1+2+3+4)))
+                gather(var, value, -!!target_var) %>%
+                group_by(var, value) %>%
+                nest %>%
+                mutate(
+                    rating = map_dbl(data, function (df) {
+                        cdf = ecdf(df[[target_var_char]])
+                        prob_rating_1 <- cdf(global_quantiles$q25)
+                        prob_rating_2 <- cdf(global_quantiles$q50) - cdf(global_quantiles$q25)
+                        prob_rating_3 <- cdf(global_quantiles$q75) - cdf(global_quantiles$q50)
+                        prob_rating_4 <- 1 - cdf(global_quantiles$q75)
+                        rating <- prob_rating_1 * 1 + prob_rating_2 * 2 + prob_rating_3 * 3 + prob_rating_4 * 4
+                        rating
+                    })
+                ) %>%
+                select(-data) %>% 
+                rbind(list('_global_', '_global_', 0.25*(1+2+3+4)))
         }
         
         rating_transform <- function(data, target_var) {
