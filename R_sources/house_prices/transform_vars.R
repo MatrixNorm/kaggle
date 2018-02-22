@@ -162,7 +162,7 @@ trans <- within(list(),
             )
         }
         
-        rating_transform_for_selected <- function(data, columns, ratings) {
+        rating_transform_for_selected1 <- function(data, columns, ratings) {
            
            global_rating <- ratings[ratings$var == '_global_',]$rating
            
@@ -190,6 +190,35 @@ trans <- within(list(),
         
         rating_transform_for_selected2 <- function(data, columns, ratings) {
             
+            global_rating <- ratings[ratings$var == '_global_',]$rating
+            
+            columns %>% 
+                map_dfc(function (col) {
+                    
+                    mapping <-
+                        ratings %>%
+                        filter(var == col) %>%
+                        select(value, rating)
+                    
+                    new <- 
+                        left_join(data %>% select(value=col), mapping, by='value') %>%
+                        select(!!col := rating)
+                    new[is.na(new)] <- global_rating
+                    new
+                }) %>%
+                cbind(data %>% select(-one_of(columns)))
+        }
+        
+        rating_transform_for_selected3 <- function(data, columns, ratings) {
+    
+            working <- 
+                data %>% 
+                select(columns) %>%
+                gather(var, value) %>%
+                left_join(ratings, by=c('var', 'value')) %>%
+                select(var, rating)
+            print(working)
+            working
         }
     })
 })
