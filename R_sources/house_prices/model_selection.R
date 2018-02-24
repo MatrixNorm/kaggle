@@ -4,7 +4,7 @@ model_selection <- within(list(),
     
     lm <- within(list(), {
         
-        iterate <- function(base_formula_str, dataset) {
+        iterate <- function(base_formula_str, dataset, min_r2_gain) {
             base_formula <- as.formula(base_formula_str)
             target <- all.vars(f)[1]
             all_predictors <- setdiff(colnames(dataset), target)
@@ -34,20 +34,20 @@ model_selection <- within(list(),
                     })        
                 ) %>%
                 select(-model) %>%
-                filter(r2_gain > 1, max_corr < 0.5) %>%
+                filter(r2_gain > min_r2_gain, max_corr < 0.4) %>%
                 mutate(
                     r2_gain_adj = r2_gain / (1 + max_corr)
                 ) %>%
                 arrange(desc(r2_gain_adj))
         }
         
-        greedy_r2_adj <- function(base_formula_str, dataset) {
+        greedy_r2_adj <- function(base_formula_str, dataset, min_r2_gain = 1) {
             
             report <- NULL
             
             repeat {
                 
-                result <- iterate(base_formula_str, dataset) 
+                result <- iterate(base_formula_str, dataset, min_r2_gain) 
                 
                 if( nrow(result) < 1 ){
                     break
