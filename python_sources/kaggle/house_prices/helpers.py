@@ -25,11 +25,11 @@ def load_data():
 
 def get_character_colnames(df):
     return [
-        col[1].name for col in df.items() if col[1].dtype.kind == 'O'
+        col[1].name for col in df.items() if col[1].dtype.kind == 'O' and col[1].name != 'dataSource'
     ]
 
 
 def get_numeric_colnames(df):
     return [
-        col[1].name for col in df.items() if col[1].dtype.kind in ('i', 'f')
+        col[1].name for col in df.items() if col[1].dtype.kind in ('i', 'f') and col[1].name != 'Id'
     ]
