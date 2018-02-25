@@ -38,10 +38,10 @@ attributes_selection <- within(list(),
         
         arrange_vars <- function(df) {
             df %>%
-                purrr::map(entropy) %>% 
-                as_data_frame %>% 
-                gather(var, entropy) %>%
-                arrange(entropy)
+            purrr::map(entropy) %>% 
+            as_data_frame %>% 
+            gather(var, entropy) %>%
+            arrange(entropy)
         }
     })
     
