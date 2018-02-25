@@ -39,8 +39,10 @@ helpers <- within(list(),
         
         combined_dataset <- 
             bind_rows(training_dataset, testing_dataset) %>%
-            mutate(MSSubClass = as.character(MSSubClass))
-        
+            mutate(
+                MSSubClass = as.character(MSSubClass),
+                MoSold = as.character(MoSold)
+            )
         combined_dataset
     }
     
