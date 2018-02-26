@@ -2,18 +2,18 @@
 helpers <- within(list(), 
 {
     import_libs <- function () {
-        library(broom)
-        library(caret)
-        library(dplyr)
-        library(ggplot2)
-        library(grid)
-        library(gridExtra)
-        library(Metrics)
-        library(purrr)
-        library(reshape2)
-        library(tidyr)
-        library(tibble)
-        library(testthat)
+        library(broom, warn.conflicts=FALSE)
+        library(caret, warn.conflicts=FALSE)
+        library(dplyr, warn.conflicts=FALSE)
+        library(ggplot2, warn.conflicts=FALSE)
+        library(grid, warn.conflicts=FALSE)
+        library(gridExtra, warn.conflicts=FALSE)
+        library(Metrics, warn.conflicts=FALSE)
+        library(purrr, warn.conflicts=FALSE)
+        library(reshape2, warn.conflicts=FALSE)
+        library(tidyr, warn.conflicts=FALSE)
+        library(tibble, warn.conflicts=FALSE)
+        library(testthat, warn.conflicts=FALSE)
     }
     
     load_data <- function () {
