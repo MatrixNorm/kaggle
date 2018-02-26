@@ -54,7 +54,7 @@ attributes_selection <- within(list(),
             
             precalculated(df, !!target_var) %>%
             mutate(
-                additive = (lead_mean - mean)^2 / (std^2/freq + lead_std^2/lead_freq)
+                additive = (lead_mean - mean)^2 / (std^2 / freq + lead_std^2 / lead_freq)
             ) %>%
             summarise(
                 score = sum(additive, na.rm = TRUE)
