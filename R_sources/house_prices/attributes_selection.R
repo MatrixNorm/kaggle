@@ -169,7 +169,6 @@ attributes_selection <- within(list(),
             df %>%
             group_by(!!factor_var) %>%
             summarise(
-                n = n(),
                 avg = fn(!!target_var)
             ) %>%
             arrange(avg) %>%

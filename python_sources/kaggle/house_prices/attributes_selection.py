@@ -1,6 +1,7 @@
 
 import numpy as np
 import pandas as pd
+import statsmodels.formula.api as smf
 
 
 def entropy(col):
@@ -19,7 +20,28 @@ def arrange_vars_by_entropy(df):
     )
 
 
+def arrange_vars_by_r2(df, target_var):
+    return (
+        pd.melt(
+            frame=df.dropna(subset=[target_var]), 
+            id_vars=[target_var], 
+            var_name='var', 
+            value_name='value'
+        )
+        .groupby('var')
+        .apply(
+            lambda df: smf.ols(
+                formula='%s ~ value' % target_var, data=df
+            ).fit().rsquared
+        )
+        .sort_values()
+        .to_frame('r2')
+        .reset_index()
+    )
+
+
 class GroupsSeparation:
+    """ XXX """
     def __init__(self, df, target_var):
         self.df = df
         self.target_var = target_var
@@ -83,3 +105,24 @@ class GroupsSeparation:
         up = (df['lead_mean'] - df['mean'])**2
         down = df['std']**2 / df['freq'] + df['lead_std']**2 / df['lead_freq']
         return up / down
+
+
+def order_factor_by_target(df, factor_var, target_var, fn=np.mean):
+    """ XXX """
+    factor_ordering = (
+        df
+        .groupby(factor_var, as_index=False)
+        .agg(fn)
+        .sort_values(target_var)
+        [factor_var]
+    )
+
+    return (
+        df
+        .assign(
+            **{factor_var: (
+                lambda df: df[factor_var]
+                       .astype('category')
+                       .cat.reorder_categories(factor_ordering, ordered=True))
+        })
+    )    
