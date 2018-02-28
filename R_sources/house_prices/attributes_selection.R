@@ -123,7 +123,6 @@ attributes_selection <- within(list(),
             
             df <- df %>% filter(!is.na(!!target_var))
             
-            global_std <- sd(df[,target_var_char][[1]])
             global_mean <- mean(df[,target_var_char][[1]])
             
             df %>% 

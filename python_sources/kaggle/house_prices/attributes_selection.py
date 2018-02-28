@@ -113,27 +113,54 @@ class Anova:
         self.df = df.dropna(subset=[target_var])
         self.target_var = target_var
 
-    def get_Q_table(self):
-        global_std = np.std(self.df[self.target_var], ddof=1)
+    def Q_table(self):
         global_mean = np.mean(self.df[self.target_var])
-
-        df_long = pd.melt(
-            frame=self.df,
-            id_vars=[self.target_var],
-            var_name='var', 
-            value_name='value'
-        )
-
-        (
-            df_long
+        return (
+            pd.melt(
+                frame=self.df,
+                id_vars=[self.target_var],
+                var_name='var', 
+                value_name='value'
+            )
             .groupby(['var', 'value'], as_index=False)
             [self.target_var]
             .agg({
                 'n': np.count_nonzero,
                 'mean': np.mean,
-                'Q_within_group': lambda vec: self.calc_std(vec, global_std)
+                'Q_within_group': lambda vec: np.sum( (vec - np.mean(vec))**2 ),
+                'Q_total': lambda vec: np.sum( (vec - global_mean)**2 )
             })
+            .assign(
+                Q_of_group=lambda df: df['n'] * (df['mean'] - global_mean)**2
+            )
+            .groupby(['var'])
+            .apply(lambda grp: pd.Series({
+                'num_levels': grp.shape[0],
+                'num_observ': np.sum(grp['n']),
+                'Q_within_groups': np.sum(grp['Q_within_group']),
+                'Q_of_groups': np.sum(grp['Q_of_group']),
+                'Q_total': np.sum(grp['Q_total']),
+            }))
+            .reset_index()
         )
+
+    def arrange_vars(self):
+        q_table = self.Q_table()
+
+        def calc_F(df):
+            up = (df['Q_of_groups'] * (df['num_observ'] - df['num_levels']))
+            down = (df['Q_within_groups'] * (df['num_levels'] - 1))
+            return up / down 
+        
+        return (
+            q_table
+            .assign(
+                F=calc_F
+            )
+            [['var', 'F']]
+            .sort_values('F')
+        )
+
     
 
 
