@@ -141,9 +141,8 @@ attributes_selection <- within(list(),
                 num_levels = n(),
                 num_observ = sum(n),
                 Q_within_groups = sum(Q_within_group),
-                Q_groups = sum(Q_of_group),
-                Q_total = sum(Q_total),
-                Q_control_sum = Q_groups + Q_within_groups
+                Q_of_groups = sum(Q_of_group),
+                Q_total = sum(Q_total)
             )
         }
         
@@ -152,7 +151,7 @@ attributes_selection <- within(list(),
             
             Q_table(df, !!target_var) %>%
             mutate(
-                F = (Q_groups / num_levels - 1) / (Q_within_groups / num_observ - num_levels)
+                F = (Q_of_groups * (num_observ - num_levels)) / (Q_within_groups * (num_levels - 1))
             ) %>%
             select(var, F) %>%
             arrange(F)
