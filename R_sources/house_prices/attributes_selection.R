@@ -67,7 +67,7 @@ attributes_selection <- within(list(),
             target_var <- enquo(target_var)
             target_var_char <- as.character(target_var)[2]
 
-            global_std <- sd(categ_data[,target_var_char][[1]], na.rm=TRUE)
+            global_std <- sd(df[,target_var_char][[1]], na.rm=TRUE)
             
             df %>%
             filter(!is.na(!!target_var)) %>%
