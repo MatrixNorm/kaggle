@@ -133,7 +133,7 @@ attributes_selection <- within(list(),
                 n = n(),
                 mean = mean(!!target_var),
                 Q_within_group = sum( (`-`(!!target_var, mean))**2 ),
-                Q_group = n * (mean - global_mean)**2,
+                Q_of_group = n * (mean - global_mean)**2,
                 Q_total = sum( (`-`(!!target_var, global_mean))**2 )
             ) %>%
             group_by(var) %>%
@@ -141,7 +141,7 @@ attributes_selection <- within(list(),
                 num_levels = n(),
                 num_observ = sum(n),
                 Q_within_groups = sum(Q_within_group),
-                Q_groups = sum(Q_group),
+                Q_groups = sum(Q_of_group),
                 Q_total = sum(Q_total),
                 Q_control_sum = Q_groups + Q_within_groups
             )

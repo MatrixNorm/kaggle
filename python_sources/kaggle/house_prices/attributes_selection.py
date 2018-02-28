@@ -107,6 +107,36 @@ class GroupsSeparation:
         return up / down
 
 
+class Anova:
+    """ XXX """
+    def __init__(self, df, target_var):
+        self.df = df.dropna(subset=[target_var])
+        self.target_var = target_var
+
+    def get_Q_table(self):
+        global_std = np.std(self.df[self.target_var], ddof=1)
+        global_mean = np.mean(self.df[self.target_var])
+
+        df_long = pd.melt(
+            frame=self.df,
+            id_vars=[self.target_var],
+            var_name='var', 
+            value_name='value'
+        )
+
+        (
+            df_long
+            .groupby(['var', 'value'], as_index=False)
+            [self.target_var]
+            .agg({
+                'n': np.count_nonzero,
+                'mean': np.mean,
+                'Q_within_group': lambda vec: self.calc_std(vec, global_std)
+            })
+        )
+    
+
+
 def order_factor_by_target(df, factor_var, target_var, fn=np.mean):
     """ XXX """
     factor_ordering = (
