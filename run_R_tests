@@ -1,0 +1,3 @@
+#!/bin/bash
+
+R_SOURCES="`pwd`/R_sources" Rscript $1
