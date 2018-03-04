@@ -12,7 +12,7 @@ dummy <- within(list(), {
         
         replace_with_most_common <- missing$methods$replace_with_most_common
         
-        test_that("if NA is most common it is ignored", {
+        test_that("replace_with_most_common: if NA is most common it is ignored", {
             df <- data_frame(
                 attr = c('1', '1', NA, '2', NA, NA, '3')
             )
@@ -23,7 +23,7 @@ dummy <- within(list(), {
             expect_equal(actual, expected)
         })
         
-        test_that("if no columns are provided - every column is fixed", {
+        test_that("replace_with_most_common: if no columns are provided - every column is fixed", {
             df <- data_frame(
                 attr1 = c('1', '1', NA,  '2', NA, NA, '3'),
                 attr2 = c('x', 'x', 'x', 'y', NA, NA, 'z')
@@ -36,7 +36,7 @@ dummy <- within(list(), {
             expect_equal(actual, expected)
         })
         
-        test_that("only needed columns are fixed", {
+        test_that("replace_with_most_common: only needed columns are fixed", {
             df <- data_frame(
                 attr1 = c(11,  11,  NA,  22,  NA, NA, 33),
                 attr2 = c('x', 'x', 'x', 'y', NA, NA, 'z')
@@ -54,6 +54,35 @@ dummy <- within(list(), {
     test_replace_with_value <- function() {
         
         replace_with_value <- missing$methods$replace_with_value
+        replace_with_zero <- missing$methods$replace_with_zero
+        
+        test_that("replace_with_value: generic case", {
+            df <- data_frame(
+                attr1 = c('1', '1', NA, '2', NA),
+                attr2 = c('x', NA,  NA, 'y', NA)
+            )
+            actual <- replace_with_value(df, '_none_')
+
+            expected <- data_frame(
+                attr1 = c('1', '1',       '_none_', '2', '_none_'),
+                attr2 = c('x', '_none_',  '_none_', 'y', '_none_')
+            )
+            expect_equal(actual, expected)
+        })
+        
+        test_that("replace_with_value: only needed columns are fixed", {
+            df <- data_frame(
+                attr1 = c('1', '1', NA, '2', NA),
+                attr2 = c('x', NA,  NA, 'y', NA)
+            )
+            actual <- replace_with_value(df, '_none_', c('attr2'))
+            
+            expected <- data_frame(
+                attr1 = c('1', '1',       NA,       '2', NA),
+                attr2 = c('x', '_none_',  '_none_', 'y', '_none_')
+            )
+            expect_equal(actual, expected)
+        })
         
     }
     

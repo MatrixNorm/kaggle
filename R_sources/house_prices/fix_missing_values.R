@@ -93,15 +93,21 @@ missing <- within(list(),
         }
         
         replace_with_value <- function(df, value, columns = NULL) {
-            cat_colums_with_valid_na <- intersect(colums_with_valid_na, helpers$get_character_colnames(df))
-            
+            if (is.null(columns)) {
+                columns <- colnames(df)
+            }
+
             replacement_list <- structure(
-                as.list(rep('_none_', length(cat_colums_with_valid_na))),
-                names = cat_colums_with_valid_na
+                as.list(rep('_none_', length(columns))),
+                names = columns
             )
             
             df %>%
-                replace_na(replacement_list)
+            replace_na(replacement_list)
+        }
+        
+        replace_with_zero <- function(df, colnames = NULL) {
+            replace_with_value(df, 0, colnames)
         }
     })
 })
