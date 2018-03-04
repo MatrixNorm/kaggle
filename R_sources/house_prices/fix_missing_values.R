@@ -18,9 +18,7 @@ missing <- within(list(),
                               'MasVnrType',
                               'MiscFeature',
                               'PoolQC',
-                              'Utilities',
-                              'SalePrice',
-                              'dataSource')
+                              'Utilities')
     
     categ <- within(list(), {
         
@@ -89,6 +87,18 @@ missing <- within(list(),
             
             replacement_list <- structure(as.list(tmp$value), 
                                           names = as.list(tmp$var))
+            
+            df %>%
+                replace_na(replacement_list)
+        }
+        
+        replace_with_value <- function(df, value, columns = NULL) {
+            cat_colums_with_valid_na <- intersect(colums_with_valid_na, helpers$get_character_colnames(df))
+            
+            replacement_list <- structure(
+                as.list(rep('_none_', length(cat_colums_with_valid_na))),
+                names = cat_colums_with_valid_na
+            )
             
             df %>%
                 replace_na(replacement_list)

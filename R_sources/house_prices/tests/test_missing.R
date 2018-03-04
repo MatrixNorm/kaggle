@@ -51,6 +51,12 @@ dummy <- within(list(), {
         
     }
     
+    test_replace_with_value <- function() {
+        
+        replace_with_value <- missing$methods$replace_with_value
+        
+    }
+    
     test_replace_with_most_common()
-
+    test_replace_with_value()
 })
