@@ -127,8 +127,8 @@ class Anova:
             .agg({
                 'n': np.count_nonzero,
                 'mean': np.mean,
-                'Q_within_group': lambda vec: np.sum( (vec - np.mean(vec))**2 ),
-                'Q_total': lambda vec: np.sum( (vec - global_mean)**2 )
+                'Q_within_group': lambda vec: np.sum((vec - np.mean(vec))**2),
+                'Q_total': lambda vec: np.sum((vec - global_mean)**2)
             })
             .assign(
                 Q_of_group=lambda df: df['n'] * (df['mean'] - global_mean)**2

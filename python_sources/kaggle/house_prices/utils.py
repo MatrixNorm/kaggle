@@ -23,4 +23,3 @@ class Plot():
 
 def display_img(img):
     display(Image(data=img.getvalue(), format='png', embed=True))
-

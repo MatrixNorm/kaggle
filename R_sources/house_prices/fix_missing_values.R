@@ -35,14 +35,8 @@ missing <- within(list(),
         fix_valid <- function(df) {
             
             cat_colums_with_valid_na <- intersect(colums_with_valid_na, helpers$get_character_colnames(df))
-
-            replacement_list <- structure(
-                as.list(rep('_none_', length(cat_colums_with_valid_na))),
-                names = cat_colums_with_valid_na
-            )
             
-            df %>%
-            replace_na(replacement_list)
+            methods$replace_with_value(df, '_none_', cat_colums_with_valid_na)
         }
     })
     
@@ -56,13 +50,7 @@ missing <- within(list(),
                 'SalePrice'
             )
             
-            replacement_list <- structure(
-                as.list(rep(0, length(columns))), 
-                names = columns
-            )
-            
-            df %>%
-            replace_na(replacement_list)
+            methods$replace_with_zero(df, columns)
         }
     })
     
@@ -98,7 +86,7 @@ missing <- within(list(),
             }
 
             replacement_list <- structure(
-                as.list(rep('_none_', length(columns))),
+                as.list(rep(value, length(columns))),
                 names = columns
             )
             

@@ -84,6 +84,34 @@ dummy <- within(list(), {
             expect_equal(actual, expected)
         })
         
+        test_that("replace_with_zero: generic case", {
+            df <- data_frame(
+                attr1 = c(1, 1,  NA, 2, NA),
+                attr2 = c(1, NA, NA, 3, NA)
+            )
+            actual <- replace_with_zero(df)
+            
+            expected <- data_frame(
+                attr1 = c(1, 1, 0, 2, 0),
+                attr2 = c(1, 0, 0, 3, 0)
+            )
+            expect_equal(actual, expected)
+        })
+        
+        test_that("replace_with_value: only needed columns are fixed", {
+            df <- data_frame(
+                attr1 = c(1, 1,  NA, 2, NA),
+                attr2 = c(1, NA, NA, 3, NA)
+            )
+            actual <- replace_with_zero(df, c('attr1'))
+            
+            expected <- data_frame(
+                attr1 = c(1, 1, 0, 2, 0),
+                attr2 = c(1, NA, NA, 3, NA)
+            )
+            expect_equal(actual, expected)
+        })
+        
     }
     
     test_replace_with_most_common()
