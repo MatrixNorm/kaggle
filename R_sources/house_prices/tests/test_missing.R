@@ -14,7 +14,7 @@ dummy <- within(list(), {
         
         test_that("replace_with_most_common: if NA is most common it is ignored", {
             df <- data_frame(
-                attr = c('1', '1', NA, '2', NA, NA, '3')
+                attr = c('1', '1', np.NAN, '2', np.NAN, np.NAN, '3')
             )
             actual <- replace_with_most_common(df)
             expected <- data_frame(
@@ -36,7 +36,7 @@ dummy <- within(list(), {
             expect_equal(actual, expected)
         })
         
-        test_that("replace_with_most_common: only needed columns are fixed", {
+        test_that("replace_with_most_common: only provided columns are fixed", {
             df <- data_frame(
                 attr1 = c(11,  11,  NA,  22,  NA, NA, 33),
                 attr2 = c('x', 'x', 'x', 'y', NA, NA, 'z')

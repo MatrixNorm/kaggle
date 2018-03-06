@@ -1,6 +1,6 @@
 
 import pandas as pd
-from helpers import get_character_colnames, get_numeric_colnames
+from .helpers import get_character_colnames, get_numeric_colnames
 
 
 colums_with_valid_na = (
@@ -28,7 +28,7 @@ def replace_with_most_common(df, columns=None):
         columns = list(df)
     tmp = (
         pd.melt(
-            frame=df[['MSZoning', 'BldgType']],
+            frame=df[columns],
             var_name='var', 
             value_name='value'
         )
