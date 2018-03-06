@@ -47,3 +47,67 @@ class TestReplaceWithMostCommon:
             expected.sort_index(axis=1), 
             actual.sort_index(axis=1)
         )
+
+
+class TestReplaceWithValue:
+    def test_generic_case(self):
+        df = pd.DataFrame({
+            "attr1": ['1', '1',    np.NAN, '2', np.NAN],
+            "attr2": ['x', np.NAN, np.NAN, 'y', np.NAN]
+        })
+        actual = missing.replace_with_value(df, '_none_')
+        expected = pd.DataFrame({
+            "attr1": ['1', '1',      '_none_', '2', '_none_'],
+            "attr2": ['x', '_none_', '_none_', 'y', '_none_']
+        })
+        pd.testing.assert_frame_equal(
+            expected.sort_index(axis=1), 
+            actual.sort_index(axis=1)
+        )
+
+    def test_only_provided_columns_are_fixed(self):
+        df = pd.DataFrame({
+            "attr1": ['1', '1',    np.NAN, '2', np.NAN],
+            "attr2": ['x', np.NAN, np.NAN, 'y', np.NAN]
+        })
+        actual = missing.replace_with_value(df, '_none_', ['attr2'])
+        expected = pd.DataFrame({
+            "attr1": ['1', '1',      np.NAN,   '2', np.NAN],
+            "attr2": ['x', '_none_', '_none_', 'y', '_none_']
+        })
+        pd.testing.assert_frame_equal(
+            expected.sort_index(axis=1), 
+            actual.sort_index(axis=1)
+        )
+
+
+class TestReplaceWithZero:
+    def test_generic_case(self):
+        df = pd.DataFrame({
+            "attr1": [1, 1,      np.NAN, 2, np.NAN],
+            "attr2": [1, np.NAN, np.NAN, 3, np.NAN]
+        })
+        actual = missing.replace_with_zero(df)
+        expected = pd.DataFrame({
+            "attr1": [1., 1, 0, 2, 0],
+            "attr2": [1., 0, 0, 3, 0]
+        })
+        pd.testing.assert_frame_equal(
+            expected.sort_index(axis=1), 
+            actual.sort_index(axis=1)
+        )
+
+    def test_only_provided_columns_are_fixed(self):
+        df = pd.DataFrame({
+            "attr1": [1, 1,      np.NAN, 2, np.NAN],
+            "attr2": [1, np.NAN, np.NAN, 3, np.NAN]
+        })
+        actual = missing.replace_with_zero(df, ['attr1'])
+        expected = pd.DataFrame({
+            "attr1": [1., 1, 0, 2, 0],
+            "attr2": [1, np.NAN, np.NAN, 3, np.NAN]
+        })
+        pd.testing.assert_frame_equal(
+            expected.sort_index(axis=1), 
+            actual.sort_index(axis=1)
+        )

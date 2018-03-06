@@ -52,11 +52,11 @@ def replace_with_most_common(df, columns=None):
 def replace_with_value(df, value, columns=None):
     if columns is None:
         columns = list(df)
-    return df.fillna(dict((c, 1) for c in columns))
+    return df.fillna(dict((c, value) for c in columns))
 
 
 def replace_with_zero(df, columns=None):
-    return
+    return replace_with_value(df, 0, columns=columns)
 
 
 class FixMissing:

@@ -64,8 +64,8 @@ dummy <- within(list(), {
             actual <- replace_with_value(df, '_none_')
 
             expected <- data_frame(
-                attr1 = c('1', '1',       '_none_', '2', '_none_'),
-                attr2 = c('x', '_none_',  '_none_', 'y', '_none_')
+                attr1 = c('1', '1',      '_none_', '2', '_none_'),
+                attr2 = c('x', '_none_', '_none_', 'y', '_none_')
             )
             expect_equal(actual, expected)
         })
