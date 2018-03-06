@@ -5,6 +5,27 @@ import pandas as pd
 from numpy import NaN
 
 
+class Data:
+    @classmethod
+    def load(cls):
+        cls(load_data())
+
+    def __init__(self, combined_dataset):
+        self.combined_dataset = combined_dataset
+
+    @property
+    def training_dataset(self):
+        return self.combined_dataset.query("dataSource == 'train'")
+
+    @property
+    def testing_dataset(self):
+        return self.combined_dataset.query("dataSource == 'test'")
+
+    @property
+    def non_data_columns(self):
+        return ['dataSource', 'Id']
+
+
 def load_data():
     data_path = os.path.join(os.environ['DATA_DIR'], 'house_prices')
 
@@ -30,6 +51,10 @@ def get_character_colnames(df):
 
 
 def get_numeric_colnames(df):
+    # XXX
+    # better way
+    # https://stackoverflow.com/questions/25039626/how-do-i-find-numeric-columns-in-pandas
     return [
         col[1].name for col in df.items() if col[1].dtype.kind in ('i', 'f') and col[1].name != 'Id'
     ]
+

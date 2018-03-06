@@ -3,7 +3,7 @@ import pandas as pd
 from .helpers import get_character_colnames, get_numeric_colnames
 
 
-colums_with_valid_na = (
+colums_with_valid_na = [
     'Alley', 
     'BsmtCond', 
     'BsmtExposure', 
@@ -20,7 +20,7 @@ colums_with_valid_na = (
     'MiscFeature',
     'PoolQC',
     'Utilities'
-)
+]
 
 
 def replace_with_most_common(df, columns=None):
@@ -62,20 +62,24 @@ def replace_with_zero(df, columns=None):
 class FixMissing:
     def __init__(self, df):
         self.df = df
-    
+
     def replace_with_zero(self):
         columns = set(get_numeric_colnames(self.df)) - set(['SalePrice'])
-        self.df = replace_with_value(self.df, columns)
+        self.df = replace_with_value(self.df, list(columns))
         return self.df
 
     def fix_valid(self):
-        columns = (set(get_character_colnames(self.df)) & 
-                        set(colums_with_valid_na))
-        self.df = replace_with_value(self.df, '_none_', columns)
+        columns = (
+            set(get_character_colnames(self.df)) &
+            set(colums_with_valid_na)
+        )
+        self.df = replace_with_value(self.df, '_none_', list(columns))
         return self.df
 
     def replace_with_most_common(self):
-        columns = (set(get_character_colnames(self.df)) - 
-                        set(colums_with_valid_na))
-        self.df = replace_with_most_common(self.df, columns)
+        columns = (
+            set(get_character_colnames(self.df)) -  
+            set(colums_with_valid_na)
+        )
+        self.df = replace_with_most_common(self.df, list(columns))
         return self.df
