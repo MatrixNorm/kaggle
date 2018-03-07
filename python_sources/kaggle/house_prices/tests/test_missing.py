@@ -1,7 +1,7 @@
 
 import numpy as np
 import pandas as pd
-from kaggle.house_prices import missing
+from kaggle.house_prices import missing_tools
 
 
 class TestReplaceWithMostCommon:
@@ -9,7 +9,7 @@ class TestReplaceWithMostCommon:
         df = pd.DataFrame({
             "attr": ['1', '1', np.NAN, '2', np.NAN, np.NAN, '3']
         })
-        actual = missing.replace_with_most_common(df)
+        actual = missing_tools.replace_with_most_common(df)
         expected = pd.DataFrame({
             "attr": ['1', '1', '1', '2', '1', '1', '3']
         })
@@ -23,7 +23,7 @@ class TestReplaceWithMostCommon:
             "attr1": ['1', '1', np.NAN, '2', np.NAN, np.NAN, '3'],
             "attr2": ['x', 'x', 'x',    'y', np.NAN, np.NAN, 'z']
         })
-        actual = missing.replace_with_most_common(df)
+        actual = missing_tools.replace_with_most_common(df)
         expected = pd.DataFrame({
             "attr1": ['1', '1', '1', '2', '1', '1', '3'],
             "attr2": ['x', 'x', 'x', 'y', 'x', 'x', 'z']
@@ -38,7 +38,7 @@ class TestReplaceWithMostCommon:
             "attr1": ['1', '1', np.NAN, '2', np.NAN, np.NAN, '3'],
             "attr2": ['x', 'x', 'x',    'y', np.NAN, np.NAN, 'z']
         })
-        actual = missing.replace_with_most_common(df, ['attr2'])
+        actual = missing_tools.replace_with_most_common(df, ['attr2'])
         expected = pd.DataFrame({
             "attr1": ['1', '1', np.NAN, '2', np.NAN, np.NAN, '3'],
             "attr2": ['x', 'x', 'x', 'y', 'x', 'x', 'z']
@@ -55,7 +55,7 @@ class TestReplaceWithValue:
             "attr1": ['1', '1',    np.NAN, '2', np.NAN],
             "attr2": ['x', np.NAN, np.NAN, 'y', np.NAN]
         })
-        actual = missing.replace_with_value(df, '_none_')
+        actual = missing_tools.replace_with_value(df, '_none_')
         expected = pd.DataFrame({
             "attr1": ['1', '1',      '_none_', '2', '_none_'],
             "attr2": ['x', '_none_', '_none_', 'y', '_none_']
@@ -70,7 +70,7 @@ class TestReplaceWithValue:
             "attr1": ['1', '1',    np.NAN, '2', np.NAN],
             "attr2": ['x', np.NAN, np.NAN, 'y', np.NAN]
         })
-        actual = missing.replace_with_value(df, '_none_', ['attr2'])
+        actual = missing_tools.replace_with_value(df, '_none_', ['attr2'])
         expected = pd.DataFrame({
             "attr1": ['1', '1',      np.NAN,   '2', np.NAN],
             "attr2": ['x', '_none_', '_none_', 'y', '_none_']
@@ -87,7 +87,7 @@ class TestReplaceWithZero:
             "attr1": [1, 1,      np.NAN, 2, np.NAN],
             "attr2": [1, np.NAN, np.NAN, 3, np.NAN]
         })
-        actual = missing.replace_with_zero(df)
+        actual = missing_tools.replace_with_zero(df)
         expected = pd.DataFrame({
             "attr1": [1., 1, 0, 2, 0],
             "attr2": [1., 0, 0, 3, 0]
@@ -102,7 +102,7 @@ class TestReplaceWithZero:
             "attr1": [1, 1,      np.NAN, 2, np.NAN],
             "attr2": [1, np.NAN, np.NAN, 3, np.NAN]
         })
-        actual = missing.replace_with_zero(df, ['attr1'])
+        actual = missing_tools.replace_with_zero(df, ['attr1'])
         expected = pd.DataFrame({
             "attr1": [1., 1, 0, 2, 0],
             "attr2": [1, np.NAN, np.NAN, 3, np.NAN]
