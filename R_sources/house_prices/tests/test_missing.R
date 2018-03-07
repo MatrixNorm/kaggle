@@ -1,12 +1,13 @@
 setwd(paste0(Sys.getenv('R_SOURCES'), '/house_prices'))
 
-library(dplyr, warn.conflicts=FALSE)
-library(purrr, warn.conflicts=FALSE)
-library(tidyr, warn.conflicts=FALSE)
-library(testthat, warn.conflicts=FALSE)
-
-dummy <- within(list(), { 
-    source('./fix_missing_values.R', local = TRUE)
+devnull <- within(list(), {
+    
+    library(dplyr, warn.conflicts=FALSE)
+    library(purrr, warn.conflicts=FALSE)
+    library(tidyr, warn.conflicts=FALSE)
+    library(testthat, warn.conflicts=FALSE)
+    
+    missing <- source('./fix_missing_values.R', local = TRUE)$value
     
     test_replace_with_most_common <- function() {
         
@@ -14,7 +15,7 @@ dummy <- within(list(), {
         
         test_that("replace_with_most_common: if NA is most common it is ignored", {
             df <- data_frame(
-                attr = c('1', '1', np.NAN, '2', np.NAN, np.NAN, '3')
+                attr = c('1', '1', NA, '2', NA, NA, '3')
             )
             actual <- replace_with_most_common(df)
             expected <- data_frame(
