@@ -20,6 +20,13 @@ missing <- within(list(),
                               'PoolQC',
                               'Utilities')
     
+    fix_all <- function(df) {
+        df %>%
+        (categ$replace_with_most_common) %>%
+        (categ$fix_valid) %>%
+        (numeric$replace_with_zero)
+    }
+    
     categ <- within(list(), {
         
         replace_with_most_common <- function(df) {
