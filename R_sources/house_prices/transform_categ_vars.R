@@ -1,22 +1,6 @@
 
 within(list(), 
 {
-    quantile_rating <- source('./categ2numeric/quantile_rating.R', local = TRUE)$value
-    
-    rating_transform <- function(data, target_var) {
-        
-        target_var <- enquo(target_var)
-        
-        ratings <- quantile_rating$calc_rating_for_all(data, !!target_var)
-        
-        rating_transform_for_selected(
-            data, 
-            helpers$get_character_colnames(data),
-            ratings
-        )
-    }
-    
-    
     rating_transform_for_selected <- function(data, columns, ratings) {
         
         global_rating <- ratings[ratings$var == '_global_',]$rating

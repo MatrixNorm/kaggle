@@ -2,9 +2,7 @@
 within(list(), 
 {
     calc_rating_for_all <- function(df, target_var) {
-        
         target_var <- enquo(target_var)
-        
         calc_rating_for_selected(
             df, 
             helpers$get_character_colnames(df),

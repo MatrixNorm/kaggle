@@ -1,9 +1,9 @@
 
 within(list(), 
 {
-    get_transformation_config <- function(dataset) {
+    get_transformation_config <- function(dataset, columns) {
         dataset %>%
-        select_if(is.numeric) %>%
+        select(columns) %>%
         gather(var, x) %>%
         filter(!is.na(x)) %>%
         mutate(
