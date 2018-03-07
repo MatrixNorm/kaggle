@@ -1,7 +1,6 @@
 
-attributes_selection <- within(list(), 
+within(list(), 
 {
-    
     discared_cat_vars <- c(
         'BsmtFinType2',
         'Condition1',

@@ -1,5 +1,5 @@
 
-outliers <- within(list(), 
+within(list(), 
 {
     condition <- quote(GrLivArea > 4000 & !is.na(SalePrice) & SalePrice < 2e5)
     

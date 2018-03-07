@@ -5,3 +5,4 @@ __pycache__/
 .Rhistory
 .helpers.R.swp
 .~*.ipynb
+.Rproj.user

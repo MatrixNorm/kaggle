@@ -1,5 +1,5 @@
 
-helpers <- within(list(), 
+within(list(), 
 {
     import_libs <- function () {
         library(broom, warn.conflicts=FALSE)
