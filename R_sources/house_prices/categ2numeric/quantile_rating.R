@@ -10,31 +10,29 @@ within(list(),
         )
     }
     
-    
     calc_rating_for_selected <- function(df, categ_vars, target_var) {
         target_var <- enquo(target_var)
         target_var_char <- as.character(target_var)[2]
-        
+
         df <- 
             df %>%
             select(categ_vars, !!target_var) %>%
             filter(!is.na(!!target_var))
         
-        global_quantiles <- calc_global_quantiles(df, target_var)
+        global_quantiles <- calc_global_quantiles(df, !!target_var)
         
         df %>%
         gather(var, value, -!!target_var) %>%
         group_by(var, value) %>%
         nest %>%
         mutate(
-            rating = map_dbl(data, function (df) {
-                calc_rating(sample, global_quantiles)   
-            })
+           rating = map_dbl(data, function (df) {
+               calc_rating(df[[target_var_char]], global_quantiles)
+           })
         ) %>%
-        select(-data) %>% 
-        rbind(list('_global_', '_global_', 0.25*(1+2+3+4)))
+        select(-data) %>%
+        rbind(list(NA, NA, 0.25*(1+2+3+4)))
     }
-    
     
     calc_global_quantiles <- function(df, target_var) {
         target_var <- enquo(target_var)
@@ -45,7 +43,8 @@ within(list(),
             q25 = quantile(!!target_var, 0.25),
             q50 = quantile(!!target_var, 0.5),
             q75 = quantile(!!target_var, 0.75)
-        )    
+        ) %>%
+        as.list
     }
     
     

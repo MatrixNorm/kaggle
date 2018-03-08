@@ -41,4 +41,19 @@ devnull <- within(list(), {
         expect_equal(calc_rating(c(15, 16), global_quantiles), 1.5)
         expect_equal(calc_rating(c(15, 16, 17), global_quantiles), 1 * (1/3) + 2 * (2/3))
     })
+    
+    test_that("calc_rating_for_selected: #1", {
+        df <- data_frame(
+            Y =    c(10,  12,  20,  22,  30,  32,  40,  42),
+            cat1 = c('a', 'a', 'b', 'b', 'c', 'c', 'd', 'd'),
+            cat2 = c('x', 'x', 'x', 'y', 'y',' y', 'y', 'y')
+        )
+        actual <- quantile_rating$calc_rating_for_selected(df, c('cat1'), Y)
+        expected <- data_frame(
+            var =   c('cat1', 'cat1', 'cat1', 'cat1', NA),
+            value = c('a',    'b',    'c',    'd',    NA),
+            rating = c(1,     2,      3,      4,      0.25*(1+2+3+4))
+        )
+        expect_equal(actual, expected)
+    })
 })
