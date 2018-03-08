@@ -18,7 +18,7 @@ within(list(),
         
         working[is.na(working)] <- global_rating
         
-        cbind(working, data %>% select(-one_of(columns)))
+        bind_cols(working, data %>% select(-one_of(columns)))
     }
     
     
