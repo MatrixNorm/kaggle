@@ -3,7 +3,7 @@ within(list(),
 {
     rating_transform_for_selected <- function(data, columns, ratings) {
         
-        global_rating <- ratings[ratings$var == '_global_',]$rating
+        global_rating <- ratings[is.na(ratings$var),]$rating
         
         working <- 
             data %>% 
