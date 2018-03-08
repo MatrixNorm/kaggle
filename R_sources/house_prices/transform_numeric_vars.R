@@ -1,20 +1,18 @@
 
 within(list(), 
 {
-    calc_tran_config_step1 <- function(dataset, columns) {
+    calc_tran_config_step1 <- function(dataset, columns, trans) {
         # returns tibble
         # var         | x  | log   | sqrt
         # LotFrontage | 65 | 4.18  | 8.06
         # ...
+        list_of_trans <- rlang::lang_args(rlang::enexpr(trans))
         dataset %>%
         select(columns) %>%
         select_if(is.numeric) %>%
         gather(var, x) %>%
         filter(!is.na(x)) %>%
-        mutate(
-            log = log(x + 1),
-            sqrt = sqrt(x)
-        )
+        mutate(!!!list_of_trans)
     }
     
     calc_tran_config_step2 <- function(dataset) {
@@ -72,11 +70,11 @@ within(list(),
         arrange(desc(progress_score))
     }
     
-    get_transformation_config <- function(dataset, columns = NULL) {
+    get_transformation_config <- function(dataset, columns = NULL, trans) {
         if (is.null(columns)) {
             columns <- colnames(dataset)
         }
-        calc_tran_config_step1(dataset, columns) %>%
+        calc_tran_config_step1(dataset, columns, trans) %>%
         calc_tran_config_step2 %>%
         calc_tran_config_step3
     }
