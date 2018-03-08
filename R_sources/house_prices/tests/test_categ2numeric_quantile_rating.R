@@ -43,17 +43,30 @@ devnull <- within(list(), {
     })
     
     test_that("calc_rating_for_selected: #1", {
-        df <- data_frame(
-            Y =    c(10,  12,  20,  22,  30,  32,  40,  42),
-            cat1 = c('a', 'a', 'b', 'b', 'c', 'c', 'd', 'd'),
-            cat2 = c('x', 'x', 'x', 'y', 'y',' y', 'y', 'y')
-        )
-        actual <- quantile_rating$calc_rating_for_selected(df, c('cat1'), Y)
-        expected <- data_frame(
-            var =   c('cat1', 'cat1', 'cat1', 'cat1', NA),
-            value = c('a',    'b',    'c',    'd',    NA),
-            rating = c(1,     2,      3,      4,      0.25*(1+2+3+4))
-        )
+        df <- 
+            tribble(
+                ~cat1, ~cat2, ~Y,
+                'a',   'x',   10,
+                'a',   'x',   12,
+                'b',   'x',   20,
+                'b',   'x',   22,
+                'c',   'y',   30,
+                'c',   'y',   32,
+                'd',   'y',   40,
+                'd',   'y',   42
+            )
+        actual <- quantile_rating$calc_rating_for_selected(df, c('cat1', 'cat2'), Y)
+        expected <- 
+            tribble(
+                ~var,   ~value, ~rating,
+                'cat1', 'a',    1,
+                'cat1', 'b',    2,
+                'cat1', 'c',    3,
+                'cat1', 'd',    4,
+                'cat2', 'x',    0.5*(1+2),
+                'cat2', 'y',    0.5*(3+4),
+                NA,     NA,     0.25*(1+2+3+4)
+            )
         expect_equal(actual, expected)
     })
 })
