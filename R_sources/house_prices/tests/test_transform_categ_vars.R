@@ -54,7 +54,7 @@ devnull <- within(list(), {
             tribble(
                 ~cat1, ~cat2, ~other,
                 'a',   'x',   1,
-                'a',   'x',   2,
+                'a',   'z',   2,
                 'b',   'x',   3,
                 'b',   'x',   4,
                 'c',   'y',   5,
@@ -79,7 +79,7 @@ devnull <- within(list(), {
             tribble(
                 ~cat1, ~cat2, ~other,
                 1,     1.5,   1,
-                1,     1.5,   2,
+                1,     2.5,   2,
                 2,     1.5,   3,
                 2,     1.5,   4,
                 3,     3.5,   5,

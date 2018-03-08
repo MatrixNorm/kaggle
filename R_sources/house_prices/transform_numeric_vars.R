@@ -1,22 +1,37 @@
 
 within(list(), 
 {
-    get_transformation_config <- function(dataset, columns) {
+    calc_tran_config_step1 <- function(dataset, columns) {
+        # returns tibble
+        # var         | x  | log   | sqrt
+        # LotFrontage | 65 | 4.18  | 8.06
+        # ...
         dataset %>%
         select(columns) %>%
+        select_if(is.numeric) %>%
         gather(var, x) %>%
         filter(!is.na(x)) %>%
         mutate(
             log = log(x + 1),
             sqrt = sqrt(x)
-        ) %>%
-        gather(predictor, value, -var) %>%
-        group_by(var, predictor) %>%
+        )
+    }
+    
+    calc_tran_config_step2 <- function(dataset) {
+        # returns tibble
+        # var          | tran  | L2_distance
+        # BedroomAbvGr | log   | 104.29
+        # BedroomAbvGr | sqrt  | 111.96
+        # BedroomAbvGr | x     | 134.35
+        # ...
+        dataset %>%
+        gather(tran, value, -var) %>%
+        group_by(var, tran) %>%
         mutate(
             value_normed = (value - mean(value)) / sd(value)
         ) %>%
-        group_by(var, predictor, value_normed) %>%
-        arrange(var, predictor, value_normed) %>%
+        group_by(var, tran, value_normed) %>%
+        arrange(var, tran, value_normed) %>%
         summarise(
             k = n()
         ) %>%
@@ -25,23 +40,45 @@ within(list(),
             theoretical = pnorm(value_normed),
             diff_L2 = k*(empirical - theoretical)**2
         ) %>%
-        group_by(var, predictor) %>%
+        group_by(var, tran) %>%
         summarise(
             L2_distance = sum(diff_L2)
-        ) %>%
+        )
+    }
+    
+    calc_tran_config_step3 <- function(dataset) {
+        # returns tibble
+        # var       | tran | progress_score
+        # GrLivArea | log  | 91.15
+        # X1stFlrSF | log  | 90.77
+        # BsmtUnfSF | sqrt | 79.97
+        # ...
+        #  0 <= progress_score <= 100
+        #
+        dataset %>%
         group_by(var) %>%
         nest %>%
         mutate(
-            best_predictor = map(data, function(df) {
+            best_tran = map(data, function(df) {
                 best <- df %>% arrange(L2_distance) %>% head(1)
-                x <- df %>% filter(predictor == 'x')
-                score <- 100 * (x$L2_distance - best$L2_distance) / x$L2_distance
-                data_frame(predictor = best$predictor, score = score)
+                vanilla <- df %>% filter(tran == 'x')
+                progress_score <- 100 * (vanilla$L2_distance - best$L2_distance) / vanilla$L2_distance
+                data_frame(tran = best$tran, progress_score = progress_score)
             })
         ) %>%
-        select(var, best_predictor) %>%
-        unnest(best_predictor) %>%
-        filter(predictor != 'x' & score > 30)
+        select(var, best_tran) %>%
+        unnest(best_tran) %>%
+        filter(tran != 'x') %>%
+        arrange(desc(progress_score))
+    }
+    
+    get_transformation_config <- function(dataset, columns = NULL) {
+        if (is.null(columns)) {
+            columns <- colnames(dataset)
+        }
+        calc_tran_config_step1(dataset, columns) %>%
+        calc_tran_config_step2 %>%
+        calc_tran_config_step3
     }
     
     
@@ -50,9 +87,9 @@ within(list(),
         select(one_of(transformation_config$var)) %>%
         gather(var, value) %>%
         filter(!is.na(value)) %>%
-        inner_join(transformation_config %>% select(var, predictor), by='var') %>%
+        inner_join(transformation_config %>% select(var, tran), by='var') %>%
         mutate(
-            value_transformed = recode(predictor,
+            value_transformed = recode(tran,
                                        log = log(value + 1),
                                        sqrt = sqrt(value)
             )

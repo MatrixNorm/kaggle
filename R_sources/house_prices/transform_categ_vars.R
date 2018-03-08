@@ -2,7 +2,6 @@
 within(list(), 
 {
     rating_transform_for_selected <- function(data, columns, ratings) {
-        
         global_rating <- ratings[is.na(ratings$var),]$rating
         
         working <- 
@@ -23,8 +22,7 @@ within(list(),
     
     
     rating_transform_for_selected2 <- function(data, columns, ratings) {
-        
-        global_rating <- ratings[ratings$var == '_global_',]$rating
+        global_rating <- ratings[is.na(ratings$var),]$rating
         
         columns %>% 
             map_dfc(function (col) {
@@ -50,8 +48,7 @@ within(list(),
     
     
     rating_transform_for_selected3 <- function(data, columns, ratings) {
-        
-        global_rating <- ratings[ratings$var == '_global_',]$rating
+        global_rating <- ratings[is.na(ratings$var),]$rating
         
         columns %>% 
             map_dfc(function (col) {
