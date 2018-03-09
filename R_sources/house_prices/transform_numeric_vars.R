@@ -14,7 +14,9 @@ within(list(),
             filter(!is.na(x))
         
         for (row in 1:nrow(trans)) {
-            df1[trans[row, "tran_name"]$tran_name] <- (trans[row, "tran_defin"]$tran_defin)[[1]](df1$x)
+            tran_name <- trans[[row, "tran_name"]]
+            tran_fn <- trans[[row, 'tran_defin']]
+            df1[tran_name] <- tran_fn(df1$x)
         }
         df1
     }
@@ -107,18 +109,11 @@ within(list(),
     
     
     apply_transform <- function(df, transformation_config) {
-        colnames(df) %>% 
-        map_dfc(function (col) {
-            
-            tran <- transformation_config[transformation_config$var == col, 'tran'][[1]]
-            
-            if ( !identical(tran, character(0)) ) {
-                switch(tran,
-                       log = log(df[, col] + 1),
-                       sqrt = sqrt(df[, col]))
-            } else {
-                df[, col]
-            }   
-        })
+        for (row in 1:nrow(transformation_config)) {
+            var_name <- transformation_config[[row, "var"]]
+            tran_fn <- transformation_config[[row, "tran_defin"]]
+            df[[var_name]] <- tran_fn(df[[var_name]])
+        }
+        df
     }
 })
