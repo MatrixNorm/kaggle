@@ -90,17 +90,14 @@ within(list(),
         select(one_of(transformation_config$var)) %>%
         gather(var, value) %>%
         filter(!is.na(value)) %>%
-        inner_join(transformation_config %>% select(var, tran), by='var') %>%
+        inner_join(transformation_config %>% select(var, tran, tran_defin), by='var') %>%
         mutate(
-            value_transformed = recode(tran,
-                                       log = log(value + 1),
-                                       sqrt = sqrt(value)
-            )
+            value_transformed = map2_dbl(value, tran_defin, function(val, fn) fn(val))
         ) %>%
         select(var, value, value_transformed) %>%
         gather(tran, value, -var) %>%
         mutate(
-            tran = ifelse(tran == 'value', 'vanilla', 'transformed')
+            tran = ifelse(tran == 'value', 'original', 'transformed')
         ) %>%
         group_by(var, tran) %>%
         mutate(
@@ -113,7 +110,7 @@ within(list(),
         colnames(df) %>% 
         map_dfc(function (col) {
             
-            tran <- transformation_config[transformation_config$var == col, 'predictor'][[1]]
+            tran <- transformation_config[transformation_config$var == col, 'tran'][[1]]
             
             if ( !identical(tran, character(0)) ) {
                 switch(tran,
