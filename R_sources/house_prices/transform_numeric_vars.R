@@ -6,13 +6,17 @@ within(list(),
         # var         | x  | log   | sqrt
         # LotFrontage | 65 | 4.18  | 8.06
         # ...
-        list_of_trans <- rlang::lang_args(rlang::enexpr(trans))
-        dataset %>%
-        select(columns) %>%
-        select_if(is.numeric) %>%
-        gather(var, x) %>%
-        filter(!is.na(x)) %>%
-        mutate(!!!list_of_trans)
+        df1 <-
+            dataset %>%
+            select(columns) %>%
+            select_if(is.numeric) %>%
+            gather(var, x) %>%
+            filter(!is.na(x))
+        
+        for (row in 1:nrow(trans)) {
+            df1[trans[row, "tran_name"]$tran_name] <- (trans[row, "tran_defin"]$tran_defin)[[1]](df1$x)
+        }
+        df1
     }
     
     calc_tran_config_step2 <- function(dataset) {
@@ -76,7 +80,8 @@ within(list(),
         }
         calc_tran_config_step1(dataset, columns, trans) %>%
         calc_tran_config_step2 %>%
-        calc_tran_config_step3
+        calc_tran_config_step3 %>%
+        inner_join(trans, by=c("tran" = "tran_name"))
     }
     
     
