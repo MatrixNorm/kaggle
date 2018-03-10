@@ -27,7 +27,7 @@ within(list(),
         nest %>%
         mutate(
            rating = map_dbl(data, function (df) {
-               calc_rating(df[[target_var_char]], global_quantiles)
+               calc_rating_for_sample(df[[target_var_char]], global_quantiles)
            })
         ) %>%
         select(-data) %>%
@@ -48,7 +48,7 @@ within(list(),
     }
     
     
-    calc_rating <- function(sample, global_quantiles) {
+    calc_rating_for_sample <- function(sample, global_quantiles) {
         cdf = ecdf(sample)
         prob_rating_1 <- cdf(global_quantiles$q25)
         prob_rating_2 <- cdf(global_quantiles$q50) - cdf(global_quantiles$q25)

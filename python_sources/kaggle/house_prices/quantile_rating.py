@@ -15,3 +15,4 @@ def calc_ratings(df, categ_vars, target_var):
         var_name='var', 
         value_name='value'
     )
+    .groupby(['var', 'value'])

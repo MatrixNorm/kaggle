@@ -32,7 +32,7 @@ devnull <- within(list(), {
     })
     
     test_that("calc_rating: #1", {
-        calc_rating <- quantile_rating$calc_rating
+        calc_rating <- quantile_rating$calc_rating_for_sample
         global_quantiles <- list(q25=15, q50=25, q75=35)
         expect_equal(calc_rating(c(10, 12), global_quantiles), 1)
         expect_equal(calc_rating(c(16, 20), global_quantiles), 2)
