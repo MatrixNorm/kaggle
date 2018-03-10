@@ -7,7 +7,7 @@ within(list(),
     categ <- within(list(), 
     {
         helpers <- source('./helpers.R', local = TRUE)$value
-        quantile_rating <- source('./categ2numeric/quantile_rating.R', local = TRUE)$value
+        quantile_rating <- source('./quantile_rating.R', local = TRUE)$value
         methods <- source('./transform_categ_vars.R', local = TRUE)$value
 
         rating_transform <- function(data, target_var) {
