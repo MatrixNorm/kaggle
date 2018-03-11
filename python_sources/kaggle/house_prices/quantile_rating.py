@@ -4,9 +4,13 @@ import pandas as pd
 from statsmodels.distributions.empirical_distribution import ECDF
 
 
-def calc_ratings(df, categ_vars, target_var):
+def calc_ratings(df, target_var, rating_quantiles, categ_vars=None):
     """ XXX """
-    global_quantiles = calc_quantiles(df)
+    if categ_vars is None:
+        categ_vars = [
+            col[1].name for col in df.items() if col[1].dtype.kind == 'O'
+        ]
+
     df = (
         df[categ_vars + [target_var]]
         .dropna(subset=[target_var])
@@ -22,7 +26,7 @@ def calc_ratings(df, categ_vars, target_var):
         .groupby(['var', 'value'])
         .apply(
             lambda df: calc_rating_for_sample(
-                df['price_log'], global_quantiles)
+                df['price_log'], rating_quantiles)
         )
         .to_frame('rating')
         .reset_index()

@@ -34,8 +34,9 @@ devnull <- within(list(), {
     
     test_that("calc_quantiles: NAs are ignored", {
         df <- sample <- c(1, 2, NA, 3, 4, 5, NA, 6)
-        actual <- quantile_rating$calc_quantiles(sample, c(.5))
-        expect_true(actual[[1]] >= 3 & actual[[1]] < 4)
+        actual <- quantile_rating$calc_quantiles(sample, c(.25, .75))
+        expect_true(actual[[1]] >= 2 & actual[[1]] < 3)
+        expect_true(actual[[2]] >= 4 & actual[[2]] < 5)
     })
     
     test_that("calc_rating_for_sample: some case #1", {
@@ -65,7 +66,7 @@ devnull <- within(list(), {
                 'd',   'y',   40,
                 'd',   'y',   42
             )
-        rq <- quantile_rating$calc_quantiles(df[['Y']])
+        rq <- quantile_rating$calc_quantiles(df[['Y']], c(.25, .5, .75))
         actual <- quantile_rating$calc_ratings(df, Y, rq, c('cat1', 'cat2'))
         expected <-
             tribble(
