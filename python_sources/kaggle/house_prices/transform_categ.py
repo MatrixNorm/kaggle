@@ -1,3 +1,4 @@
 
+
 def rating_transform(dataset, columns, ratings):
-    pass
+    default_rating = ratings[ratings['var'].isna()]['rating'].iloc[0]
