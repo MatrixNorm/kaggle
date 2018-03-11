@@ -52,7 +52,7 @@ devnull <- within(list(), {
         expect_equal(actual, expected)
     })
     
-    test_that("calc_rating_for_selected: #1", {
+    test_that("calc_ratings: #1", {
         df <-
             tribble(
                 ~cat1, ~cat2, ~Y,
@@ -66,7 +66,7 @@ devnull <- within(list(), {
                 'd',   'y',   42
             )
         rq <- quantile_rating$calc_quantiles(df[['Y']])
-        actual <- quantile_rating$calc_rating_for_selected(df, Y, rq, c('cat1', 'cat2'))
+        actual <- quantile_rating$calc_ratings(df, Y, rq, c('cat1', 'cat2'))
         expected <-
             tribble(
                 ~var,   ~value, ~rating,

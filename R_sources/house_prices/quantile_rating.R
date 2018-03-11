@@ -1,16 +1,7 @@
 
 within(list(), 
 {
-    calc_rating_for_all <- function(df, target_var) {
-        target_var <- enquo(target_var)
-        calc_rating_for_selected(
-            df, 
-            helpers$get_character_colnames(df),
-            !!target_var
-        )
-    }
-    
-    calc_rating <- function(df, target_var, rating_quantiles, categ_vars) {
+    calc_ratings <- function(df, target_var, rating_quantiles, categ_vars) {
         target_var <- enquo(target_var)
         target_var_char <- as.character(target_var)[2]
         
