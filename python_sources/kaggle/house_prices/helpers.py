@@ -1,8 +1,8 @@
 
 import os
+import numpy as np
 import pandas as pd
-
-from numpy import NaN
+from . import utils
 
 
 class Data:
@@ -36,7 +36,7 @@ def load_data():
     training_dataset['dataSource'] = 'train'
    
     testing_dataset['dataSource'] = 'test'
-    testing_dataset['SalePrice'] = NaN
+    testing_dataset['SalePrice'] = np.NAN
 
     combined_dataset = training_dataset.append(testing_dataset)
     combined_dataset['MSSubClass'] = combined_dataset['MSSubClass'].astype(str)
@@ -45,16 +45,11 @@ def load_data():
 
 
 def get_character_colnames(df):
-    return [
-        col[1].name for col in df.items() if col[1].dtype.kind == 'O' and col[1].name != 'dataSource'
-    ]
+    return [colname for colname in utils.get_categ_colnames(df) if colname != 'dataSource'] 
 
 
 def get_numeric_colnames(df):
-    # XXX
-    # better way
-    # https://stackoverflow.com/questions/25039626/how-do-i-find-numeric-columns-in-pandas
+
     return [
         col[1].name for col in df.items() if col[1].dtype.kind in ('i', 'f') and col[1].name != 'Id'
     ]
-
