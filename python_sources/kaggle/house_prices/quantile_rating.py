@@ -1,4 +1,5 @@
 
+import numpy as np
 import pandas as pd
 
 from statsmodels.distributions.empirical_distribution import ECDF
@@ -19,17 +20,25 @@ def calc_ratings(df, target_var, rating_quantiles, categ_vars=None):
     return (
         pd.melt(
             frame=df,
-            id_vars=['price_log'],
+            id_vars=[target_var],
             var_name='var', 
             value_name='value'
         )
         .groupby(['var', 'value'])
         .apply(
             lambda df: calc_rating_for_sample(
-                df['price_log'], rating_quantiles)
+                df[target_var], rating_quantiles)
         )
         .to_frame('rating')
         .reset_index()
+        .append(
+            {
+                'var': np.NAN, 
+                'value': np.NAN, 
+                'rating': calc_default_rating(rating_quantiles)
+            },
+            ignore_index=True
+        )
     )
 
 
@@ -46,7 +55,12 @@ def calc_quantiles(sample, probs=None):
 def calc_rating_for_sample(sample, rating_quantiles):
     sample = sample.dropna()
     cdf = ECDF(sample)
-    cdf_points = [0] + [cdf(q) for q in rating_quantiles.tolist()] + [1]
+    cdf_points = [0] + [cdf(q) for q in rating_quantiles] + [1]
     probs = [pair[0] - pair[1] for pair in zip(cdf_points[1:], cdf_points[:-1])]
     rating = sum((i+1)*p for i, p in enumerate(probs))
     return rating
+
+
+def calc_default_rating(rating_quantiles):
+        num_of_levels = len(rating_quantiles) + 1
+        return sum(range(1, num_of_levels + 1)) / num_of_levels

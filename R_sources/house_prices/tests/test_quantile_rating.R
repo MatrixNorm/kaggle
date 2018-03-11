@@ -53,6 +53,12 @@ devnull <- within(list(), {
         expect_equal(actual, expected)
     })
     
+    test_that("calc_default_rating: some case #1", {
+        actual <- quantile_rating$calc_default_rating(c(5, 10, 15))
+        expected <- 0.25*(1+2+3+4)
+        expect_equal(actual, expected)
+    })
+    
     test_that("calc_ratings: #1", {
         df <-
             tribble(

@@ -28,7 +28,7 @@ within(list(),
            })
         ) %>%
         select(-data) %>%
-        rbind(list(NA, NA, 0.25*(1+2+3+4)))
+        rbind(list(NA, NA, calc_default_rating(rating_quantiles)))
     }
     
     calc_quantiles <- function(sample, probs = NULL) {
@@ -45,5 +45,10 @@ within(list(),
         probs <- tail(cdf_points, -1) - head(cdf_points, -1)
         rating <- sum(probs * c(1:length(probs)))
         rating
+    }
+    
+    calc_default_rating <- function(rating_quantiles) {
+        num_of_levels <- length(rating_quantiles) + 1
+        sum(1:num_of_levels) / num_of_levels
     }
 })

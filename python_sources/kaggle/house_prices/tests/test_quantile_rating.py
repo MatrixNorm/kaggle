@@ -1,4 +1,5 @@
 
+import numpy as np
 import pandas as pd
 from kaggle.house_prices import quantile_rating
 
@@ -21,7 +22,7 @@ class TestCalcQuantiles:
         assert q1 == q2
 
     def test_NAs_are_ignored(self):
-        sample = pd.Series([1, 2, 3, 4, 5, 6])
+        sample = pd.Series([1, 2, np.NAN, 3, 4, np.NAN, 5, 6])
         actual = quantile_rating.calc_quantiles(
             sample, 
             probs=[.25, .75]
@@ -32,7 +33,7 @@ class TestCalcQuantiles:
 
 class TestCalcRatingForSample:
     def test_1(self):
-        sample = [1, 2, 3, 4, 5, 6, 7, 8]
+        sample = pd.Series([1, 2, 3, 4, 5, 6, 7, 8])
         actual = quantile_rating.calc_rating_for_sample(
             sample, 
             rating_quantiles=[2.5, 4.5, 6.5]
@@ -40,12 +41,19 @@ class TestCalcRatingForSample:
         expected = 0.25*(1+2+3+4)
         assert actual == expected
 
-    def test__NAs_are_ignored(self):
-        sample = [1, 2, 3, NA, 4, 5, 6, NA, 7, 8]
+    def test_NAs_are_ignored(self):
+        sample = pd.Series([1, 2, 3, np.NAN, 4, 5, 6, np.NAN, 7, 8])
         actual = quantile_rating.calc_rating_for_sample(
             sample, 
             rating_quantiles=[2.5, 4.5, 6.5]
         )
+        expected = 0.25*(1+2+3+4)
+        assert actual == expected
+
+
+class TestDefaultRating:
+    def test_1(self):
+        actual = quantile_rating.calc_default_rating([5, 10, 15])
         expected = 0.25*(1+2+3+4)
         assert actual == expected
 
@@ -66,24 +74,24 @@ class TestCalcRatings:
             columns=['cat1', 'cat2', 'Y']
         )
         rq = quantile_rating.calc_quantiles(
-            sample, 
+            df['Y'], 
             probs=[.25, .5, .75]
         )
         actual = quantile_rating.calc_ratings(
             df=df, 
-            categ_vars=c('cat1', 'cat2'),
+            categ_vars=['cat1', 'cat2'],
             rating_quantiles=rq,
-            target_vars='Y',
+            target_var='Y',
         )
         expected = pd.DataFrame(
             [
-                ('cat1', 'a',  1),
-                ('cat1', 'b',  2),
-                ('cat1', 'c',  3),
-                ('cat1', 'd',  4),
-                ('cat2', 'x',  0.5*(1+2)),
-                ('cat2', 'y',  0.5*(3+4)),
-                (NA,     NA,   0.25*(1+2+3+4))
+                ('cat1', 'a',    1),
+                ('cat1', 'b',    2),
+                ('cat1', 'c',    3),
+                ('cat1', 'd',    4),
+                ('cat2', 'x',    0.5*(1+2)),
+                ('cat2', 'y',    0.5*(3+4)),
+                (np.NAN, np.NAN, 0.25*(1+2+3+4))
             ],
             columns=['var', 'value', 'rating']
         )
