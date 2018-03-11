@@ -30,7 +30,7 @@ within(list(),
 
         rating_transform <- function(data, target_var) {
             target_var <- enquo(target_var)
-            ratings <- calc_rating_for_all(data, !!target_var)
+            ratings <- calc_ratings(data, !!target_var)
             Tran$rating_transform_for_selected(
                 data, 
                 helpers$get_character_colnames(data),
