@@ -41,7 +41,7 @@ def load_data():
     combined_dataset = training_dataset.append(testing_dataset)
     combined_dataset['MSSubClass'] = combined_dataset['MSSubClass'].astype(str)
     combined_dataset['MoSold'] = combined_dataset['MoSold'].astype(str)
-    return combined_dataset
+    return combined_dataset.reset_index()
 
 
 def get_character_colnames(df):
