@@ -109,6 +109,34 @@ within(list(),
         calc_tran_config_step6
     }
     
+    apply_transform <- function(df, tran_config) {
+        
+        tran_config <- 
+            tran_config %>% 
+            filter(var %in% c(df %>% colnames))
+        
+        for (row in 1:nrow(tran_config)) {
+            var_name <- tran_config[[row, "var"]]
+            tran_fn <- tran_config[[row, "tran_fn"]]
+            df[[var_name]] <- tran_fn(df[[var_name]])
+        }
+        df
+    }
+    
+    apply_transform2 <- function(df, tran_config) {
+        
+        cols <- intersect(tran_config$var, colnames(df))
+
+        df[cols] <- purrr::lmap(df[cols], function (col) {
+            fn <- 
+                tran_config[
+                    tran_config$var == colnames(col), 
+                    "tran_fn"
+                ]$tran_fn[[1]]
+            fn(col) %>% as_data_frame
+        })
+        df
+    }
     
     for_qq_plot <- function(dataset, transformation_config) {
         dataset %>%
@@ -128,15 +156,5 @@ within(list(),
         mutate(
             normed_value = (value - mean(value)) / sd(value)
         )
-    }
-    
-    
-    apply_transform <- function(df, transformation_config) {
-        for (row in 1:nrow(transformation_config)) {
-            var_name <- transformation_config[[row, "var"]]
-            tran_fn <- transformation_config[[row, "tran_defin"]]
-            df[[var_name]] <- tran_fn(df[[var_name]])
-        }
-        df
     }
 })
