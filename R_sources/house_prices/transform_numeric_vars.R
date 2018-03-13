@@ -85,7 +85,7 @@ within(list(),
         select(-data)
     }
     
-    calc_tran_config_step6 <- function(dataset) {
+    calc_tran_config_step6 <- function(dataset, trans) {
         # var	      tran_name	 progress_score	  tran_fn
         # GrLivArea	  log	     91.15794157	  function (x) , log(x + 1)
         # X1stFlrSF	  log	     90.77165686	  function (x) , log(x + 1)
@@ -93,11 +93,11 @@ within(list(),
         dataset %>%
         unnest(best_tran) %>%
         filter(tran_name != 'x') %>%
-        inner_join(Trans, by=c("tran_name")) %>%
+        inner_join(trans, by=c("tran_name")) %>%
         arrange(desc(progress_score))
     }
     
-    get_transformation_config <- function(dataset, columns = NULL, trans) {
+    get_transformation_config <- function(dataset, trans, columns = NULL) {
         if (is.null(columns)) {
             columns <- colnames(dataset)
         }
@@ -106,7 +106,7 @@ within(list(),
         calc_tran_config_step3 %>%
         calc_tran_config_step4 %>%
         calc_tran_config_step5 %>%
-        calc_tran_config_step6
+        calc_tran_config_step6(trans)
     }
     
     apply_transform <- function(df, tran_config) {
