@@ -78,12 +78,14 @@ class calc_tran_config:
 
     @staticmethod
     def step5(df):
-        return (
+        df = (
             df
             .groupby('var')
             .apply(calc_tran_config._step5_helper)
             .sort_values('progress_score', ascending=False)
         )
+        df.index = df.index.droplevel(1)
+        return df.reset_index()
 
     @staticmethod
     def _step5_helper(gr):
@@ -118,3 +120,14 @@ def get_transformation_config(df, trans, columns=None):
         .pipe(calc_tran_config.step5)
         .pipe(calc_tran_config.step6, trans=trans)
     )
+
+
+def apply_transform(df, tran_config):
+    for index, row in tran_config[['var', 'tran_fn']].iterrows():
+        var_name = row['var']
+        tran_fn = row['tran_fn']
+        try:
+            df[var_name] = tran_fn(df[var_name])
+        except KeyError:
+            pass
+    return df
