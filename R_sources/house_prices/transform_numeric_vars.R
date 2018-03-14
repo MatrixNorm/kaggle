@@ -143,9 +143,9 @@ within(list(),
         select(one_of(transformation_config$var)) %>%
         gather(var, value) %>%
         filter(!is.na(value)) %>%
-        inner_join(transformation_config %>% select(var, tran, tran_defin), by='var') %>%
+        inner_join(transformation_config %>% select(var, tran_name, tran_fn), by='var') %>%
         mutate(
-            value_transformed = map2_dbl(value, tran_defin, function(val, fn) fn(val))
+            value_transformed = map2_dbl(value, tran_fn, function(val, tran_fn) tran_fn(val))
         ) %>%
         select(var, value, value_transformed) %>%
         gather(tran, value, -var) %>%

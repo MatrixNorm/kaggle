@@ -2,8 +2,27 @@
 
 within(list(), 
 {
-    numeric <- source('./transform_numeric_vars.R', local = TRUE)$value
-    
+    numeric <- within(list(),
+    {
+        Helpers <- source('./helpers.R', local = TRUE)$value
+        Tran <- source('./transform_numeric_vars.R', local = TRUE)$value
+        
+        example_trans <- tribble(
+                ~tran_name,  ~tran_fn,
+                'log',       function(x) log(x+1),
+                'sqrt',      function(x) sqrt(x),
+                'invcube',   function(x) x**(1/3)
+            )
+        
+        functional_transform <- function(data, trans) {
+            tran_config <- Tran$get_transformation_config(
+                dataset = data %>% select_if(is.numeric) %>% select(-SalePrice), 
+                trans = trans
+            )
+            Tran$apply_transform(data, tran_config)
+        }
+    })
+        
     categ <- within(list(), 
     {
         Helpers <- source('./helpers.R', local = TRUE)$value
