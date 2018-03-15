@@ -18,7 +18,8 @@ within(list(),
         (numeric$replace_with_zero)
     }
     
-    categ <- within(list(), {
+    categ <- within(list(), 
+    {
         replace_with_most_common <- function(df) {
             columns <- setdiff(
                 helpers$get_character_colnames(df),
@@ -36,7 +37,8 @@ within(list(),
         }
     })
     
-    numeric <- within(list(), {
+    numeric <- within(list(), 
+    {
         replace_with_zero <- function(df) {
             columns <- setdiff(
                 helpers$get_numeric_colnames(df),

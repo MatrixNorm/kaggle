@@ -2,9 +2,10 @@
 
 within(list(), 
 {
+    Helpers <- source('./helpers.R', local = TRUE)$value
+    
     numeric <- within(list(),
     {
-        Helpers <- source('./helpers.R', local = TRUE)$value
         Tran <- source('./transform_numeric_vars.R', local = TRUE)$value
         
         example_trans <- tribble(
@@ -25,7 +26,6 @@ within(list(),
         
     categ <- within(list(), 
     {
-        Helpers <- source('./helpers.R', local = TRUE)$value
         QuantileRating <- source('./quantile_rating.R', local = TRUE)$value
         Tran <- source('./transform_categ_vars.R', local = TRUE)$value
         

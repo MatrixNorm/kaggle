@@ -19,7 +19,6 @@ within(list(),
         bind_cols(working, data %>% select(-one_of(columns)))
     }
     
-    
     rating_transform_for_selected2 <- function(data, columns, ratings) {
         global_rating <- ratings[is.na(ratings$var),]$rating
         
@@ -42,9 +41,8 @@ within(list(),
                 names(as_df) <- col
                 as_df
             }) %>%
-            cbind(data %>% select(-one_of(columns)))
+            bind_cols(data %>% select(-one_of(columns)))
     }
-    
     
     rating_transform_for_selected3 <- function(data, columns, ratings) {
         global_rating <- ratings[is.na(ratings$var),]$rating
@@ -63,6 +61,6 @@ within(list(),
                 new[is.na(new)] <- global_rating
                 new
             }) %>%
-            cbind(data %>% select(-one_of(columns)))
+            bind_cols(data %>% select(-one_of(columns)))
     }
 })
