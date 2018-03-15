@@ -1,22 +1,12 @@
 
-source('./helpers.R')
 
-
-kaggle.house <- within(kaggle.house, 
+within(kaggle.house, 
 {
+    get_character_colnames <- function (df) {
+        df %>% purrr::map(~is.character(.)) %>% purrr::keep(~.) %>% names
+    }
     
-    utils <- within(list(), 
-    {
-        get_char_columns_names <- function (df) {
-            df %>% purrr::map(~is.character(.)) %>% purrr::keep(~.) %>% names %>% sort
-        }
-    })
+    get_numeric_colnames <- function (df) {
+        df %>% purrr::map(~is.numeric(.)) %>% purrr::keep(~.) %>% names
+    }
 })
-
-# XXX
-utils.heterogeneity_score = function(vector){
-    len = length(vector)
-    uniq_len = length(unique(vector))
-    100 * (uniq_len / len)
-}
-

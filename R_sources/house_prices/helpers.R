@@ -1,6 +1,8 @@
 
 within(list(), 
 {
+    utils <- source('./utils.R', local = TRUE)$value
+    
     import_libs <- function () {
         library(broom, warn.conflicts=FALSE)
         library(caret, warn.conflicts=FALSE)
@@ -20,21 +22,19 @@ within(list(),
         
         data_path <- paste0(Sys.getenv('DATA_DIR'), "/house_prices/")
         
-        training_dataset <- tbl_df(read.csv(
-            file = paste0(data_path, "train.csv"),
-            stringsAsFactors = FALSE))
-        
-        testing_dataset <- tbl_df(read.csv(
-            file = paste0(data_path, "test.csv"),
-            stringsAsFactors = FALSE))
-        
         training_dataset <- 
-            training_dataset %>%
+            tbl_df(read.csv(
+                file = paste0(data_path, "train.csv"),
+                stringsAsFactors = FALSE
+            )) %>%
             filter(!is.na(SalePrice)) %>%
             mutate(dataSource = "train")
         
         testing_dataset <- 
-            testing_dataset %>% 
+            tbl_df(read.csv(
+                file = paste0(data_path, "test.csv"),
+                stringsAsFactors = FALSE
+            )) %>% 
             mutate(dataSource = "test", SalePrice = NA)
         
         combined_dataset <- 
@@ -47,17 +47,11 @@ within(list(),
     }
     
     get_character_colnames <- function (df) {
-        setdiff(
-            df %>% purrr::map(~is.character(.)) %>% purrr::keep(~.) %>% names,
-            'dataSource'
-        ) %>% sort
+        setdiff(utils$get_character_colnames(df), 'dataSource') %>% sort
     }
     
     get_numeric_colnames <- function (df) {
-        setdiff(
-            df %>% purrr::map(~is.numeric(.)) %>% purrr::keep(~.) %>% names,
-            'Id'
-        ) %>% sort
+        setdiff(utils$get_numeric_colnames(df), 'Id') %>% sort
     }
 
 })
