@@ -1,6 +1,6 @@
 
 
-within(kaggle.house, 
+within(list(), 
 {
     get_character_colnames <- function (df) {
         df %>% purrr::map(~is.character(.)) %>% purrr::keep(~.) %>% names
