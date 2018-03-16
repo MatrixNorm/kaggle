@@ -17,7 +17,7 @@ within(list(),
         
         functional_transform <- function(data, trans, threshold = 25) {
             tran_config <- Tran$get_transformation_config(
-                dataset = data %>% select_if(is.numeric) %>% select(-SalePrice), 
+                dataset = data %>% select_if(is.numeric) %>% select(-one_of(c("SalePrice", "price_log"))), 
                 trans = trans
             ) %>% filter(progress_score > threshold)
             Tran$apply_transform(data, tran_config)

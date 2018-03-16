@@ -1,5 +1,5 @@
 
-model_selection <- within(list(), 
+within(list(), 
 {
     
     lm <- within(list(), {
