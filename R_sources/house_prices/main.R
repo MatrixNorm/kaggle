@@ -1,18 +1,23 @@
 
 within(list(), {
     
-    library(broom, warn.conflicts=FALSE)
-    library(caret, warn.conflicts=FALSE)
-    library(dplyr, warn.conflicts=FALSE)
-    library(ggplot2, warn.conflicts=FALSE)
-    library(grid, warn.conflicts=FALSE)
-    library(gridExtra, warn.conflicts=FALSE)
-    library(Metrics, warn.conflicts=FALSE)
-    library(purrr, warn.conflicts=FALSE)
-    library(reshape2, warn.conflicts=FALSE)
-    library(tidyr, warn.conflicts=FALSE)
-    library(tibble, warn.conflicts=FALSE)
-    library(testthat, warn.conflicts=FALSE)
+    import_libs <- function () {
+        library(broom, warn.conflicts=FALSE)
+        library(caret, warn.conflicts=FALSE)
+        library(dplyr, warn.conflicts=FALSE)
+        library(ggplot2, warn.conflicts=FALSE)
+        library(grid, warn.conflicts=FALSE)
+        library(gridExtra, warn.conflicts=FALSE)
+        library(Metrics, warn.conflicts=FALSE)
+        library(purrr, warn.conflicts=FALSE)
+        library(reshape2, warn.conflicts=FALSE)
+        library(tidyr, warn.conflicts=FALSE)
+        library(tibble, warn.conflicts=FALSE)
+        library(testthat, warn.conflicts=FALSE)
+        library(zeallot, warn.conflicts=FALSE)
+    }
+    
+    import_libs()
     
     helpers <- source('./helpers.R', local = TRUE)$value
     attributes_selection <- source('./attributes_selection.R', local = TRUE)$value
