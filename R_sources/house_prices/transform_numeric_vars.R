@@ -110,7 +110,6 @@ within(list(),
     }
     
     apply_transform <- function(df, tran_config) {
-        
         tran_config <- 
             tran_config %>% 
             filter(var %in% c(df %>% colnames))
