@@ -26,5 +26,5 @@ within(list(), {
     outliers <- source('./outliers.R', local = TRUE)$value
     model_selection <- source('./model_selection.R', local = TRUE)
     # source('./validate.R', local = TRUE)
-    # source('./plot.R', local = TRUE)
+    plot <- source('./plot.R', local = TRUE)$value
 })

@@ -1,7 +1,67 @@
 
-plot <- within(list(), 
+within(list(), 
 {
-        jitter <- function (data, x.var, y.var, color.var) {
+    lm_fit_diagnostic <- function(mod, principal_predictor, target_var) {
+        aug <- mod %>% augment %>%
+               rename(resid=.resid, fitted=.fitted)
+        
+        plt_scatter <-
+            aug %>%
+            ggplot() +
+            geom_point(aes_string(x=principal_predictor, y=target_var), alpha=0.3) +
+            geom_point(aes_string(x=principal_predictor, y="fitted"), alpha=0.3, color='steelblue') +
+            theme_bw()
+        
+        predicted_vs_actual <-
+            aug %>%
+            ggplot() +
+            geom_point(aes_string(x="fitted", y=target_var), alpha=0.3) +
+            geom_abline(intercept=0, slope=1, color='steelblue') +
+            theme_bw()
+        
+        resid_qq <-
+            aug %>%
+            mutate(
+                resid_normed = (resid - mean(resid)) / sd(resid)
+            ) %>%
+            ggplot() +
+            geom_qq(aes(sample=resid_normed), alpha=0.3) +
+            geom_abline(slope=1, color="black") +
+            theme_bw()
+        
+        resid_vs_fitted <-
+            aug %>%
+            ggplot() +
+            geom_point(aes(x=fitted, y=resid), alpha=0.3) +
+            geom_hline(yintercept=0, color="steelblue") +
+            theme_bw()
+        
+        grid.arrange(
+            plt_scatter, predicted_vs_actual,
+            resid_vs_fitted, resid_qq,
+            widths=c(60, 40),
+            layout_matrix=rbind(
+                c(1, 2), 
+                c(3, 4)
+            )
+        )
+    }
+    
+    lm_resid_vs_predictors <- function(mod, target_var, ncol, nrow) {
+        aug <- mod %>% augment
+        predictors <- setdiff(all.vars(formula(mod)), target_var)
+        
+        aug %>%
+        select(one_of(predictors), resid=.resid) %>%
+        gather(var, value, -resid) %>%
+        ggplot() +
+        geom_point(aes(x=value, y=resid), alpha=0.3) +
+        geom_hline(yintercept=0, color="steelblue") +
+        facet_wrap(~var, ncol=ncol, nrow=nrow, scales="free") + 
+        theme_bw()}
+    
+    
+    jitter <- function (data, x.var, y.var, color.var) {
         data %>%
             ggplot(aes_string(x=x.var, y=y.var)) +
             geom_jitter(aes_string(color=color.var), alpha=0.3, width=0.1, height=0) +
