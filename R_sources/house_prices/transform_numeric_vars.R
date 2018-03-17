@@ -6,7 +6,7 @@ within(list(),
         # LotFrontage	65	 4.189655	8.062258   4.020726
         # LotFrontage	80	 4.394449	8.944272   4.308869
         # ...
-        df <- dataset %>% gather(var, x)
+        df <- dataset %>% gather(var, x) %>% filter(!is.na(x))
         
         for (row in 1:nrow(trans)) {
             tran_name <- trans[[row, "tran_name"]]
