@@ -4,7 +4,6 @@ within(list(),
     
     lm <- within(list(), {
         
-        
         find_initial_best_r2_predictor <- function(data, target_var, r2_discard_level = 0.05) {
             target_var <- enquo(target_var)
             target_var_char <- as.character(target_var)[2]
@@ -23,7 +22,8 @@ within(list(),
             arrange(desc(r2))
         }
         
-        find_next_best_r2_predictor <- function(data, base_formula_str, r2_gain_discard_level = 0.5, predictors, a_max = 0, a_avg = 0) {
+        find_next_best_r2_predictor <- function(data, base_formula_str, predictors,
+                                                r2_gain_discard_level = 0.5, a_max = 0, a_avg = 0) {
             base_formula <- as.formula(base_formula_str)
             base_predictors <- labels(terms(base_formula))
             base_model <- lm(base_formula, data=train_data)
@@ -75,7 +75,6 @@ within(list(),
             report <- init %>% mutate(step = step)
             
             repeat {
-                
                 result <- find_next_best_r2_predictor(
                     data = data, 
                     base_formula_str = base_formula_str,
@@ -93,6 +92,10 @@ within(list(),
                 predictors <- result$predictor
                 step <- step + 1
                 report <- bind_rows(report, result %>% mutate(step = step))
+                
+                if( nrow(result) == 1 ){
+                    break
+                }
             }
             report
         }    
