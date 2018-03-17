@@ -26,4 +26,8 @@ within(list(),
         combined <- bind_cols(df1, df2)
         combined[,order(colnames(combined))]
     }
+    
+    L2_avg_loss = function (vec) {
+        sum(vec**2) / length(vec)
+    }
 })

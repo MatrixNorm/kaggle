@@ -26,7 +26,7 @@ within(list(),
                                                 r2_gain_discard_level = 0.5, a_max = 0, a_avg = 0) {
             base_formula <- as.formula(base_formula_str)
             base_predictors <- labels(terms(base_formula))
-            base_model <- lm(base_formula, data=train_data)
+            base_model <- lm(base_formula, data=data)
             base_r2 <- summary(base_model)$r.squared
             predictors <- setdiff(predictors, base_predictors)
 
@@ -36,13 +36,13 @@ within(list(),
                 base_r2 = base_r2
             ) %>%
                 mutate(
-                    model = map(formula, ~lm(as.formula(.), data=train_data)),
+                    model = map(formula, ~lm(as.formula(.), data=data)),
                     r2 = map_dbl(model, function (mod) {
                         summary(mod)$r.squared
                     }),
                     r2_gain = 100 * (r2 - base_r2) / base_r2,
                     cors = map(predictor, function(predictor) {
-                        cor(train_data[base_predictors], train_data[predictor]) %>% as.vector
+                        cor(data[base_predictors], data[predictor]) %>% as.vector
                     }),
                     cor_abs_max = map_dbl(cors, function(cors) {
                         max(abs(cors))
