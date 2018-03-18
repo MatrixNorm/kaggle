@@ -41,7 +41,16 @@ def load_data():
     combined_dataset = training_dataset.append(testing_dataset)
     combined_dataset['MSSubClass'] = combined_dataset['MSSubClass'].astype(str)
     combined_dataset['MoSold'] = combined_dataset['MoSold'].astype(str)
-    return combined_dataset.reset_index(drop=True)
+    return (
+        combined_dataset
+        .reset_index(drop=True)
+        .rename(
+            columns={
+                col: "X%s" % col for col in
+                combined_dataset if col[0].isdigit()
+            }
+        )
+    )
 
 
 def get_character_colnames(df):

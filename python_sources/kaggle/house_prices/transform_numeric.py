@@ -1,6 +1,7 @@
 
 import pandas as pd
 import scipy.stats as stats
+import statsmodels.formula.api as smf
 
 
 class calc_tran_config:
@@ -119,6 +120,32 @@ def get_transformation_config(df, trans, columns=None):
         .pipe(calc_tran_config.step4)
         .pipe(calc_tran_config.step5)
         .pipe(calc_tran_config.step6, trans=trans)
+    )
+
+
+def filter_tran_config_by_r2(config, dataset, target_var):
+
+    def calc_r2_x(config):
+        config.apply(
+            lambda row: (
+
+            ),
+            axis=1
+        )
+
+        return smf.ols(
+                formula='%s ~ value' % target_var, data=df
+            ).fit().rsquared
+ 
+    train = (
+        dataset
+        [config['var'] + [target_var]]
+        .dropna(subset=[target_var])
+    )
+    return (
+        train
+        .assign(r2_x=calc_r2_x)
+        .assign(r2_tran=calc_r2_tran)
     )
 
 
