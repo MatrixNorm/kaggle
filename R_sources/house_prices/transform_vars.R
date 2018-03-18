@@ -15,16 +15,22 @@ within(list(),
                 'invcube',   function(x) x**(1/3)
             )
         
-        functional_transform <- function(data, trans, target_var, threshold = 25) {
+        get_transformation_config <- function(data, target_var, trans, threshold = 25) {
             target_var <- enquo(target_var)
+            
             tran_config <- Tran$get_transformation_config(
                 dataset = data %>% select_if(is.numeric) %>% select(-!!target_var), 
                 trans = trans
-            ) %>% filter(progress_score > threshold)
-            list(
-                dataset = Tran$apply_transform(data, tran_config),
-                tran_config = tran_config
+            ) %>% 
+            filter(progress_score > threshold) %>%
+            Tran$filter_tran_config_by_r2(
+                dataset = data %>% select_if(is.numeric), 
+                target_var = !!target_var
             )
+        }
+        
+        functional_transform <- function(data, trans, tran_config) {
+            Tran$apply_transform(data, tran_config)
         }
     })
         

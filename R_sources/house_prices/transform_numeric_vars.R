@@ -6,17 +6,17 @@ within(list(),
         # LotFrontage	65	 4.189655	8.062258   4.020726
         # LotFrontage	80	 4.394449	8.944272   4.308869
         # ...
-        df <- dataset %>% gather(var, x) %>% filter(!is.na(x))
+        config <- dataset %>% gather(var, x) %>% filter(!is.na(x))
         
         for (row in 1:nrow(trans)) {
             tran_name <- trans[[row, "tran_name"]]
             tran_fn <- trans[[row, 'tran_fn']]
-            df[tran_name] <- tran_fn(df$x)
+            config[tran_name] <- tran_fn(config$x)
         }
-        df
+        config
     }
     
-    calc_tran_config_step2 <- function(dataset) {
+    calc_tran_config_step2 <- function(config) {
         # var	    tran	value	      value_normed
         # LotArea	x	    8450.000000	  -0.21639955
         # LotArea	x	    9600.000000	  -0.06909653
@@ -24,7 +24,7 @@ within(list(),
         # LotArea	log	    9.042040	  -0.10174374
         # ...
         # LotArea	sqrt	91.923882	  -0.21081495
-        dataset %>%
+        config %>%
         gather(tran, value, -var) %>%
         group_by(var, tran) %>%
         mutate(
@@ -32,7 +32,7 @@ within(list(),
         )
     }
         
-    calc_tran_config_step3 <- function(dataset) {
+    calc_tran_config_step3 <- function(config) {
         # var	    tran	  value_normed	 k
         # YrSold    invcube	  -1.3633378	 619
         # YrSold	invcube	  -0.6027227	 691
@@ -40,7 +40,7 @@ within(list(),
         # YrSold	log	      -1.3634510	 619
         # ...
         # YrSold	sqrt	  -1.3632811	 619
-        dataset %>%
+        config %>%
         group_by(var, tran, value_normed) %>%
         summarise(
             k = n()
@@ -48,13 +48,13 @@ within(list(),
         arrange(var, tran, value_normed)
     }
         
-    calc_tran_config_step4 <- function(dataset) {  
+    calc_tran_config_step4 <- function(config) {  
         # var	    tran	  L2_distance
         # LotArea	invcube	  10.78862
         # LotArea	log	      13.31376
         # LotArea	sqrt	  13.39006
         # LotArea	x	      50.03278
-        dataset %>%
+        config %>%
         mutate(
             empirical = cumsum(k) / sum(k),
             theoretical = pnorm(value_normed),
@@ -66,12 +66,12 @@ within(list(),
         )
     }
     
-    calc_tran_config_step5 <- function(dataset) {
+    calc_tran_config_step5 <- function(config) {
         # var	        best_tran
         # GrLivArea	    log , 91.1579415746179
         # LotArea	    invcube , 78.436890821096
         # OverallQual	log , 29.9443565176069
-        dataset %>%
+        config %>%
         group_by(var) %>%
         nest %>%
         mutate(
@@ -85,12 +85,12 @@ within(list(),
         select(-data)
     }
     
-    calc_tran_config_step6 <- function(dataset, trans) {
+    calc_tran_config_step6 <- function(config, trans) {
         # var	      tran_name	 progress_score	  tran_fn
         # GrLivArea	  log	     91.15794157	  function (x) , log(x + 1)
         # X1stFlrSF	  log	     90.77165686	  function (x) , log(x + 1)
         # BsmtUnfSF	  sqrt	     79.97603070	  function (x) , sqrt(x)
-        dataset %>%
+        config %>%
         unnest(best_tran) %>%
         filter(tran_name != 'x') %>%
         inner_join(trans, by=c("tran_name")) %>%
@@ -107,6 +107,36 @@ within(list(),
         calc_tran_config_step4 %>%
         calc_tran_config_step5 %>%
         calc_tran_config_step6(trans)
+    }
+    
+    filter_tran_config_by_r2 <- function(config, dataset, target_var) {
+        target_var <- enquo(target_var)
+        target_var_char <- as.character(target_var)[2]
+        
+        train <-
+            dataset %>%
+            select(c(config$var, target_var_char)) %>%
+            filter(!is.na(!!target_var))
+        
+        config %>%
+        mutate(
+            r2_x = map_dbl(var, function(var) {
+                data <- 
+                    train %>% 
+                    select(c(var, target_var_char))
+                model = lm(as.formula(paste0(target_var_char, " ~ ", var)), data=data)
+                summary(model)$r.squared
+            }),
+            r2_tran = map2_dbl(var, tran_fn, function(var, tran_fn) {
+                data <- 
+                    train %>% 
+                    select(c(var, target_var_char))
+                data[var] <- tran_fn(data[var])
+                model = lm(as.formula(paste0(target_var_char, " ~ ", var)), data=data)
+                summary(model)$r.squared
+            })
+        ) %>%
+        filter(r2_tran > r2_x)
     }
     
     apply_transform <- function(df, tran_config) {
