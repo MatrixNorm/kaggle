@@ -101,7 +101,7 @@ within(list(),
         if (is.null(columns)) {
             columns <- colnames(dataset)
         }
-        calc_tran_config_step1(dataset, trans) %>%
+        calc_tran_config_step1(dataset %>% select_if(is.numeric), trans) %>%
         calc_tran_config_step2 %>%
         calc_tran_config_step3 %>%
         calc_tran_config_step4 %>%
