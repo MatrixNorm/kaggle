@@ -175,4 +175,48 @@ def apply_transform(df, tran_config):
 
 
 def for_qq_plot(data, trans_config):
-    pass
+    x = (
+        pd.melt(
+            frame=data[trans_config['var']], 
+            var_name='var', 
+            value_name='value'
+        )
+        .dropna(subset=['value'])
+        .set_index('var')
+        .join(
+            trans_config.set_index('var'), 
+            how='inner'
+        )
+        .assign(
+            value_transformed=lambda df: (
+                [f(v) for f, v in zip(df['tran_fn'], df['value'])]
+            )
+        )
+        [['value', 'value_transformed']]
+        .reset_index()
+    )
+    y = (
+        pd.melt(
+            frame=x,
+            id_vars=['var'],
+            var_name='tran', 
+            value_name='value'
+        )
+        .assign(
+            tran=lambda df: (
+                df.apply(
+                    func=lambda row: (
+                        'original' if row['tran'] == 'value' else 'transformed'
+                    ),
+                    axis=1
+                )
+            ),
+            normed_value=lambda df: (
+                df
+                .groupby(['var', 'tran'])
+                ['value']
+                .transform(lambda x: (x - x.mean()) / x.std())
+            )
+        )
+    )
+    return y
