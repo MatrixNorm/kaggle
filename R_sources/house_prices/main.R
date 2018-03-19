@@ -74,6 +74,6 @@ within(list(), {
             data = combined_dataset_step2, 
             target_var = price_log
         ) %>% 
-            select(order(colnames(.)))
+        select(order(colnames(.)))
     }
 })

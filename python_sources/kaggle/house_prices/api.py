@@ -1,5 +1,9 @@
 
+import numpy as np
+
 from . import helpers
+from . import missing
+from . import outliers
 from . import quantile_rating
 from . import transform_categ
 from . import transform_numeric
@@ -40,3 +44,45 @@ def get_functional_transformation_config(data, target, trans, threshold=0):
 
 def functional_transform(data, trans_config):
     return transform_numeric.apply_transform(data, trans_config)
+
+
+def stage1_transformation(dataset):
+    dataset = missing.fix_all(dataset)
+    dataset = outliers.remove_outliers(dataset)
+    dataset = (
+        dataset
+        .assign(
+            price_log=lambda df: np.log(df['SalePrice'])
+        )
+        .drop(columns=['Id', 'SalePrice'])
+    )
+    return dataset[sorted(dataset.columns.tolist())]
+
+
+def stage2_transformation(dataset_stage1, funcs=None, threshold=20):
+        if funcs is None:
+            funcs = {
+                'log': lambda x: np.log(x + 1),
+                'sqrt': lambda x: np.sqrt(x),
+                'inv3': lambda x: x**(1/3),
+                'inv4': lambda x: x**(1/4)
+            }      
+        trans_config = get_functional_transformation_config(
+            data=dataset_stage1, 
+            target="price_log", 
+            trans=funcs,
+            threshold=threshold
+        )        
+        dataset_stage2 = functional_transform(dataset_stage1, trans_config)
+        return (
+            dataset_stage2[sorted(dataset_stage2.columns.tolist())], 
+            trans_config
+        )
+
+
+def stage3_transformation(dataset_stage2):
+    dataset_stage3 = rating_transform(
+        df=dataset_stage2, 
+        target="price_log"
+    )
+    return dataset_stage3[sorted(dataset_stage3.columns.tolist())]

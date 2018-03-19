@@ -1,6 +1,9 @@
 
 from IPython.display import Image, display
-from rpy2.robjects.lib import grdevices
+from rpy2.robjects import pandas2ri
+from rpy2.robjects.lib import (grdevices, ggplot2)
+
+pandas2ri.activate()
 
 
 class Plot():
@@ -14,9 +17,12 @@ class Plot():
         def plot(g):
             self.result.append(g)
         return plot
-    
+
     def __exit__(self, *args):
-        with grdevices.render_to_bytesio(grdevices.png, width=self.width, height=self.height, res=self.res) as img:
+        with grdevices.render_to_bytesio(grdevices.png, 
+                                         width=self.width, 
+                                         height=self.height, 
+                                         res=self.res) as img:
             print(self.result.pop())
         display_img(img)
 
