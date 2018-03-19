@@ -27,4 +27,53 @@ within(list(), {
     model_selection <- source('./model_selection.R', local = TRUE)$value
     # source('./validate.R', local = TRUE)
     plot <- source('./plot.R', local = TRUE)$value
+    
+    stage1_transformation <- function(dataset) {
+        dataset %>%
+        # remove outliers
+        (outliers$remove_outliers) %>%
+        # fix NA values
+        (missing$fix_all) %>%
+        # transform Y-variable
+        mutate(
+            price_log = log(SalePrice)
+        ) %>%
+        # remove redundant variables
+        select(-SalePrice, -Id) %>%
+        select(order(colnames(.)))
+    }
+    
+    stage2_transformation <- function(dataset_stage1, funcs = NULL, threshold = 20) {
+        if (is.null(funcs)) {
+            funcs = tribble(
+                ~tran_name,  ~tran_fn,
+                'log',       function(x) log(x+1),
+                'sqrt',      function(x) sqrt(x),
+                'inv3',      function(x) x**(1/3),
+                'inv4',      function(x) x**(1/4)
+            )
+        }
+        
+        trans_config <- trans$numeric$get_transformation_config(
+            data = dataset_stage1, 
+            target_var = price_log, 
+            trans = funcs,
+            threshold = threshold
+        )
+        
+        dataset_stage2 <-
+            dataset_stage1 %>%
+            trans$numeric$functional_transform(trans_config) %>%
+            select(order(colnames(.)))
+        
+        list(trans_config=trans_config, dataset=dataset_stage2)
+    }
+    
+    stage3_transformation <- function(dataset_stage2) {
+        trans$categ$rating_transform(
+            data = combined_dataset_step2, 
+            target_var = price_log
+        ) %>% 
+            select(order(colnames(.)))
+    }
 })

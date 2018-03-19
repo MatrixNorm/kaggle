@@ -37,5 +37,4 @@ within(list(),
     get_numeric_colnames <- function (df) {
         setdiff(utils$get_numeric_colnames(df), 'Id') %>% sort
     }
-
 })
