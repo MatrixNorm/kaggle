@@ -124,28 +124,41 @@ def get_transformation_config(df, trans, columns=None):
 
 
 def filter_tran_config_by_r2(config, dataset, target_var):
-
-    def calc_r2_x(config):
-        config.apply(
-            lambda row: (
-
-            ),
-            axis=1
-        )
-
-        return smf.ols(
-                formula='%s ~ value' % target_var, data=df
-            ).fit().rsquared
- 
     train = (
         dataset
-        [config['var'] + [target_var]]
+        [list(set(config['var']) | set([target_var]))]
         .dropna(subset=[target_var])
     )
+
+    def calc_r2_x(row):
+        data = train[[row['var'], target_var]]
+        return (
+            smf.ols(
+                formula='%s ~ %s' % (row['var'], target_var), data=data
+            ).fit().rsquared
+        )         
+
+    def calc_r2_tran(row):
+        var = row['var']
+        fn = row['tran_fn']
+        data = (
+            train
+            [[var, target_var]]
+            .assign(**{
+                var: lambda df: fn(df[var])
+            })
+        )
+        return (
+            smf.ols(
+                formula='%s ~ %s' % (row['var'], target_var), data=data
+            ).fit().rsquared
+        )
+
     return (
-        train
-        .assign(r2_x=calc_r2_x)
-        .assign(r2_tran=calc_r2_tran)
+        config
+        .assign(r2_x=lambda df: df.apply(calc_r2_x, axis=1))
+        .assign(r2_tran=lambda df: df.apply(calc_r2_tran, axis=1))
+        .query('r2_tran > r2_x')
     )
 
 
