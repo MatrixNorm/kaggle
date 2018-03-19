@@ -29,7 +29,7 @@ within(list(),
             )
         }
         
-        functional_transform <- function(data, trans, tran_config) {
+        functional_transform <- function(data, tran_config) {
             Tran$apply_transform(data, tran_config)
         }
     })
