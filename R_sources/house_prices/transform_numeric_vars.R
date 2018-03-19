@@ -97,10 +97,7 @@ within(list(),
         arrange(desc(progress_score))
     }
     
-    get_transformation_config <- function(dataset, trans, columns = NULL) {
-        if (is.null(columns)) {
-            columns <- colnames(dataset)
-        }
+    get_transformation_config <- function(dataset, trans) {
         calc_tran_config_step1(dataset %>% select_if(is.numeric), trans) %>%
         calc_tran_config_step2 %>%
         calc_tran_config_step3 %>%

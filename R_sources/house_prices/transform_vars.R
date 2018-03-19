@@ -15,7 +15,7 @@ within(list(),
                 'invcube',   function(x) x**(1/3)
             )
         
-        get_transformation_config <- function(data, target_var, trans, threshold = 25) {
+        get_transformation_config <- function(data, target_var, trans, threshold = 0) {
             target_var <- enquo(target_var)
             
             tran_config <- Tran$get_transformation_config(

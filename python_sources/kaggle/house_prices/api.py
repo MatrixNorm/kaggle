@@ -2,6 +2,7 @@
 from . import helpers
 from . import quantile_rating
 from . import transform_categ
+from . import transform_numeric
 
 
 def calc_ratings(df, target):
@@ -23,3 +24,19 @@ def rating_transform(df, target):
         columns=helpers.get_character_colnames(df), 
         ratings=calc_ratings(df, target)
     )
+
+
+def get_functional_transformation_config(data, target, trans, threshold=0):
+    config = transform_numeric.get_transformation_config(
+        df=data.drop(columns=[target]), 
+        trans=trans
+    ).query('progress_score > %s' % threshold)
+    return transform_numeric.filter_tran_config_by_r2(
+        config=config, 
+        dataset=data, 
+        target_var=target
+    )
+
+
+def functional_transform(data, trans_config):
+    return transform_numeric.apply_transform(data, trans_config)

@@ -1,4 +1,5 @@
 
+import numpy as np
 import pandas as pd
 import scipy.stats as stats
 import statsmodels.formula.api as smf
@@ -109,11 +110,10 @@ class calc_tran_config:
         )
 
 
-def get_transformation_config(df, trans, columns=None):
-    if not columns:
-        columns = df.columns
+def get_transformation_config(df, trans):
     return (
         df
+        .select_dtypes(include=[np.number]) 
         .pipe(calc_tran_config.step1, trans=trans)
         .pipe(calc_tran_config.step2)
         .pipe(calc_tran_config.step3)
