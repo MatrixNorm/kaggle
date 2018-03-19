@@ -172,3 +172,7 @@ def apply_transform(df, tran_config):
         except KeyError:
             pass
     return df
+
+
+def for_qq_plot(data, trans_config):
+    pass
