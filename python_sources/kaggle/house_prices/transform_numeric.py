@@ -163,6 +163,7 @@ def filter_tran_config_by_r2(config, dataset, target_var):
 
 
 def apply_transform(df, tran_config):
+    df = df.copy()
     for index, row in tran_config[['var', 'tran_fn']].iterrows():
         var_name = row['var']
         tran_fn = row['tran_fn']
