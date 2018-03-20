@@ -47,9 +47,10 @@ within(list(),
         )
     }
     
-    lm_resid_vs_predictors <- function(mod, target_var, ncol, nrow) {
+    lm_resid_vs_predictors <- function(mod, ncol, nrow) {
         aug <- mod %>% augment
-        predictors <- setdiff(all.vars(formula(mod)), target_var)
+        coeffs <- mod$coefficients
+        predictors <- names(coeffs[names(coeffs) != "(Intercept)"])
         
         aug %>%
         select(one_of(predictors), resid=.resid) %>%
