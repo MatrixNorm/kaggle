@@ -78,8 +78,8 @@ within(list(),
                 result <- find_next_best_r2_predictor(
                     data = data, 
                     base_formula_str = base_formula_str,
+                    predictors = predictors,
                     r2_gain_discard_level = r2_gain_discard_level,
-                    predictors = predictors, 
                     a_max = a_max, 
                     a_avg = a_avg
                 )
