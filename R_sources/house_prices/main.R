@@ -39,7 +39,7 @@ within(list(), {
             price_log = log(SalePrice)
         ) %>%
         # remove redundant variables
-        select(-SalePrice, -Id) %>%
+        select(-SalePrice) %>%
         select(order(colnames(.)))
     }
     
