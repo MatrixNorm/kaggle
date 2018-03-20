@@ -71,7 +71,7 @@ within(list(), {
     
     stage3_transformation <- function(dataset_stage2) {
         trans$categ$rating_transform(
-            data = combined_dataset_step2, 
+            data = dataset_stage2,
             target_var = price_log
         ) %>% 
         select(order(colnames(.)))
