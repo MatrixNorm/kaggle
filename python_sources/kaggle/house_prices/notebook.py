@@ -31,13 +31,13 @@ class Plot():
         display_img(img)
 
 
-def grid_plot(*plots, widths=None, layout_matrix=None):
+def grid_plot(plots, widths=None, layout_matrix=None, display_params=None):
     
     layout_matrix = robjects.r['rbind'](
         *[robjects.IntVector(row) for row in layout_matrix]
     )
     
-    with grdevices.render_to_bytesio(grdevices.png, width=2000, height=1200, res=120) as img:
+    with grdevices.render_to_bytesio(grdevices.png, **display_params) as img:
         gridExtra.grid_arrange(
             *plots, 
             widths=widths,
