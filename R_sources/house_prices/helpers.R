@@ -37,4 +37,14 @@ within(list(),
     get_numeric_colnames <- function (df) {
         setdiff(utils$get_numeric_colnames(df), 'Id') %>% sort
     }
+    
+    showtable <- function(..., cols = 1) {
+        list(...) %>%
+        purrr::map(~repr::repr_html(.)) %>%
+        purrr::map(~stringr::str_interp(
+            "<div style='display:inline-block; column-count: ${cols}; padding-right:25px;'>${.}</div>"
+        )) %>%
+        paste0(collapse='') %>%
+        (IRdisplay::display_html)
+    }
 })
