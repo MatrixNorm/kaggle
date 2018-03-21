@@ -25,7 +25,7 @@ within(list(), {
     trans <- source('./transform_vars.R', local = TRUE)$value
     outliers <- source('./outliers.R', local = TRUE)$value
     model_selection <- source('./model_selection.R', local = TRUE)$value
-    # source('./validate.R', local = TRUE)
+    validate = source('./validate.R', local = TRUE)$value
     plot <- source('./plot.R', local = TRUE)$value
     
     stage1_transformation <- function(dataset) {

@@ -1,127 +1,87 @@
 
-validate <- within(list(), 
+within(list(), 
 {
-    L2score = function (X, Y) {
-        sqrt(sum((X - Y)^2) / length(X))
+    Utils <- source('./utils.R', local = TRUE)$value
+    
+    iterate <- function(formulas_for_validation, sample_index, totalset, target_var, categ_transform) {
+        
+        target_var <- enquo(target_var)
+        target_var_char <- as.character(target_var)[2]
+
+        test_y <- totalset[-sample_index, target_var_char][[1]]
+
+        totalset <- 
+            totalset %>% 
+            mutate(!!target_var_char := replace(!!target_var, -sample_index, NA))
+        
+        totalset <-
+            categ_transform(
+                data = totalset, 
+                target_var = !!target_var
+            )
+
+        trainset <- totalset[sample_index,]
+        testset <- totalset[-sample_index,]
+        
+        formulas_for_validation %>%
+        mutate(
+            model = map(formula, ~lm(as.formula(.), data=trainset)),
+            
+            r2 = map_dbl(model, function (mod) {
+                summary(mod)$r.squared
+            }),
+            
+            L2_train = map_dbl(model, function (mod) {
+                augment <- broom::augment(mod)
+                Utils$L2_avg_loss(augment[['price_log']] - augment$.fitted)
+            }),
+            
+            L2_test = map_dbl(model, function (mod) {
+                test_predicted <- predict(mod, testset)
+                Utils$L2_avg_loss(test_predicted - test_y)
+            })
+        ) %>%
+        select(-model)
     }
     
-    trainAndTest <- function(dataset, target.var, formulas, trainset.share=0.5, N=5) {
-        
-        caret::createDataPartition(y=dataset[,target.var] %>% `[[`(1), p=trainset.share, list=F, times=N) %>% 
-        as.data.frame %>%
-        gather(sample, index) %>%
-        group_by(sample) %>%
-        nest %>%
-        rename(sample.index=data) %>%
-        mutate(fit = map(sample.index, function (index) {
-            trainset <- dataset[index$index,]
-            testset <- dataset[-index$index,]
-            target_test_actual <- testset %>% select(one_of(target.var)) %>% `[[`(1)
-            testset <- testset %>% select(-one_of(target.var))
-            
-            tibble(formula = formulas) %>%
-                mutate(
-                    model = map(formula, ~lm(as.formula(.), trainset)),
-                    glance = map(model, broom::glance),
-                    tidy = map(model, broom::tidy),
-                    L2.test.score = map_dbl(model, function (mod) {
-                        target.test.predicted = predict(mod, testset)
-                        L2score(target_test_actual, target.test.predicted)
-                    }),
-                    L2.train.score = map_dbl(model, function (mod) {
-                        augment = broom::augment(mod)
-                        L2score(augment[,target.var], augment$.fitted)
-                    }),
-                    R2 = map_dbl(model, function (mod) {
-                        summary(mod)$r.squared
-                    })
-                ) %>% 
-                select(-model)
-        })) %>%
-        select(-sample.index) %>%
-        unnest
-    }
-    
-    plot.terms <- function (data, bins=15, facet.cols=3) {
-        
-        terms <- data %>% 
-                select(formula, tidy) %>% 
-                unnest %>% 
-                group_by(formula, term) %>%
-                mutate(estimate.normed = (estimate - mean(estimate)) / sd(estimate)) 
-        
-        hist <-
-            terms %>%
-            ggplot() +
-            geom_histogram(aes(estimate, y=..density..), bins=bins, alpha=0.5) +
-            geom_density(aes(estimate), color="blue") +
-            facet_wrap(formula~term, ncol=facet.cols, scales="free") +
-            theme_bw()
-        
-        qq <-
-            terms %>%
-            ggplot() +
-            geom_qq(aes(sample=estimate.normed), alpha=0.4) +
-            geom_abline(slope=1, color="blue") +
-            facet_wrap(formula~term, ncol=facet.cols, scales="free") +
-            theme_bw()
-        
-        list(hist=hist, qq=qq)
-    }
-    
-    plot.scores.scatter <- function(data) {
-        arrangeGrob(
-            data %>%
-                ggplot() +
-                geom_point(aes(L2.train.score, L2.test.score, color=formula), alpha=0.5) +
-                theme_bw() +
-                theme(legend.position="none", legend.direction="vertical"),
-            
-            data %>%
-                ggplot() +
-                geom_point(aes(R2, L2.train.score, color=formula), alpha=0.5) +
-                theme_bw() +
-                theme(legend.position="none", legend.direction="vertical"),
-            
-            data %>%
-                ggplot() +
-                geom_point(aes(R2, L2.test.score, color=formula), alpha=0.5) +
-                theme_bw() +
-                theme(legend.position="bottom", legend.direction="vertical"),
-            
-            layout_matrix=rbind(c(1, 2, 3)), 
-            
-            widths=c(100, 100, 100)
+    get_avg_report <- function(report) {
+        report %>%
+        group_by(formula) %>%
+        summarise(
+            r2 = mean(r2),
+            L2_train = mean(L2_train),
+            L2_test = mean(L2_test),
+            step = max(step)
+        ) %>%
+        mutate(
+            L2_test_gain = lag(L2_test) - L2_test
         )
     }
     
-    plot.scores.in.depth <- function (data, bins=15, facet.cols=3) {
+    plot_report <- function(report) {
+        avg_report <- report %>% get_avg_report
         
-        data.long <-
-            data %>% 
-            select(formula, L2.test.score, L2.train.score, R2) %>%
-            gather(name, val, -formula) %>%
-            group_by(formula, name) %>%
-            mutate(val.normed = (val - mean(val)) / sd(val))
-        
-        hist <-
-            data.long %>%
+        p1 <-
+            avg_report %>%
             ggplot() +
-            geom_histogram(aes(val, y=..density.., fill=formula), bins=bins, alpha=0.2, position="identity") +
-            geom_density(aes(val, color=formula)) +
-            facet_wrap(~name, ncol=facet.cols, scales="free") +
-            theme_bw() +
-            theme(legend.position="bottom", legend.direction="vertical")
+            geom_line(aes(x=step, y=L2_train, group=1)) +
+            geom_line(aes(x=step, y=L2_test, group=1), color='red') +
+            scale_x_continuous(breaks=c(1:max(avg_report$step))) +
+            theme_bw()
         
-        qq <-
-            data.long %>%
+        p2 <- 
+            report %>% 
             ggplot() +
-            geom_qq(aes(sample=val.normed, color=formula), alpha=0.4) +
-            geom_abline(slope=1, color="black") +
-            facet_wrap(~name, ncol=facet.cols, scales="free") +
-            theme_bw() +
-            theme(legend.position="bottom", legend.direction="vertical")
-
-        list(hist=hist, qq=qq)
+            geom_line(aes(x=step, y=L2_train, group=sample)) +
+            geom_line(aes(x=step, y=L2_test, group=sample), color='red') +
+            scale_x_continuous(breaks=c(1:max(avg_report$step))) +
+            theme_bw()
+        
+        grid.arrange(
+            p1, p2,
+            layout_matrix=rbind(
+                c(1, 2)
+            )
+        )
     }
 })
