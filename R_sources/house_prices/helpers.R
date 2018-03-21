@@ -37,8 +37,8 @@ within(list(),
     get_numeric_colnames <- function (df) {
         setdiff(utils$get_numeric_colnames(df), 'Id') %>% sort
     }
-    
-    showtable <- function(..., cols = 1) {
+
+    show_table <- function(..., cols = 1) {
         list(...) %>%
         purrr::map(~repr::repr_html(.)) %>%
         purrr::map(~stringr::str_interp(
@@ -46,5 +46,27 @@ within(list(),
         )) %>%
         paste0(collapse='') %>%
         (IRdisplay::display_html)
+    }
+    
+    show_list <- function(lst) {
+        ul_css <- "list-style: none; padding-left: 0"
+        li_css <- "
+        display: inline-block; 
+        padding: 2px 4px 2px 4px;
+        margin: 3px 3px 3px 3px;
+        background: #efefef;
+        color: #565656;
+        border-radius: 3px"
+        
+        ul_template <- "<ul style='${ul_css}'>${li_html}</ul>"
+        
+        li_html <- 
+            lst %>% purrr::map(function(item) {
+                li_template <- "<li style='${li_css}'>${item}</li>"
+                stringr::str_interp(li_template)
+            }) %>% paste0(collapse='')
+        
+        stringr::str_interp(ul_template) %>%
+            (IRdisplay::display_html)
     }
 })
