@@ -57,6 +57,20 @@ within(list(),
             .rendered_html tr td:last-child:after, th:last-child:after {
                 border-right: 0;
             }
+
+            .__matrix_norm li {
+                    display: inline-block; 
+                    padding: 2px 4px 2px 4px;
+                    margin: 3px 3px 3px 3px;
+                    border: 1px solid #aac9db;
+                    color: #2e2e2e;
+                    border-radius: 3px
+            }
+    
+            .__matrix_norm ul {
+                list-style: none; 
+                padding-left: 0 !important;
+            }
         "
         stringr::str_interp("<style>${styles}</style>") %>% 
         (IRdisplay::display_html)
@@ -73,24 +87,8 @@ within(list(),
     }
     
     show_list <- function(lst) {
-        styles <- "
-            .__matrix_norm li {
-                    display: inline-block; 
-                    padding: 2px 4px 2px 4px;
-                    margin: 3px 3px 3px 3px;
-                    border: 1px solid #aac9db;
-                    color: #2e2e2e;
-                    border-radius: 3px
-            }
-    
-            .__matrix_norm ul {
-                list-style: none; 
-                padding-left: 0 !important;
-            }
-        "
         lst_html = show_list.html(lst)
         stringr::str_interp("
-            <style>${styles}</style>
             <div class='__matrix_norm'>${lst_html}</div>"
         ) %>% 
         (IRdisplay::display_html)
