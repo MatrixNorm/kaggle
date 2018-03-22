@@ -63,19 +63,28 @@ within(list(),
         
         p1 <-
             avg_report %>%
+            select(L2_train, L2_test, step) %>%
+            gather(var, value, -step) %>%
             ggplot() +
-            geom_line(aes(x=step, y=L2_train, group=1)) +
-            geom_line(aes(x=step, y=L2_test, group=1), color='red') +
+            geom_line(aes(x=step, y=value, color=var)) +
             scale_x_continuous(breaks=c(1:max(avg_report$step))) +
-            theme_bw()
+            theme_bw() +
+            ylab("L2 error") + xlab("Formula Number") +
+            theme(legend.position="bottom")
         
         p2 <- 
-            report %>% 
+            report  %>%
+            select(L2_train, L2_test, step, sample) %>%
+            gather(var, value, -step, -sample) %>%
+            mutate(
+                gr = paste(sample, var, sep='_')
+            ) %>%
             ggplot() +
-            geom_line(aes(x=step, y=L2_train, group=sample)) +
-            geom_line(aes(x=step, y=L2_test, group=sample), color='red') +
+            geom_line(aes(x=step, y=value, group=gr, color=var)) +
             scale_x_continuous(breaks=c(1:max(avg_report$step))) +
-            theme_bw()
+            theme_bw() +
+            ylab("L2 error") + xlab("Formula Number") +
+            theme(legend.position="bottom")
         
         grid.arrange(
             p1, p2,
