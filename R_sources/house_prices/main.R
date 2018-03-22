@@ -28,6 +28,11 @@ within(list(), {
     validate = source('./validate.R', local = TRUE)$value
     plot <- source('./plot.R', local = TRUE)$value
     
+    helpers$inject_css()
+    calling_env <- parent.env(environment())
+    calling_env$show_table <- helpers$show_table
+    calling_env$show_list <- helpers$show_list
+    
     stage1_transformation <- function(dataset) {
         dataset %>%
         # remove outliers

@@ -43,10 +43,10 @@ within(list(),
             .rendered_html thead {
                 background: #dde7fa;
             }
-            .rendered_html td {
+            .rendered_html td, th {
                 position: relative;
             }
-            .rendered_html  td:after {
+            .rendered_html  td:after, th:after {
                 position: absolute;
                 border-right: 1px solid #a7a7a7;
                 content: '';
@@ -54,7 +54,7 @@ within(list(),
                 bottom: 25%;
                 right: -1px;
             }
-            .rendered_html tr td:last-child:after {
+            .rendered_html tr td:last-child:after, th:last-child:after {
                 border-right: 0;
             }
         "

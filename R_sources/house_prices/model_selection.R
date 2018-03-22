@@ -60,7 +60,6 @@ within(list(),
         greedy_r2_gain_adj <- function(data, target_var, 
                                        r2_gain_discard_level = 0.5, r2_discard_level = 0.02, 
                                        a_max = 0, a_avg = 0) {
-            
             target_var <- enquo(target_var)
             
             init <- find_initial_best_r2_predictor(
@@ -68,12 +67,12 @@ within(list(),
                 target_var = !!target_var, 
                 r2_discard_level = r2_discard_level
             )
-            
+
             base_formula_str <- init[[1, 'formula']]
             predictors <- init$predictor
             step <- 1
             report <- init %>% mutate(step = step)
-            
+
             repeat {
                 result <- find_next_best_r2_predictor(
                     data = data, 
@@ -83,7 +82,7 @@ within(list(),
                     a_max = a_max, 
                     a_avg = a_avg
                 )
-                
+
                 if( nrow(result) < 1 ){
                     break
                 }
