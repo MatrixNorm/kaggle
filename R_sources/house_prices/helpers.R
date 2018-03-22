@@ -37,6 +37,30 @@ within(list(),
     get_numeric_colnames <- function (df) {
         setdiff(utils$get_numeric_colnames(df), 'Id') %>% sort
     }
+    
+    inject_css <- function() {
+        styles <- "
+            .rendered_html thead {
+                background: #dde7fa;
+            }
+            .rendered_html td {
+                position: relative;
+            }
+            .rendered_html  td:after {
+                position: absolute;
+                border-right: 1px solid #a7a7a7;
+                content: '';
+                top: 25%;
+                bottom: 25%;
+                right: -1px;
+            }
+            .rendered_html tr td:last-child:after {
+                border-right: 0;
+            }
+        "
+        stringr::str_interp("<style>${styles}</style>") %>% 
+        (IRdisplay::display_html)
+    }
 
     show_table <- function(..., cols = 1) {
         list(...) %>%
@@ -49,7 +73,7 @@ within(list(),
     }
     
     show_list <- function(lst) {
-        styles = "
+        styles <- "
             .__matrix_norm li {
                     display: inline-block; 
                     padding: 2px 4px 2px 4px;
