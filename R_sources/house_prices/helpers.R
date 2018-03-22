@@ -49,24 +49,45 @@ within(list(),
     }
     
     show_list <- function(lst) {
-        ul_css <- "list-style: none; padding-left: 0"
-        li_css <- "
-        display: inline-block; 
-        padding: 2px 4px 2px 4px;
-        margin: 3px 3px 3px 3px;
-        background: #efefef;
-        color: #565656;
-        border-radius: 3px"
-        
-        ul_template <- "<ul style='${ul_css}'>${li_html}</ul>"
+        styles = "
+            .__matrix_norm li {
+                    display: inline-block; 
+                    padding: 2px 4px 2px 4px;
+                    margin: 3px 3px 3px 3px;
+                    border: 1px solid #aac9db;
+                    color: #2e2e2e;
+                    border-radius: 3px
+            }
+    
+            .__matrix_norm ul {
+                list-style: none; 
+                padding-left: 0 !important;
+            }
+        "
+        lst_html = show_list.html(lst)
+        stringr::str_interp("
+            <style>${styles}</style>
+            <div class='__matrix_norm'>${lst_html}</div>"
+        ) %>% 
+        (IRdisplay::display_html)
+    }
+    
+    show_list.html <- function(lst) {
+        ul_template <- "<ul>${li_html}</ul>"
         
         li_html <- 
             lst %>% purrr::map(function(item) {
-                li_template <- "<li style='${li_css}'>${item}</li>"
-                stringr::str_interp(li_template)
+                if (item %>% length == 1) {
+                    li_template <- "<li>${item}</li>"
+                    stringr::str_interp(li_template)
+                } else {
+                    item_html = show_list.html(item)
+                    stringr::str_interp("
+                        <li>${item_html}</li>"
+                    )
+                }
             }) %>% paste0(collapse='')
         
-        stringr::str_interp(ul_template) %>%
-            (IRdisplay::display_html)
+        stringr::str_interp(ul_template)
     }
 })
