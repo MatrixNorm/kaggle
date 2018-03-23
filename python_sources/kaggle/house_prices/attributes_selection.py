@@ -161,8 +161,6 @@ class Anova:
             .sort_values('F')
         )
 
-    
-
 
 def order_factor_by_target(df, factor_var, target_var, fn=np.mean):
     """ XXX """
