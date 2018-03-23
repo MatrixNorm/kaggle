@@ -2,6 +2,7 @@
 .pytest_cache/
 __pycache__/
 
+.pyc
 .Rhistory
 .helpers.R.swp
 .~*.ipynb
