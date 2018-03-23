@@ -54,11 +54,11 @@ def load_data():
 
 
 def get_character_colnames(df):
-    return [colname for colname in utils.get_categ_colnames(df) if colname != 'dataSource'] 
+    return sorted([colname for colname in utils.get_categ_colnames(df) if colname != 'dataSource'])
 
 
 def get_numeric_colnames(df):
 
-    return [
+    return sorted([
         col[1].name for col in df.items() if col[1].dtype.kind in ('i', 'f') and col[1].name != 'Id'
-    ]
+    ])

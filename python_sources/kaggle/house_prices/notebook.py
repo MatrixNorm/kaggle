@@ -62,17 +62,57 @@ def show_table(*dfs, cols=1):
 
 
 def show_list(lst):
-    ul_css = "list-style: none; padding-left: 0"
-    li_css = """
-        display: inline-block; 
-        padding: 2px 4px 2px 4px;
-        margin: 3px 3px 3px 3px;
-        background: #efefef;
-        color: #565656;
-        border-radius: 3px
+    lst_html = _show_list(lst)
+    return HTML(
+        """<div class='__matrix_norm'>{}</div>""".format(lst_html)
+    )
+
+
+def _show_list(lst):
+    li_template = """<li>{}</li>"""
+    ul_template = """<ul>{}</ul>"""
+    li_buff = []
+    for item in lst:
+        if type(item) in (list, tuple):
+            li_buff.append(_show_list(item))
+        else:
+            li_buff.append(li_template.format(item))
+    li_html = "".join(li_buff)
+    return ul_template.format(li_html)
+
+
+def inject_css():
+    styles = """
+        .rendered_html thead {
+            background: #dde7fa;
+        }
+        .rendered_html td, th {
+            position: relative;
+        }
+        .rendered_html  td:after, th:after {
+            position: absolute;
+            border-right: 1px solid #a7a7a7;
+            content: '';
+            top: 25%;
+            bottom: 25%;
+            right: -1px;
+        }
+        .rendered_html tr td:last-child:after, th:last-child:after {
+            border-right: 0;
+        }
+
+        .__matrix_norm li {
+                display: inline-block; 
+                padding: 2px 4px 2px 4px;
+                margin: 3px 3px 3px 3px;
+                border: 1px solid #aac9db;
+                color: #2e2e2e;
+                border-radius: 3px
+        }
+
+        .__matrix_norm ul {
+            list-style: none; 
+            padding-left: 0 !important;
+        }
     """
-    li_template = """<li style="{li_css}">{}</li>"""
-    ul_template = """<ul style="{ul_css}">{}</ul>"""
-    li_html = "".join([li_template.format(item, li_css=li_css) for item in lst])
-    ul_html = ul_template.format(li_html, ul_css=ul_css)
-    display(HTML(ul_html))
+    return display(HTML("<style>{}</style>".format(styles)))
