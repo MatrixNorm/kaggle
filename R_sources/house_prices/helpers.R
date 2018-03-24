@@ -70,6 +70,15 @@ within(list(),
             .__matrix_norm ul {
                 list-style: none; 
                 padding-left: 0 !important;
+                margin-top: 0;
+            }
+    
+            .__matrix_norm i {
+                padding: 8px 4px 0 4px;
+                display: inline-block;
+                margin-bottom: px;
+                margin-left: 4px;
+                font-size: 0.8em;
             }
         "
         stringr::str_interp("<style>${styles}</style>") %>% 
@@ -86,10 +95,11 @@ within(list(),
         (IRdisplay::display_html)
     }
     
-    show_list <- function(lst) {
+    show_list <- function(lst, caption = NULL) {
         lst_html = show_list.html(lst)
-        stringr::str_interp("
-            <div class='__matrix_norm'>${lst_html}</div>"
+        ifelse(is.null(caption),
+            stringr::str_interp("<div class='__matrix_norm'>${lst_html}</div>"),
+            stringr::str_interp("<div class='__matrix_norm'><i>${caption}</i>${lst_html}</div>")
         ) %>% 
         (IRdisplay::display_html)
     }

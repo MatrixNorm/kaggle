@@ -8,7 +8,7 @@ within(list(),
         target_var <- enquo(target_var)
         target_var_char <- as.character(target_var)[2]
 
-        test_y <- totalset[-sample_index, target_var_char][[1]]
+        valid_y <- totalset[-sample_index, target_var_char][[1]]
 
         totalset <- 
             totalset %>% 
@@ -21,7 +21,7 @@ within(list(),
             )
 
         trainset <- totalset[sample_index,]
-        testset <- totalset[-sample_index,]
+        validset <- totalset[-sample_index,]
         
         formulas_for_validation %>%
         mutate(
@@ -36,9 +36,8 @@ within(list(),
                 Utils$L2_avg_loss(augment[['price_log']] - augment$.fitted)
             }),
             
-            L2_test = map_dbl(model, function (mod) {
-                test_predicted <- predict(mod, testset)
-                Utils$L2_avg_loss(test_predicted - test_y)
+            L2_valid = map_dbl(model, function (mod) {
+                Utils$L2_avg_loss(predict(mod, validset) - valid_y)
             })
         ) %>%
         select(-model)
@@ -50,11 +49,11 @@ within(list(),
         summarise(
             r2 = mean(r2),
             L2_train = mean(L2_train),
-            L2_test = mean(L2_test),
+            L2_valid = mean(L2_valid),
             step = max(step)
         ) %>%
         mutate(
-            L2_test_gain = lag(L2_test) - L2_test
+            L2_valid_gain = lag(L2_valid) - L2_valid
         )
     }
     
@@ -63,7 +62,7 @@ within(list(),
         
         p1 <-
             avg_report %>%
-            select(L2_train, L2_test, step) %>%
+            select(L2_train, L2_valid, step) %>%
             gather(var, value, -step) %>%
             ggplot() +
             geom_line(aes(x=step, y=value, color=var)) +
@@ -74,7 +73,7 @@ within(list(),
         
         p2 <- 
             report  %>%
-            select(L2_train, L2_test, step, sample) %>%
+            select(L2_train, L2_valid, step, sample) %>%
             gather(var, value, -step, -sample) %>%
             mutate(
                 gr = paste(sample, var, sep='_')
