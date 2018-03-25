@@ -90,14 +90,32 @@ within(list(),
         (IRdisplay::display_html)
     }
 
-    show_table <- function(..., cols = 1) {
+    show_table <- function(..., cols = 1, caption = "") {
         list(...) %>%
-        purrr::map(~repr::repr_html(.)) %>%
-        purrr::map(~stringr::str_interp(
-            "<div style='display:inline-block; column-count: ${cols}; padding-right:25px;'>${.}</div>"
-        )) %>%
+        purrr::map(function(item) {
+            if (is.tibble(item)) {
+                show_table.html(item, caption = caption, cols = cols)
+            } else {
+                df <- item[[1]]
+                caption = ifelse(length(item) > 1, item[[2]], "")
+                cols = ifelse(length(item) > 2, item[[3]], 1)
+                show_table.html(df, caption, cols)
+            }
+        }) %>%
         paste0(collapse='') %>%
         (IRdisplay::display_html)
+    }
+    
+    show_table.html <- function(df, caption = "", cols = 1) {
+        table_html <- repr::repr_html(df)
+        stringr::str_interp("
+        <div style='display:inline-block; vertical-align: bottom;'>
+            <i style='font-size: 0.8em;'>${caption}</i>
+            <div style='column-count: ${cols}; padding-right:25px;'>
+                ${table_html}
+            </div>
+        </div>
+        ")
     }
     
     show_list <- function(lst, caption = NULL) {
