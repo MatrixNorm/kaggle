@@ -58,6 +58,11 @@ within(list(),
                 border-right: 0;
             }
 
+            .__matrix_norm {
+                display: inline-block;
+                margin-right: 40px;
+            }
+
             .__matrix_norm li {
                     display: inline-block; 
                     padding: 2px 4px 2px 4px;
@@ -96,15 +101,22 @@ within(list(),
     }
     
     show_list <- function(lst, caption = NULL) {
-        lst_html = show_list.html(lst)
-        ifelse(is.null(caption),
-            stringr::str_interp("<div class='__matrix_norm'>${lst_html}</div>"),
-            stringr::str_interp("<div class='__matrix_norm'><i>${caption}</i>${lst_html}</div>")
-        ) %>% 
+        show_list.html(lst, caption) %>% 
         (IRdisplay::display_html)
     }
     
-    show_list.html <- function(lst) {
+    show_list.html <- function(lst, caption = NULL) {
+        len <- length(lst)
+        if (len > 200) {
+            stop("list is too long")
+        }
+        lst_html <- show_list.html.recur(lst)
+        caption_html <- ifelse(is.null(caption), "", stringr::str_interp("<i>${caption}</i>"))
+        len_html <- ifelse(length(lst) < 7, "", stringr::str_interp("<i>(${len} elems)</i>"))
+        stringr::str_interp("<div class='__matrix_norm'>${len_html}${caption_html}${lst_html}</div>")
+    }
+    
+    show_list.html.recur <- function(lst) {
         ul_template <- "<ul>${li_html}</ul>"
         
         li_html <- 
@@ -113,7 +125,7 @@ within(list(),
                     li_template <- "<li>${item}</li>"
                     stringr::str_interp(li_template)
                 } else {
-                    item_html = show_list.html(item)
+                    item_html = show_list.html.recur(item)
                     stringr::str_interp("
                         <li>${item_html}</li>"
                     )

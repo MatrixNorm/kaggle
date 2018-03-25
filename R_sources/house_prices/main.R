@@ -8,13 +8,13 @@ within(list(), {
         library(ggplot2, warn.conflicts=FALSE)
         library(grid, warn.conflicts=FALSE)
         library(gridExtra, warn.conflicts=FALSE)
+        library(IRdisplay, warn.conflicts=FALSE)
         library(Metrics, warn.conflicts=FALSE)
         library(purrr, warn.conflicts=FALSE)
         library(reshape2, warn.conflicts=FALSE)
         library(tidyr, warn.conflicts=FALSE)
         library(tibble, warn.conflicts=FALSE)
         library(testthat, warn.conflicts=FALSE)
-        library(zeallot, warn.conflicts=FALSE)
     }
     
     import_libs()
@@ -32,6 +32,7 @@ within(list(), {
     calling_env <- parent.env(environment())
     calling_env$show_table <- helpers$show_table
     calling_env$show_list <- helpers$show_list
+    calling_env$show_list.html <- helpers$show_list.html
     
     stage1_transformation <- function(dataset) {
         dataset %>%
