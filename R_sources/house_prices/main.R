@@ -33,7 +33,7 @@ within(list(), {
     calling_env$show_table <- helpers$show_table
     calling_env$show_list <- helpers$show_list
     calling_env$show_list.html <- helpers$show_list.html
-    calling_env$plotops <- function(w, h, r) {
+    calling_env$`@@@` <- function(w, h, r) {
         options(repr.plot.width = w, repr.plot.height = h, repr.plot.res=r)
     }
     
