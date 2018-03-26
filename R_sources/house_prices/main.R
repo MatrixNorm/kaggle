@@ -2,19 +2,19 @@
 within(list(), {
     
     import_libs <- function () {
-        library(broom, warn.conflicts=FALSE)
-        library(caret, warn.conflicts=FALSE)
-        library(dplyr, warn.conflicts=FALSE)
-        library(ggplot2, warn.conflicts=FALSE)
-        library(grid, warn.conflicts=FALSE)
-        library(gridExtra, warn.conflicts=FALSE)
-        library(IRdisplay, warn.conflicts=FALSE)
-        library(Metrics, warn.conflicts=FALSE)
-        library(purrr, warn.conflicts=FALSE)
-        library(reshape2, warn.conflicts=FALSE)
-        library(tidyr, warn.conflicts=FALSE)
-        library(tibble, warn.conflicts=FALSE)
-        library(testthat, warn.conflicts=FALSE)
+        library(broom, warn.conflicts=FALSE, quietly=TRUE)
+        library(caret, warn.conflicts=FALSE, quietly=TRUE)
+        library(dplyr, warn.conflicts=FALSE, quietly=TRUE)
+        library(ggplot2, warn.conflicts=FALSE, quietly=TRUE)
+        library(grid, warn.conflicts=FALSE, quietly=TRUE)
+        library(gridExtra, warn.conflicts=FALSE, quietly=TRUE)
+        library(IRdisplay, warn.conflicts=FALSE, quietly=TRUE)
+        library(Metrics, warn.conflicts=FALSE, quietly=TRUE)
+        library(purrr, warn.conflicts=FALSE, quietly=TRUE)
+        library(reshape2, warn.conflicts=FALSE, quietly=TRUE)
+        library(tidyr, warn.conflicts=FALSE, quietly=TRUE)
+        library(tibble, warn.conflicts=FALSE, quietly=TRUE)
+        library(testthat, warn.conflicts=FALSE, quietly=TRUE)
     }
     
     import_libs()
@@ -33,6 +33,9 @@ within(list(), {
     calling_env$show_table <- helpers$show_table
     calling_env$show_list <- helpers$show_list
     calling_env$show_list.html <- helpers$show_list.html
+    calling_env$plotops <- function(w, h, r) {
+        options(repr.plot.width = w, repr.plot.height = h, repr.plot.res=r)
+    }
     
     stage1_transformation <- function(dataset) {
         dataset %>%
