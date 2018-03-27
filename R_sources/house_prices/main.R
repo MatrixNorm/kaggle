@@ -2,18 +2,22 @@
 within(list(), {
     
     import_libs <- function () {
+        library(dplyr, warn.conflicts=FALSE, quietly=TRUE)
+        library(purrr, warn.conflicts=FALSE, quietly=TRUE)
+        #library(reshape2, warn.conflicts=FALSE, quietly=TRUE)
+        library(tibble, warn.conflicts=FALSE, quietly=TRUE)
+        library(tidyr, warn.conflicts=FALSE, quietly=TRUE)
+        
         library(broom, warn.conflicts=FALSE, quietly=TRUE)
         library(caret, warn.conflicts=FALSE, quietly=TRUE)
-        library(dplyr, warn.conflicts=FALSE, quietly=TRUE)
+        library(IRdisplay, warn.conflicts=FALSE, quietly=TRUE)
+        library(Metrics, warn.conflicts=FALSE, quietly=TRUE)
+        
         library(ggplot2, warn.conflicts=FALSE, quietly=TRUE)
         library(grid, warn.conflicts=FALSE, quietly=TRUE)
         library(gridExtra, warn.conflicts=FALSE, quietly=TRUE)
-        library(IRdisplay, warn.conflicts=FALSE, quietly=TRUE)
-        library(Metrics, warn.conflicts=FALSE, quietly=TRUE)
-        library(purrr, warn.conflicts=FALSE, quietly=TRUE)
-        library(reshape2, warn.conflicts=FALSE, quietly=TRUE)
-        library(tidyr, warn.conflicts=FALSE, quietly=TRUE)
-        library(tibble, warn.conflicts=FALSE, quietly=TRUE)
+        library(treemapify)
+        
         library(testthat, warn.conflicts=FALSE, quietly=TRUE)
     }
     
