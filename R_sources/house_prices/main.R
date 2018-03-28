@@ -50,7 +50,9 @@ within(list(), {
         (missing$fix_all) %>%
         # transform Y-variable
         mutate(
-            price_log = log(SalePrice)
+            price_log = log(SalePrice),
+            YrSold = as.character(YrSold),
+            MoSold = as.character(MoSold)
         ) %>%
         # remove redundant variables
         select(-SalePrice) %>%
