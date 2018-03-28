@@ -16,7 +16,8 @@ within(list(), {
         library(ggplot2, warn.conflicts=FALSE, quietly=TRUE)
         library(grid, warn.conflicts=FALSE, quietly=TRUE)
         library(gridExtra, warn.conflicts=FALSE, quietly=TRUE)
-        library(treemapify)
+        # buggy
+        #library(treemapify, warn.conflicts=FALSE, quietly=TRUE)
         
         library(testthat, warn.conflicts=FALSE, quietly=TRUE)
     }

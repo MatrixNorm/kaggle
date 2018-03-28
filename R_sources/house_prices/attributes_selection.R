@@ -1,29 +1,11 @@
 
 within(list(), 
 {
-    discared_cat_vars <- c(
-        'BsmtFinType2',
-        'Condition1',
-        'Condition2',
-        'ExterCond',
-        'Functional',
-        'Heating',
-        'LandSlope',
-        'RoofMatl',
-        'Street',
-        'Utilities'
-    )
-     
-    discared_num_vars <- c(   
-        'BsmtFinSF2',
-        'BsmtHalfBath',
-        'EnclosedPorch',
-        'KitchenAbvGr',
-        'LowQualFinSF',
-        'MiscVal',
-        'PoolArea',
-        'ScreenPorch',
-        'X3SsnPorch'
+    useless_numeric_vars <- c(   
+        'BsmtFinSF2', 'BsmtHalfBath', 'BsmtUnfSF',
+        'EnclosedPorch', 'KitchenAbvGr', 'LowQualFinSF',
+        'MiscVal', 'PoolArea', 'ScreenPorch', 
+        'WoodDeckSF', 'X3SsnPorch'
     )
     
     
