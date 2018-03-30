@@ -61,24 +61,33 @@ def show_table(*dfs, cols=1):
     return HTML("".join(divs))
 
 
-def show_list(lst):
-    lst_html = _show_list(lst)
-    return HTML(
-        """<div class='__matrix_norm'>{}</div>""".format(lst_html)
+def show_list(lst, cap=None):
+    return HTML(show_list_html(lst, cap=cap))
+
+
+def show_list_html(lst, cap=None):
+    cap_template = """<i>{}</i>"""
+    len_template = """<i>({} elems)</i>"""
+    lst_html = _show_list_html(lst, cap=cap)
+    cap_html = cap_template.format(cap) if cap else ''
+    len_html = len_template.format(len(lst)) if len(lst) > 7 else ''
+    return (
+        """<div class='__matrix_norm'>{}{}{}</div>"""
+        .format(len_html, cap_html, lst_html)
     )
 
 
-def _show_list(lst):
+def _show_list_html(lst, cap=None):
     li_template = """<li>{}</li>"""
     ul_template = """<ul>{}</ul>"""
-    li_buff = []
+    buff = []
     for item in lst:
         if type(item) in (list, tuple):
-            li_buff.append(_show_list(item))
+            buff.append(li_template.format(_show_list_html(*item)))
         else:
-            li_buff.append(li_template.format(item))
-    li_html = "".join(li_buff)
-    return ul_template.format(li_html)
+            buff.append(li_template.format(item))
+    html = ul_template.format("".join(buff))    
+    return html
 
 
 def inject_css():
@@ -101,6 +110,11 @@ def inject_css():
             border-right: 0;
         }
 
+        .__matrix_norm {
+            display: inline-block;
+            margin-right: 40px;
+        }
+
         .__matrix_norm li {
                 display: inline-block; 
                 padding: 2px 4px 2px 4px;
@@ -113,6 +127,15 @@ def inject_css():
         .__matrix_norm ul {
             list-style: none; 
             padding-left: 0 !important;
+            margin-top: 0;
+        }
+
+        .__matrix_norm i {
+            padding: 8px 4px 0 4px;
+            display: inline-block;
+            margin-bottom: px;
+            margin-left: 4px;
+            font-size: 0.8em;
         }
     """
     return display(HTML("<style>{}</style>".format(styles)))
