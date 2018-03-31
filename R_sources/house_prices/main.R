@@ -32,12 +32,13 @@ within(list(), {
     model_selection <- source('./model_selection.R', local = TRUE)$value
     validate = source('./validate.R', local = TRUE)$value
     plot <- source('./plot.R', local = TRUE)$value
+    notebook <- source('./notebook.R', local = TRUE)$value
     
-    helpers$inject_css()
+    notebook$inject_css()
     calling_env <- parent.env(environment())
-    calling_env$show_table <- helpers$show_table
-    calling_env$show_list <- helpers$show_list
-    calling_env$show_list.html <- helpers$show_list.html
+    calling_env$show_table <- notebook$show_table
+    calling_env$show_list <- notebook$show_list
+    calling_env$show_list.html <- notebook$show_list.html
     calling_env$`@@@` <- function(w, h, r) {
         options(repr.plot.width = w, repr.plot.height = h, repr.plot.res=r)
     }

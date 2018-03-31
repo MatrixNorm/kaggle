@@ -50,15 +50,33 @@ def display_img(img):
     display(Image(data=img.getvalue(), format='png', embed=True))
 
 
-def show_table(*dfs, cols=1):
-    wrap = """
-        <div style="display:inline-block;
-                    column-count: {cols}; padding-right:25px;
-                    vertical-align: top;">
-            {df}
-        </div>"""
-    divs = [wrap.format(df=df.to_html(), cols=cols) for df in dfs]
-    return HTML("".join(divs))
+def show_table(*dfs):
+    html = []
+    for df in dfs:
+        if isinstance(df, tuple):
+            df = dict(enumerate(df))
+            html.append(show_table_html(
+                df=df[0], 
+                cap=df.get(1, ''), 
+                cols=df.get(2, 1)
+            ))
+        else:
+            html.append(show_table_html(df))
+    return HTML("".join(html))
+
+
+def show_table_html(df, cap="", cols=1):
+    template = """
+       <div style='display:inline-block; vertical-align: bottom;'>
+            <i style='font-size: 0.8em;'>{caption}</i>
+            <div style='column-count: {cols}; padding-right:25px;'>
+                {table_html}
+            </div>
+        </div>
+    """
+    return template.format(
+        table_html=df.to_html(), caption=cap, cols=cols
+    )
 
 
 def show_list(lst, cap=None):
